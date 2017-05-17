@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Jerry.Models.Pago>
+
+@{
+    ViewBag.Title = "Pagos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Realizar Pago", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.reservacion.Detalles)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.cantidad)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.fechaPago)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.reservacion.Detalles)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.cantidad)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.fechaPago)
+        </td>
+        <td>
+            @Html.ActionLink("Editar", "Edit", new { id=item.pagoID }) |
+            @Html.ActionLink("Detalles", "Details", new { id=item.pagoID }) |
+            @Html.ActionLink("Borrar", "Delete", new { id=item.pagoID })
+        </td>
+    </tr>
+}
+
+</table>

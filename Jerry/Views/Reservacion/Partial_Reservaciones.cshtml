@@ -1,0 +1,53 @@
+﻿@model <Jerry.ViewModels.ReservacionesViewModel>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.cliente.nombre)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.salon.nombre)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.fechaReservacion)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.fechaEventoInicial)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.fechaEventoFinal)
+        </th>
+
+        <th>
+            @Html.DisplayNameFor(model => model.Detalles)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.cliente.nombre)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.salon.nombre)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.fechaReservacion)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.fechaEventoInicial)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.fechaEventoFinal)
+        </td>
+
+        <td>
+            @Html.DisplayFor(modelItem => item.Detalles)
+        </td>
+
+    </tr>
+}
+
+</table>

@@ -1,0 +1,49 @@
+﻿
+#confirmBox
+{
+    display: none;
+    background-color: #eee;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    position: fixed;
+    width: 300px;
+    left: 50%;
+    margin-left: -150px;
+    padding: 6px 8px 8px;
+    box-sizing: border-box;
+    text-align: center;
+}
+#confirmBox button {
+    background-color: #ccc;
+    display: inline-block;
+    border-radius: 3px;
+    border: 1px solid #aaa;
+    padding: 2px;
+    text-align: center;
+    width: 80px;
+    cursor: pointer;
+}
+#confirmBox button:hover
+{
+    background-color: #ddd;
+}
+#confirmBox .message
+{
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+#registerLink{
+    color:#C90000 !important;
+    font-size:150%;
+}
+#loginLink{
+    color:#C90000 !important;
+    text-align:center;
+    font-size:150%;
+}
+#logoutForm {
+    color:#C90000 !important;
+    text-align:center;
+    font-size:150%;
+}

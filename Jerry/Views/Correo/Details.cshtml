@@ -1,0 +1,59 @@
+﻿@model Jerry.Models.Correo
+
+@{
+    ViewBag.Title = "Configuración";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Configuración del Correo Electronico</h2>
+
+<div>
+    <h4>Correo</h4>
+    <hr />
+    <dl class="dl-horizontal">
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Subject)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Subject)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Body)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Body)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.correoAdmin)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.correoAdmin)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.smtpHost)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.smtpHost)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.puertoCorreo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.puertoCorreo)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.correoID })
+</p>

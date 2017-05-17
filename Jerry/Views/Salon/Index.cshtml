@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Jerry.Models.Salon>
+
+@{
+    ViewBag.Title = "Salones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Salones</h2>
+
+<p>
+    @Html.ActionLink("Nuevo Salon", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.nombre)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.detalles)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.nombre)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.detalles)
+        </td>
+        <td>
+            @Html.ActionLink("Editar", "Edit", new { id=item.salonID }) |
+            @Html.ActionLink("Detalles", "Details", new { id=item.salonID }) |
+            @Html.ActionLink("Borrar", "Delete", new { id=item.salonID })
+        </td>
+    </tr>
+}
+
+</table>

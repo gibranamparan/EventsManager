@@ -1,0 +1,35 @@
+﻿@model Jerry.Models.Salon
+
+@{
+    ViewBag.Title = "Detalles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Detelles</h2>
+
+<div>
+    <h4>Salon</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.nombre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.detalles)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.detalles)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.salonID }) |
+    @Html.ActionLink("Regresar", "Index")
+</p>

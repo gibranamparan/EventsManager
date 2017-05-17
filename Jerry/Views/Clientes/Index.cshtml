@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Jerry.Models.Cliente>
+
+@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Clientes</h2>
+
+<p>
+    @Html.ActionLink("Nuevo Cliente", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.nombre)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.apellidoP)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.apellidoM)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.telefono)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.nombre)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.apellidoP)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.apellidoM)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.telefono)
+        </td>
+        <td>
+            @Html.ActionLink("Editar", "Edit", new { id=item.clienteID }) |
+            @Html.ActionLink("Detalles", "Details", new { id=item.clienteID }) |
+            @Html.ActionLink("Borrar", "Delete", new { id=item.clienteID })|
+            @Html.ActionLink("Reservar", "CreateReservacion","Reservacion", new { id = item.clienteID },"")
+        </td>
+    </tr>
+}
+
+</table>

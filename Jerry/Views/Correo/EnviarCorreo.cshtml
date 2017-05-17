@@ -1,0 +1,67 @@
+﻿
+@model Jerry.Models.Correo
+@{
+    ViewBag.Title = "EnviarCorreo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>EnviarCorreo</h2>
+
+<script src="~/Scripts/jquery-1.7.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        if ('@ViewBag.Message' == 'Sent') {
+            alert('Mail has been sent successfully');
+        }
+    });
+</script>
+<h2>Index</h2>
+<fieldset>
+    <legend>
+        Send Email
+    </legend>
+    @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
+    {
+        @Html.ValidationSummary()
+        <input type="submit" value="Send" />
+
+        <table>
+            <tr>
+                <td>
+                    To:
+                </td>
+                <td>
+                    @*@Html.TextBoxFor(m => m.To)*@
+                    @Html.TextBox("To")
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Subject:
+                </td>
+                <td>
+                    @*@Html.TextBoxFor(m => m.Subject)*@
+                    @Html.TextBox("Subject")
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Attachment
+                </td>
+                <td>
+                    <input type="file" name="fileUploader" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Body:
+                </td>
+                <td>
+                    @*@Html.TextAreaFor(m => m.Body)*@
+
+                    @Html.TextBox("Body")
+                </td>
+            </tr>
+        </table>
+    }
+</fieldset>
