@@ -33,7 +33,7 @@ namespace Jerry.Controllers
         public async Task<ActionResult> Details(int? id, string errorMsg = null)
         {
             Pago pago = new Pago();
-            decimal pagado;
+            
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
