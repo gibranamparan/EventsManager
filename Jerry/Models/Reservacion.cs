@@ -51,7 +51,24 @@ namespace Jerry.Models
         //Una reservacion puede tener muchos pagos asociados a ella.
         virtual public ICollection<Pago> pagos { get; set; }
 
-        
+        [Display(Name = "Faltante")]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
+        public decimal cantidadFaltante { get {
+                decimal cantidadFaltante = this.costo - this.cantidadPagada;
+                return cantidadFaltante;
+            } }
+
+        [Display(Name = "Pagado")]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
+        public decimal cantidadPagada
+        {
+            get
+            {
+                decimal pagado = this.pagos.Select(c => c.cantidad).Sum();
+                return pagado;
+            }
+        }
+
         public static bool validarFecha(Reservacion reservacion)
         {
             ApplicationDbContext db = new ApplicationDbContext();

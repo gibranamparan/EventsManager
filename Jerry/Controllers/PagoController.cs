@@ -53,7 +53,7 @@ namespace Jerry.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "pagoID,reservacionID,cantidad,fechaPago")] Pago pago)
+        public async Task<ActionResult> Create([Bind(Include = "reservacionID,cantidad,fechaPago")] Pago pago)
         {
             if (ModelState.IsValid)
             {
@@ -63,7 +63,7 @@ namespace Jerry.Controllers
             }
 
             ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.reservacionID);
-            return View(pago);
+            return RedirectToAction("Details", "Reservacion", new { id = pago.reservacionID, errorMsg = "Verifique la información introducida"});
         }
 
         // GET: Pago/Edit/5

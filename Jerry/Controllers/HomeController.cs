@@ -11,7 +11,7 @@ namespace Jerry.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index","Reservacion");
         }
 
         public ActionResult About()

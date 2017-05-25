@@ -1,0 +1,40 @@
+﻿@model Jerry.Models.Pago
+@{ 
+    Model.fechaPago = DateTime.Today;
+    string errorMsg = "";
+    decimal faltante = (decimal)ViewData["faltante"];
+    if (ViewData["errorMsg"] != null)
+    {
+        errorMsg = (string)ViewData["errorMsg"];
+    }
+
+}
+
+@using (Html.BeginForm("Create","Pago", FormMethod.Post, new { @class = "form-inline" }))
+{
+    @Html.AntiForgeryToken() 
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.Hidden("reservacionID")
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.cantidad)
+        @Html.EditorFor(model => model.cantidad, new { htmlAttributes = new { @class = "form-control", data_mask = "###0.00", data_mask_reverse = "true", max =  faltante } })
+        @Html.ValidationMessageFor(model => model.cantidad, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.fechaPago)
+        @Html.EditorFor(model => model.fechaPago, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.fechaPago, "", new { @class = "text-danger" })
+    </div>
+
+    <input type="submit" value="Pagar" class="btn btn-success" />
+    if (!string.IsNullOrEmpty(errorMsg))
+    {
+        <span class="field-validation-valid text-danger">@errorMsg</span>
+    }
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -5,69 +5,77 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Clientes</h2>
-
 <p>
     <a href="@Url.Action("Create")">
         <i class="glyphicon glyphicon-plus-sign"></i> Nuevo Cliente
     </a>
 </p>
-<table class="table table-hover table-striped datatable">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.apellidoP)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.apellidoM)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.telefono)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.nombre)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.apellidoP)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.apellidoM)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.telefono)
-                </td>
-                <td>
-                    <a href="@Url.Action("Details", new { id = item.clienteID })">
-                        <i class="fa fa-list-alt"></i> Detalle
-                    </a> |
-                    <a href="@Url.Action("Edit", new { id = item.clienteID })">
-                        <i class="fa fa-pencil-square-o"></i> Editar
-                    </a> |
-                    <a href="@Url.Action("Delete", new { id = item.clienteID })">
-                        <i class="glyphicon glyphicon-remove"></i> Borrar
-                    </a> |
-                    <a href="@Url.Action("CreateReservacion","Reservacion", new { id = item.clienteID })">
-                        <i class="fa fa-calendar"></i> Reservar
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-
-</table>
+<br />
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <span class="panel-title">
+            Lista de Clientes
+        </span>
+    </div>
+    <div class="panel-body">
+        <table class="table table-hover table-striped datatable">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.nombre)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.apellidoP)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.apellidoM)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.telefono)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.nombre)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.apellidoP)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.apellidoM)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.telefono)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Details", new { id = item.clienteID })">
+                                <i class="fa fa-list-alt"></i> Detalle
+                            </a> |
+                            <a href="@Url.Action("Edit", new { id = item.clienteID })">
+                                <i class="fa fa-pencil-square-o"></i> Editar
+                            </a> |
+                            <a href="@Url.Action("Delete", new { id = item.clienteID })">
+                                <i class="glyphicon glyphicon-remove"></i> Borrar
+                            </a> |
+                            <a href="@Url.Action("CreateReservacion","Reservacion", new { id = item.clienteID })">
+                                <i class="fa fa-calendar"></i> Reservar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+        
