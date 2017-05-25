@@ -63,22 +63,22 @@ namespace Jerry.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<ActionResult> Create([Bind(Include = "reservacionID,fechaReservacion,fechaEventoInicial,fechaEventoFinal,costo,Detalles,salonID,clienteID")] Reservacion reservacion)
+        public async Task<ActionResult> Create([Bind(Include = "reservacionID,fechaReservacion,fechaEventoInicial,"+
+            "fechaEventoFinal,costo,Detalles,salonID,clienteID")] Reservacion reservacion)
         {
 
             if (ModelState.IsValid && Reservacion.validarFecha(reservacion))
             {
                 db.reservaciones.Add(reservacion);
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Clientes", new { id = reservacion.clienteID });
             }
-
 
             //ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", reservacion.clienteID);
             ViewBag.id = reservacion.clienteID;
             ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre", reservacion.salonID);
             //return View(reservacion);
-            return RedirectToAction("CreateReservacion", new { id = reservacion.clienteID });
+            return RedirectToAction("Details","Clientes", new { id = reservacion.clienteID });
         }
 
         // GET: Reservacion/Edit/5

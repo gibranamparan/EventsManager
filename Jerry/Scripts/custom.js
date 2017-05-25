@@ -216,3 +216,7 @@
     })
 
 }(jQuery));
+
+function changeIcon(bar) {
+    $(bar).find("i").toggleClass("fa-window-minimize fa-window-maximize")
+}

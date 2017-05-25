@@ -1,29 +1,27 @@
-﻿@model Jerry.Models.Reservacion
-
-
-@{
-    ViewBag.Title = "CreateReservacion";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    List<Jerry.ViewModels.ReservacionesViewModel> res=new List<Jerry.ViewModels.ReservacionesViewModel>();
-    Jerry.ViewModels.ReservacionesViewModel vista = new Jerry.ViewModels.ReservacionesViewModel();
-
+﻿@using Jerry.Models
+@model Jerry.Models.Reservacion
+@{ 
+    Model.fechaReservacion = DateTime.Now;
+    Model.fechaEventoInicial = DateTime.Now.AddMonths(1);
+    Model.fechaEventoFinal = Model.fechaEventoInicial.AddDays(1);
 }
-
 @using (Html.BeginForm("create", "Reservacion"))
 {
     @Html.AntiForgeryToken()
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
+    <div class="panel panel-primary">
+        <div class="panel-heading" onclick="changeIcon(this)"
+             data-toggle="collapse" data-target="#reservasTable">
             <span class="panel-title">
                 Crear Reservación
             </span>
+            <i class="pull-right fa fa-window-minimize"></i>
         </div>
-        <div class="panel-body">
+        <div class="panel-body collapse" id="reservasTable">
             <div class="form-horizontal">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.Hidden("clienteID")
-                @Html.Hidden("fechaReservacion", DateTime.Now)
+                @Html.HiddenFor(model=>model.clienteID)
+                @Html.HiddenFor(model => model.fechaReservacion)
 
                 <div class="form-group">
                     @Html.LabelFor(model => model.fechaEventoInicial, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -60,9 +58,9 @@
                 </div>
 
                 <div class="form-group">
-                    @Html.LabelFor(model => model.salonID, "salonID", htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.LabelFor(model => model.salonID, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
-                        @Html.DropDownList("salonID", null, htmlAttributes: new { @class = "form-control" })
+                        @Html.DropDownList("salonID", Salon.getSalonesSelectList(), htmlAttributes: new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.salonID, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -76,59 +74,7 @@
         </div>
     </div>      
 }
-        @*@Html.Partial("Partial_Reservaciones")*@
-
-        <br />
-        <br />
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <span class="panel-title">
-            Reservaciones del Cliente
-        </span>
-    </div>
-    <div class="panel-body">
-        <table class="table table-hover table-striped datatable" id="tablaCargada">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(r => vista.nombre)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(r => vista.nombreSalon)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(r => vista.fechaEventoInicial)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(r => vista.fechaEventoFinal)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(r => vista.Detalles)
-                    </th>
-
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var item in res)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(R => item.nombre)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(R => item.nombreSalon)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(R => item.fechaEventoInicial)
-                        </td>
-
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+   
         
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

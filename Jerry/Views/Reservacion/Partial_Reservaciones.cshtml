@@ -12,13 +12,23 @@
             <th>
                 @Html.DisplayNameFor(model => model.fechaEventoInicial)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.fechaEventoFinal)
             </th>
 
             <th>
+                @Html.DisplayNameFor(model => model.costo)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.cantidadFaltante)
+            </th>
+
+            <th>
                 @Html.DisplayNameFor(model => model.Detalles)
             </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -42,7 +52,20 @@
                 </td>
 
                 <td>
+                    @Html.DisplayFor(model => item.costo)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(model => item.cantidadFaltante)
+                </td>
+
+                <td>
                     @Html.DisplayFor(modelItem => item.Detalles)
+                </td>
+                <td>
+                    <a href="@Url.Action("Reservacion","Details", new { id = item.reservacionID })">
+                        <i class="fa fa-list-alt"></i> Detalle
+                    </a>
                 </td>
             </tr>
         }
