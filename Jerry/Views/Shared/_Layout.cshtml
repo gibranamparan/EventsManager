@@ -3,7 +3,7 @@
 <head>
     @*<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">*@
-    <title>@ViewBag.Title - Sistema de control Jerry</title>
+    <title>@ViewBag.Title - Sistema de control Quintaventura</title>
     @*@Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")*@
     <meta charset="utf-8" />
@@ -73,8 +73,6 @@
                             @Html.ActionLink(" Configuración", "Details", "Correo", new { id = 1 }, new { @class = "fa fa-envelope fa-2x" })
                         </li>
                     }
-                    
-
                 </ul>
 
             </div>
@@ -92,11 +90,11 @@
         </div>
     </div>
             
-            @Scripts.Render("~/bundles/jquery")
-            @Scripts.Render("~/bundles/template")
-            @Scripts.Render("~/bundles/modernizr")
-            @Scripts.Render("~/bundles/bootstrap")
-            @RenderSection("scripts", required: false)
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/template")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
 
 </body>
 </html>

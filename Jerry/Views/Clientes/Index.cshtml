@@ -60,16 +60,13 @@
                         </td>
                         <td>
                             <a href="@Url.Action("Details", new { id = item.clienteID })">
-                                <i class="fa fa-list-alt"></i> Detalle
+                                <i class="fa fa-list-alt"></i> Reservaciones
                             </a> <br />
                             <a href="@Url.Action("Edit", new { id = item.clienteID })">
                                 <i class="fa fa-pencil-square-o"></i> Editar
                             </a> <br />
                             <a href="@Url.Action("Delete", new { id = item.clienteID })">
                                 <i class="glyphicon glyphicon-remove"></i> Borrar
-                            </a> <br />
-                            <a href="@Url.Action("CreateReservacion","Reservacion", new { id = item.clienteID })">
-                                <i class="fa fa-calendar"></i> Reservar
                             </a>
                         </td>
                     </tr>
