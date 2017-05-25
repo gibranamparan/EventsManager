@@ -16,7 +16,7 @@ namespace Jerry.Models
         public string nombre { get; set; }
 
         [Required]
-        [Display(Name ="Detalles")]
+        [Display(Name ="Descripción")]
         public string detalles { get; set; }
 
         //Un salon puede tener una coleccion de reservaciones, es decir, puede tener varias reservaciones

@@ -23,6 +23,10 @@ namespace Jerry.Models
         [Display(Name ="Apellido Materno")]
         public string apellidoM { get; set; }
 
+        [Display(Name = "Nombre")]
+        public string nombreCompleto { get { return String.Format("{0} {1} {2}", 
+            this.nombre, this.apellidoP, this.apellidoM); } }
+
         [Required]
         [Display(Name ="Email")]
         public string email { get; set; }

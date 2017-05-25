@@ -7,53 +7,61 @@
 
 <h2>Configuración del Correo Electronico</h2>
 
-<div>
-    <h4>Correo</h4>
-    <hr />
-    <dl class="dl-horizontal">
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Correo</h3>
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Subject)
-        </dt>
+            <dt>
+                @Html.DisplayNameFor(model => model.Subject)
+            </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.Subject)
-        </dd>
+            <dd>
+                @Html.DisplayFor(model => model.Subject)
+            </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Body)
-        </dt>
+            <dt>
+                @Html.DisplayNameFor(model => model.Body)
+            </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.Body)
-        </dd>
+            <dd>
+                @Html.DisplayFor(model => model.Body)
+            </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.correoAdmin)
-        </dt>
+            <dt>
+                @Html.DisplayNameFor(model => model.correoAdmin)
+            </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.correoAdmin)
-        </dd>
+            <dd>
+                @Html.DisplayFor(model => model.correoAdmin)
+            </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.smtpHost)
-        </dt>
+            <dt>
+                @Html.DisplayNameFor(model => model.smtpHost)
+            </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.smtpHost)
-        </dd>
+            <dd>
+                @Html.DisplayFor(model => model.smtpHost)
+            </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.puertoCorreo)
-        </dt>
+            <dt>
+                @Html.DisplayNameFor(model => model.puertoCorreo)
+            </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.puertoCorreo)
-        </dd>
+            <dd>
+                @Html.DisplayFor(model => model.puertoCorreo)
+            </dd>
 
-    </dl>
+        </dl>
+    </div>
 </div>
 <p>
-    @Html.ActionLink("Editar", "Edit", new { id = Model.correoID })
+    <a href="@Url.Action("Edit", new { id = Model.correoID})">
+        <i class="fa fa-pencil"></i>Editar
+    </a> | 
+    <a href="@Url.Action("index","Salon")">
+        <i class="glyphicon glyphicon-list-alt"></i>Salones
+    </a>
 </p>

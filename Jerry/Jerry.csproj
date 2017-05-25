@@ -363,7 +363,7 @@
     <Content Include="Views\Pago\Details.cshtml" />
     <Content Include="Views\Pago\Edit.cshtml" />
     <Content Include="Views\Pago\Index.cshtml" />
-    <Content Include="Views\Reservacion\CreateReservacion.cshtml" />
+    <Content Include="Views\Reservacion\Partial_CreateReservacion.cshtml" />
     <Content Include="Views\Pago\Partial_DetallesDePagos.cshtml" />
     <Content Include="Views\Correo\Create.cshtml" />
     <Content Include="Views\Correo\Delete.cshtml" />

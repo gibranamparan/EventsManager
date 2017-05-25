@@ -8,33 +8,53 @@
 <h2>Salones</h2>
 
 <p>
-    @Html.ActionLink("Nuevo Salon", "Create")
+    <a href="@Url.Action("Create")">
+        <i class="fa fa-plus-circle"></i><span>Nuevo Salón</span>
+    </a>
 </p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.detalles)
-        </th>
-        <th></th>
-    </tr>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Salones</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-hover table-striped ">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.nombre)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.detalles)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.nombre)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.detalles)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Edit", new { id = item.salonID })">
+                                <i class="fa fa-pencil"></i><span>Editar</span>
+                            </a> |
+                            <a href="@Url.Action("Details", new { id = item.salonID })">
+                                <i class="fa fa-list-alt"></i><span>Detalles</span>
+                            </a> |
+                            <a href="@Url.Action("Delete", new { id = item.salonID })">
+                                <i class="glyphicon glyphicon-remove"></i><span>Borrar</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.nombre)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.detalles)
-        </td>
-        <td>
-            @Html.ActionLink("Editar", "Edit", new { id=item.salonID }) |
-            @Html.ActionLink("Detalles", "Details", new { id=item.salonID }) |
-            @Html.ActionLink("Borrar", "Delete", new { id=item.salonID })
-        </td>
-    </tr>
-}
+        </table>
+    </div>
+</div>
 
-</table>

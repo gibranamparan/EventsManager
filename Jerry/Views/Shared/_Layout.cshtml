@@ -96,11 +96,11 @@
         <div id="page-wrapper">
             <div class="container body-content">
                 @RenderBody()
-                <hr />
-                <footer>
-                    <p>&copy; @DateTime.Now.Year - @Html.RouteLink("netcode", new { }, new { href = "http://netcodesolutions.net/" }) </p>
-                </footer>
             </div>
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - Dev. By @Html.RouteLink("Netcode", new { }, new { href = "http://netcodesolutions.net/" }) </p>
+            </footer>
         </div>
     </div>
 

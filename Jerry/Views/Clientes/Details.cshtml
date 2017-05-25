@@ -5,7 +5,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Detalles</h2>
+<div class="col-md-12">
+    <p>
+        <a href="@Url.Action("Edit", new { id = Model.clienteID })">
+            <i class="fa fa-pencil-square-o"></i> Editar
+        </a> |
+        <a href="@Url.Action("Index")">
+            <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Clientes
+        </a>
+    </p>
+</div>
 
 <div class="panel panel-info">
     <div class="panel-heading">
@@ -14,63 +23,26 @@
         </span>
     </div>
     <div class="panel-body">
-        <div>
-            <hr />
-            <dl class="dl-horizontal col-md-4">
-                <dt>
-                    @Html.DisplayNameFor(model => model.nombre)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.nombre)
-                </dd>
-            </dl>
-            <dl class="dl-horizontal col-md-4">
-                <dt>
-                    @Html.DisplayNameFor(model => model.apellidoP)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.apellidoP)
-                </dd>
-            </dl>
-            <dl class="dl-horizontal col-md-4">
-                <dt>
-                    @Html.DisplayNameFor(model => model.apellidoM)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.apellidoM)
-                </dd>                
-            </dl>
-            <dl class="dl-horizontal col-md-4">
-                <dt>
-                    @Html.DisplayNameFor(model => model.email)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.email)
-                </dd>
-            </dl>
-            <dl class="dl-horizontal col-md-4">
-                <dt>
-                    @Html.DisplayNameFor(model => model.telefono)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.telefono)
-                </dd>
-            </dl>
-</div>
-    </div>
-    <div class="col-md-12">
-        <p>
-            <a href="@Url.Action("Edit", new { id = Model.clienteID })">
-                <i class="fa fa-pencil-square-o"></i> Editar
-            </a> |
-            <a href="@Url.Action("Index")">
-                <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Clientes
-            </a>
-        </p>
+        <hr />
+        <div class="form-group col-md-4">
+            @Html.LabelFor(model => model.nombre, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                <p class="form-control-static">@Html.DisplayFor(model => model.nombreCompleto)</p>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            @Html.LabelFor(model => model.nombre, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                <p class="form-control-static">@Html.DisplayFor(model => model.telefono)</p>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            @Html.LabelFor(model => model.nombre, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                <p class="form-control-static">@Html.DisplayFor(model => model.email)</p>
+            </div>
+        </div>
     </div>
 </div>
+
+@Html.Partial("../Reservacion/Partial_Reservaciones", Model.reservaciones)

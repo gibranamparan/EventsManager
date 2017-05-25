@@ -28,14 +28,16 @@ namespace Jerry.Models
 
         [Required]
         [Display(Name ="Costo")]
-        [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
         public decimal costo { get; set; }
 
         [Required]
-        [Display(Name ="Detalles")]
+        [Display(Name ="Descripción")]
         public string Detalles { get; set; }
 
         [Required]
+        [Display(Name ="Salón")]
         public int salonID { get; set; }
         //Una reservacion es unicamente a un salon
         virtual public Salon salon { get; set; }

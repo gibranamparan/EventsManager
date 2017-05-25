@@ -15,8 +15,6 @@ namespace Jerry.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-
-
         // GET: Reservacion}
         [Authorize]
         public async Task<ActionResult> Index()
