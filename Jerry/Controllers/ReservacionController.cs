@@ -21,7 +21,10 @@ namespace Jerry.Controllers
         [Authorize]
         public async Task<ActionResult> Index()
         {
-            var reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon);
+            //var reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).OrderBy(r => r.fechaReservacion);
+            DateTime hoyMasMes = DateTime.Today.AddMonths(1);
+            var reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= DateTime.Today &&
+            r.fechaEventoInicial <= hoyMasMes).OrderByDescending(r => r.fechaEventoInicial);
             return View(await reservaciones.ToListAsync());
         }
 

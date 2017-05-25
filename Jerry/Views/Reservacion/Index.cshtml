@@ -7,62 +7,74 @@
 
 <h2>Reservaciones</h2>
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.cliente.nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.salon.nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.fechaReservacion)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.fechaEventoInicial)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.fechaEventoFinal)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.costo)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Detalles)
-        </th>
-        <th></th>
-    </tr>
+<table class="table table-hover table-striped datatable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.cliente.nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.salon.nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fechaReservacion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fechaEventoInicial)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fechaEventoFinal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.costo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Detalles)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string nombreCompleto = item.cliente.nombre + " " + item.cliente.apellidoP + " " + item.cliente.apellidoM;
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.cliente.nombre) @Html.DisplayFor(modelItem => item.cliente.apellidoP) @Html.DisplayFor(modelItem => item.cliente.apellidoM)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.salon.nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.fechaReservacion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.fechaEventoInicial)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.fechaEventoFinal)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.costo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Detalles)
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", new { id = item.reservacionID })">
+                        <i class="fa fa-list-alt"></i> Detalle
+                    </a> |
+                    <a href="@Url.Action("Edit", new { id = item.reservacionID })">
+                        <i class="fa fa-pencil-square-o"></i> Editar
+                    </a> |
+                    <a href="@Url.Action("Delete", new { id = item.reservacionID })">
+                        <i class="glyphicon glyphicon-remove"></i> Borrar
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
 
-@foreach (var item in Model) {
-    string nombreCompleto = item.cliente.nombre + " " + item.cliente.apellidoP + " " + item.cliente.apellidoM;
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.cliente.nombre) @Html.DisplayFor(modelItem => item.cliente.apellidoP) @Html.DisplayFor(modelItem => item.cliente.apellidoM)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.salon.nombre)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.fechaReservacion)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.fechaEventoInicial)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.fechaEventoFinal)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.costo)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Detalles)
-        </td>
-        <td>
-            @Html.ActionLink("Editar", "Edit", new { id=item.reservacionID }) |
-            @Html.ActionLink("Detalles", "Details", new { id=item.reservacionID }) |
-            @Html.ActionLink("Borrar", "Delete", new { id=item.reservacionID })
-        </td>
-    </tr>
-}
 
 </table>

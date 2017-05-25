@@ -2,34 +2,43 @@
 
 <h3>Pagos Realizados</h3>
 <p>
-    <table class="table">
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().cantidad)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().fechaPago)
-            </th>
-            <th></th>
-        </tr>
-
-        @foreach (var item in Model.pagos)
-        {
+    <table class="table table-hover table-striped datatable">
+        <thead>
             <tr>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.cantidad)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.fechaPago)
-                </td>
-                <td class="hidden-print">
-                    @*@Html.ActionLink("Edit", "Edit","Pago" ,new { id=item.pagoID },"") |
-                        @Html.ActionLink("Details", "Details", "Pago", new { id=item.pagoID },"")*@ |
-                    @Html.ActionLink("Delete", "Delete", "Pago", new { id = item.pagoID }, "")
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().cantidad)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().fechaPago)
+                </th>
+                <th></th>
             </tr>
-        }
+        </thead>
+        <tbody>
+            @foreach (var item in Model.pagos)
+            {
+                <tr>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.cantidad)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.fechaPago)
+                    </td>
+                    <td class="hidden-print">
+                        @*@Html.ActionLink("Edit", "Edit","Pago" ,new { id=item.pagoID },"") |
+                            @Html.ActionLink("Details", "Details", "Pago", new { id=item.pagoID },"")*@
+                        @*@Html.ActionLink("Delete", "Delete", "Pago", new { id = item.pagoID }, new { @class = "btn btn-danger" })*@
+                        
+                        <a href="@Url.Action("Delete","Pago", new { id = item.pagoID })">
+                            <i class="glyphicon glyphicon-remove"></i> Borrar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+        
 
     </table>
 </p>
