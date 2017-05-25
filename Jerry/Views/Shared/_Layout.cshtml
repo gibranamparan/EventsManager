@@ -23,10 +23,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @*<a class="navbar-brand" href="~/Views/Home/Index.cshtml">Binary admin</a>*@               
-                   <ul class="navbar-brand">
-                        <li>@Html.ActionLink("Inicio", "Index", "Home","",new { style="color:white"})</li>
-                   </ul>
+                         
+                <ul class="navbar-brand">
+                    <li class="text-center">
+                    <a href="@Url.Action("Index","Home", new { style = "color:white" })">
+                        <img src="~/Images/logo.png" />
+                    </a>
+                    </li>
+                </ul>
             </div>
             <div class="navbar-collapse collapse" >
                 @*Bienvenido &nbsp;@Html.ActionLink("Login", "Login", "Account", "", htmlAttributes: new { @class = "btn btn-danger square-btn-adjust" })*@
@@ -39,7 +43,7 @@
             <div class="sidebar-collapse">
                 <ul class="nav" id="main-menu">
                     <li class="text-center">
-                        <img src="~/Images/logo.png" class="user-image img-responsive" />
+                        @*<img src="~/Images/logo.png" class="user-image img-responsive"/>*@
                     </li>
 
                     @if (User.IsInRole("Estandar") || User.IsInRole("Administrador"))
