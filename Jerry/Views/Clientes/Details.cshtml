@@ -7,53 +7,70 @@
 
 <h2>Detalles</h2>
 
-<div>
-    <h4>Cliente</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.nombre)
-        </dt>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <span class="panel-title">
+            Información del Cliente
+        </span>
+    </div>
+    <div class="panel-body">
+        <div>
+            <hr />
+            <dl class="dl-horizontal col-md-4">
+                <dt>
+                    @Html.DisplayNameFor(model => model.nombre)
+                </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.nombre)
-        </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.nombre)
+                </dd>
+            </dl>
+            <dl class="dl-horizontal col-md-4">
+                <dt>
+                    @Html.DisplayNameFor(model => model.apellidoP)
+                </dt>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.apellidoP)
-        </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.apellidoP)
+                </dd>
+            </dl>
+            <dl class="dl-horizontal col-md-4">
+                <dt>
+                    @Html.DisplayNameFor(model => model.apellidoM)
+                </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.apellidoP)
-        </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.apellidoM)
+                </dd>                
+            </dl>
+            <dl class="dl-horizontal col-md-4">
+                <dt>
+                    @Html.DisplayNameFor(model => model.email)
+                </dt>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.apellidoM)
-        </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.email)
+                </dd>
+            </dl>
+            <dl class="dl-horizontal col-md-4">
+                <dt>
+                    @Html.DisplayNameFor(model => model.telefono)
+                </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.apellidoM)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.email)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.email)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.telefono)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.telefono)
-        </dd>
-
-    </dl>
+                <dd>
+                    @Html.DisplayFor(model => model.telefono)
+                </dd>
+            </dl>
 </div>
-<p>
-    @Html.ActionLink("Editar", "Edit", new { id = Model.clienteID }) |
-    @Html.ActionLink("Regresar", "Index")
-</p>
+    </div>
+    <div class="col-md-12">
+        <p>
+            <a href="@Url.Action("Edit", new { id = Model.clienteID })">
+                <i class="fa fa-pencil-square-o"></i> Editar
+            </a> |
+            <a href="@Url.Action("Index")">
+                <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Clientes
+            </a>
+        </p>
+    </div>
+</div>
