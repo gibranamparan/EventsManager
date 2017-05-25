@@ -372,6 +372,7 @@
     <Content Include="Views\Correo\Index.cshtml" />
     <Content Include="Views\Correo\Edit.cshtml" />
     <Content Include="Views\Correo\Details.cshtml" />
+    <Content Include="Views\Reservacion\Partial_IngresarPago.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

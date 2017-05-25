@@ -30,17 +30,17 @@ namespace Jerry.Controllers
 
         // GET: Reservacion/Details/5
         [Authorize]
-        public async Task<ActionResult> Details(int? id)
+        public async Task<ActionResult> Details(int? id, string errorMsg = null)
         {
+            Pago pago = new Pago();
             decimal pagado;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Reservacion reservacion = await db.reservaciones.FindAsync(id);
-            pagado = reservacion.pagos.Select(c => c.cantidad).Sum();
-            ViewBag.faltante = String.Format("{0:C}", reservacion.costo - pagado);
-            ViewBag.cantidadPagada = String.Format("{0:C}", pagado);
+            
+            ViewBag.errorMsg = errorMsg;
 
             if (reservacion == null)
             {

@@ -6,145 +6,149 @@
 
     Jerry.Models.Correo correo = new Jerry.Models.Correo();
     Jerry.Models.Pago p = new Jerry.Models.Pago();
+    p.reservacionID = Model.reservacionID;
     correo.To = Model.cliente.email;
+    ViewDataDictionary vdd = new ViewDataDictionary();
+    if (ViewBag.errorMsg != null)
+    {
+        vdd.Add("errorMsg", ViewBag.errorMsg);
+    }
+    vdd.Add("faltante", Model.cantidadFaltante);
 }
 <h2>Detalles</h2>
 
-<div class="row">
-    <div class="col-xs-6">
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.cliente.nombre)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.cliente.nombre) @Html.DisplayFor(model => model.cliente.apellidoP) @Html.DisplayFor(model => model.cliente.apellidoM)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.salon.nombre)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.salon.nombre)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.Detalles)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.Detalles)
-            </dd>
-
-            <dt>
-                Fecha del evento
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.fechaEventoInicial)
-            </dd>
-            </dl>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <span class="panel-title">
+            Información pagos de Reservaciones
+        </span>
     </div>
-    <div class="col-xs-6">
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.costo)
-            </dt>
+    <div class="panel-body">
+        <div>
+            <hr />
+            <div class="row">
+                <div class="col-xs-6">
+                    <dl class="dl-horizontal">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.cliente.nombre)
+                        </dt>
 
-            <dd>
-                @Html.DisplayFor(model => model.costo)
-            </dd>
-            <dt>
-                @Html.Label("Cantidad Pagada")
-            </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.cliente.nombre) @Html.DisplayFor(model => model.cliente.apellidoP) @Html.DisplayFor(model => model.cliente.apellidoM)
+                        </dd>
 
-            <dd>
-                @Html.Display("cantidadPagada")
-            </dd>
-            <dt>
-                @Html.Label("Cantidad Faltante")
-            </dt>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.salon.nombre)
+                        </dt>
 
-            <dd>
-                @Html.Display("faltante")
-            </dd>
-        </dl>
+                        <dd>
+                            @Html.DisplayFor(model => model.salon.nombre)
+                        </dd>
 
-    </div>
-</div>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.Detalles)
+                        </dt>
 
+                        <dd>
+                            @Html.DisplayFor(model => model.Detalles)
+                        </dd>
 
-<p class = "hidden-print">
-    @Html.ActionLink("Editar", "Edit", new { id = Model.reservacionID }) |
-    @Html.ActionLink("Regresar", "Index")
-</p>
-<p>
-<div class="hidden-print">
-    @using (Html.BeginForm("create", "Pago"))
-    {
-        @Html.AntiForgeryToken()
+                        <dt>
+                            Fecha del evento
+                        </dt>
 
-        <div class="form-horizontal">
-            @*<h4>Pago</h4>*@
-            @*<hr />*@
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-            @Html.Hidden("reservacionID")
-            @Html.Hidden("fechaPago", DateTime.Now)
-            <div class="form-group">
-                @Html.LabelFor(model => model.pagos.FirstOrDefault().cantidad, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => p.cantidad, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.pagos.FirstOrDefault().cantidad, "", new { @class = "text-danger" })
+                        <dd>
+                            @Html.DisplayFor(model => model.fechaEventoInicial)
+                        </dd>
+                    </dl>
                 </div>
-            </div>
+                <div class="col-xs-6">
+                    <dl class="dl-horizontal">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.costo)
+                        </dt>
 
-            <div>
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Pagar" class="btn btn-success" />
+                        <dd>
+                            @Html.DisplayFor(model => model.costo)
+                        </dd>
+                        <dt>
+                            @Html.LabelFor(model => model.cantidadPagada)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.cantidadPagada)
+                        </dd>
+                        <dt>
+                            @Html.LabelFor(model => model.cantidadFaltante)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.cantidadFaltante)
+                        </dd>
+                    </dl>
+
                 </div>
             </div>
         </div>
-    }
-</div>
-</p>
-
-<p>
-    <div>
-        @Html.Partial("../Pago/Partial_DetallesDePagos")
     </div>
-    <div class="hidden-print" style="display: inline-flex;">
-        <input type="button" class="hidden-print btn btn-primary"
-               onClick="window.print()"
-               value="Print Detalles" />
+    <div class="col-md-12">
+        <p class = "hidden-print">
+            <a href="@Url.Action("Edit", new { id = Model.reservacionID })">
+                <i class="fa fa-pencil-square-o"></i> Editar
+            </a> |
+            <a href="@Url.Action("Index")">
+                <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Reservaciones
+            </a>
+        </p>
     </div>
-</p>
-<div class="hidden-print">
-    @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
-    {
-    @Html.ValidationSummary()
-    @Html.Hidden("To",correo.To)
-
-    <table>
-        <tr>
-            <td>
-                Adjuntar estado de cuenta
-            </td>
-            <td>
-                <input type="file" name="fileUploader" />
-            </td>
-        </tr>
-    </table>
-    <input type="submit" value="Enviar Correo" />
-    }
 </div>
 
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <span class="panel-title">
+            Pagos
+        </span>
+    </div>
 
+    <div class="panel-body">
+        <div class="hidden-print">
+            @Html.Partial("../Reservacion/Partial_IngresarPago", p, vdd)
+        </div>
 
-@section Scripts 
+        <div>
+            @Html.Partial("../Pago/Partial_DetallesDePagos")
+        </div>
+        @*<div class="hidden-print" style="display: inline-flex;">
+            <input type="button" class="hidden-print btn btn-primary"
+                    onClick="window.print()"
+                    value="Print Detalles" />
+        </div>*@
+        @*<div class="hidden-print">
+                @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
+                {
+                    @Html.ValidationSummary()
+                    @Html.Hidden("To", correo.To)
+
+                    <table>
+                        <tr>
+                            <td>
+                                Adjuntar estado de cuenta
+                            </td>
+                            <td>
+                                <input type="file" name="fileUploader" />
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="submit" value="Enviar Correo" />
+                }
+            </div>*@
+
+    </div>
+</div>
+
+    @section Scripts
     {
-        
-    
-    
+
+
+
     }
