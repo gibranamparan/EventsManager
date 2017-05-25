@@ -294,3 +294,5 @@ __pycache__/
 # End of https://www.gitignore.io/api/visualstudio
 /Sonora_HOA/Properties/Settings.Designer.cs
 /Sonora_HOA/Properties/Settings.settings
+
+.vs/Jerry/v14/.suo
