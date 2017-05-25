@@ -50,12 +50,14 @@ namespace Jerry.Models
         virtual public ICollection<Pago> pagos { get; set; }
 
         [Display(Name = "Faltante")]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
         public decimal cantidadFaltante { get {
                 decimal cantidadFaltante = this.costo - this.cantidadPagada;
                 return cantidadFaltante;
             } }
 
         [Display(Name = "Pagado")]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
         public decimal cantidadPagada
         {
             get
