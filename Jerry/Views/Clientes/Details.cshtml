@@ -7,11 +7,8 @@
 
 <div class="col-md-12">
     <p>
-        <a href="@Url.Action("Edit", new { id = Model.clienteID })">
-            <i class="fa fa-pencil-square-o"></i> Editar
-        </a> |
         <a href="@Url.Action("Index")">
-            <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Clientes
+            <i class="glyphicon glyphicon-arrow-left"></i> Regresar a Lista de Clientes
         </a>
     </p>
 </div>
@@ -23,7 +20,6 @@
         </span>
     </div>
     <div class="panel-body">
-        <hr />
         <div class="form-group col-md-4">
             @Html.LabelFor(model => model.nombre, new { @class = "control-label col-md-3" })
             <div class="col-md-9">
@@ -42,6 +38,11 @@
                 <p class="form-control-static">@Html.DisplayFor(model => model.email)</p>
             </div>
         </div>
+
+
+        <a href="@Url.Action("Edit", new { id = Model.clienteID })">
+            <i class="fa fa-pencil-square-o"></i> Editar
+        </a>
     </div>
 </div>
 

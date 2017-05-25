@@ -64,7 +64,10 @@ namespace Jerry.Models
         {
             get
             {
-                decimal pagado = this.pagos.Select(c => c.cantidad).Sum();
+                decimal pagado = 0;
+                if(this.pagos!=null && this.pagos.Count() > 0) { 
+                    pagado = this.pagos.Select(c => c.cantidad).Sum();
+                }
                 return pagado;
             }
         }

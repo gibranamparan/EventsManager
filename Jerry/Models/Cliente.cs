@@ -33,7 +33,7 @@ namespace Jerry.Models
 
         [Required]
         [Display(Name ="Telefono")]
-        public int telefono { get; set; }
+        public string telefono { get; set; }
 
         //Un cliente tiene una coleccion de reservaciones, es decir, puede tener varias reservaciones
         virtual public ICollection<Reservacion> reservaciones { get; set; }

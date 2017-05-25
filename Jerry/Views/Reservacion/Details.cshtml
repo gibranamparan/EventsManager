@@ -102,60 +102,50 @@
         </p>
     </div>
 </div>
-@if (Model.cantidadFaltante != 0)
-{
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Pagos
-            </span>
-        </div>
 
-        <div class="panel-body">
-            <div class="hidden-print">
-                @Html.Partial("../Reservacion/Partial_IngresarPago", p, vdd)
-            </div>
-
-            <div>
-                @Html.Partial("../Pago/Partial_DetallesDePagos")
-            </div>
-            @*<div class="hidden-print" style="display: inline-flex;">
-                    <input type="button" class="hidden-print btn btn-primary"
-                            onClick="window.print()"
-                            value="Print Detalles" />
-                </div>*@
-            @*<div class="hidden-print">
-                    @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
-                    {
-                        @Html.ValidationSummary()
-                        @Html.Hidden("To", correo.To)
-
-                        <table>
-                            <tr>
-                                <td>
-                                    Adjuntar estado de cuenta
-                                </td>
-                                <td>
-                                    <input type="file" name="fileUploader" />
-                                </td>
-                            </tr>
-                        </table>
-                        <input type="submit" value="Enviar Correo" />
-                    }
-                </div>*@
-
-        </div>
-    </div>
-}
-else
+@if (Model.cantidadFaltante == 0)
 {
     <div class="alert alert-success">Esta reservación no presenta adeudos</div>
 }
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <span class="panel-title">
+            Pagos
+        </span>
+    </div>
 
+    <div class="panel-body">
+        <div class="hidden-print">
+            @Html.Partial("../Reservacion/Partial_IngresarPago", p, vdd)
+        </div>
 
-    @section Scripts
-    {
+        <div>
+            @Html.Partial("../Pago/Partial_DetallesDePagos")
+        </div>
+        @*<div class="hidden-print" style="display: inline-flex;">
+                <input type="button" class="hidden-print btn btn-primary"
+                        onClick="window.print()"
+                        value="Print Detalles" />
+            </div>*@
+        @*<div class="hidden-print">
+                @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
+                {
+                    @Html.ValidationSummary()
+                    @Html.Hidden("To", correo.To)
 
+                    <table>
+                        <tr>
+                            <td>
+                                Adjuntar estado de cuenta
+                            </td>
+                            <td>
+                                <input type="file" name="fileUploader" />
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="submit" value="Enviar Correo" />
+                }
+            </div>*@
 
-
-    }
+    </div>
+</div>

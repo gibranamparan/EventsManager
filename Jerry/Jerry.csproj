@@ -190,6 +190,10 @@
     <Compile Include="Migrations\201611280514453_migracionCorreoDatos.Designer.cs">
       <DependentUpon>201611280514453_migracionCorreoDatos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.cs" />
+    <Compile Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.Designer.cs">
+      <DependentUpon>201705251611425_numeroTElefono_to_String_Cliente.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Cliente.cs" />
@@ -393,6 +397,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201611280514453_migracionCorreoDatos.resx">
       <DependentUpon>201611280514453_migracionCorreoDatos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.resx">
+      <DependentUpon>201705251611425_numeroTElefono_to_String_Cliente.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

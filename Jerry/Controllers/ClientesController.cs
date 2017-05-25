@@ -91,7 +91,7 @@ namespace Jerry.Controllers
             {
                 db.Entry(cliente).State = EntityState.Modified;
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = cliente.clienteID });
             }
             return View(cliente);
         }
