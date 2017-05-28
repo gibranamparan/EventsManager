@@ -1,0 +1,105 @@
+﻿@model Jerry.Models.Banquete
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <a href="@Url.Action("Index")">
+        <i class="glyphicon glyphicon-arrow-left"></i> Regresar a Lista Banquetes
+    </a>
+</div>
+<br />
+<br />
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            Nuevo Banquete
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(model => model.fechaBanquete, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.fechaBanquete, new { htmlAttributes = new { @class = "form-control", id = "fechas" } })
+                        @Html.ValidationMessageFor(model => model.fechaBanquete, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.email, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.email, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.telefono, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.telefono, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.telefono, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.descripcionServicio, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.descripcionServicio, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.descripcionServicio, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.clienteID, "clienteID", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownList("clienteID", null, htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.clienteID, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Create" class="btn btn-success" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+            $("input[type='datetime']").datetimepicker();
+    </script>
+    <script>
+            $('input#fechas').blur(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "@Url.Action("ReservacionesConflictivas", "Reservacion")",
+                    success: function (resultado) {
+                        //$("#tablaCargada").remove('.rowData');
+                        var trs = $("#tablaCargada tr").length;
+                        if (trs > 1) {
+                            // Eliminamos la ultima columna
+                            $("#tablaCargada tr:last").remove();
+                        }
+                        $("#tablaCargada").parent("tr").remove();
+                        var datos = resultado[0];
+                        var newR = $('<tr>').addClass('rowData');
+                        $('<td>').html(datos.nombre).appendTo(newR);
+                        $('<td>').html(datos.nombreSalon).appendTo(newR);
+                        $('<td>').html(datos.fechaEventoInicial).appendTo(newR);
+                        newR.appendTo("#tablaCargada");
+                    }
+                });
+
+            });
+    </script>
+}

@@ -70,6 +70,14 @@
                         </li>
                     }
 
+                    @if (User.IsInRole("Estandar") || User.IsInRole("Administrador"))
+                    {
+                        <li class="aside hidden-print">
+                            @*<a href="tab-panel.html"><i class="fa fa-qrcode fa-3x"></i> Tabs & Panels</a>*@
+                            @Html.ActionLink(" Banquete", "Index", "Banquetes", "", new { @class = "fa fa-cutlery fa-2x" })
+                        </li>
+                    }
+
                     @if (User.IsInRole("Administrador"))
                     {
                         <li class="aside hidden-print">

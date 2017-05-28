@@ -163,6 +163,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BanquetesController.cs" />
     <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\CorreoController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -189,8 +190,13 @@
     <Compile Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.Designer.cs">
       <DependentUpon>201705251611425_numeroTElefono_to_String_Cliente.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201705280714375_CreacionModeloBanquete.cs" />
+    <Compile Include="Migrations\201705280714375_CreacionModeloBanquete.Designer.cs">
+      <DependentUpon>201705280714375_CreacionModeloBanquete.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Banquete.cs" />
     <Compile Include="Models\Cliente.cs" />
     <Compile Include="Models\Correo.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -378,6 +384,11 @@
     <Content Include="Views\Correo\Edit.cshtml" />
     <Content Include="Views\Correo\Details.cshtml" />
     <Content Include="Views\Reservacion\Partial_IngresarPago.cshtml" />
+    <Content Include="Views\Banquetes\Create.cshtml" />
+    <Content Include="Views\Banquetes\Delete.cshtml" />
+    <Content Include="Views\Banquetes\Details.cshtml" />
+    <Content Include="Views\Banquetes\Edit.cshtml" />
+    <Content Include="Views\Banquetes\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -401,6 +412,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.resx">
       <DependentUpon>201705251611425_numeroTElefono_to_String_Cliente.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705280714375_CreacionModeloBanquete.resx">
+      <DependentUpon>201705280714375_CreacionModeloBanquete.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

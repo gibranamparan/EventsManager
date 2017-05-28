@@ -36,5 +36,7 @@ namespace Jerry.Models
         }
 
         public System.Data.Entity.DbSet<Jerry.Models.Correo> Correos { get; set; }
+
+        public System.Data.Entity.DbSet<Jerry.Models.Banquete> Banquetes { get; set; }
     }
 }
