@@ -124,7 +124,7 @@ namespace Jerry.Controllers
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
             Pago pago = await db.pagos.FindAsync(id);
-            int reservacionID = pago.reservacionID;
+            int reservacionID = pago.reservacionID.Value;
             db.pagos.Remove(pago);
             await db.SaveChangesAsync();
             return RedirectToAction("Details","Reservacion",new { id = reservacionID });

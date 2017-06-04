@@ -7,13 +7,13 @@ namespace Jerry.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class CreacionModeloBanquete : IMigrationMetadata
+    public sealed partial class initialMigration : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(CreacionModeloBanquete));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(initialMigration));
         
         string IMigrationMetadata.Id
         {
-            get { return "201705280714375_CreacionModeloBanquete"; }
+            get { return "201706010200492_initialMigration"; }
         }
         
         string IMigrationMetadata.Source

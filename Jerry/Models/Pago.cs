@@ -11,9 +11,12 @@ namespace Jerry.Models
         [Key]
         public int pagoID { get; set; }
 
-        public int reservacionID { get; set; }
+        public int? reservacionID { get; set; }
         //A un pago le pertenece solo a una reservacion
         virtual public Reservacion reservacion { get; set; }
+
+        public int? banqueteID { get; set; }
+        virtual public Banquete banquete { get; set; }
 
         [Required]
         [Display(Name ="Cantidad")]

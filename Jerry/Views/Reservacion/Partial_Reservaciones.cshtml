@@ -63,7 +63,7 @@
                     @Html.DisplayFor(modelItem => item.Detalles)
                 </td>
                 <td>
-                    <a href="@Url.Action("Reservacion","Details", new { id = item.reservacionID })">
+                    <a href="@Url.Action("Details","Reservacion", new { id = item.reservacionID })">
                         <i class="fa fa-list-alt"></i> Detalle
                     </a>
                 </td>

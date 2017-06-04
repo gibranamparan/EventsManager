@@ -174,25 +174,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201611230437013_migracionPrueba.cs" />
-    <Compile Include="Migrations\201611230437013_migracionPrueba.Designer.cs">
-      <DependentUpon>201611230437013_migracionPrueba.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611250420106_ModeloDeCorreo.cs" />
-    <Compile Include="Migrations\201611250420106_ModeloDeCorreo.Designer.cs">
-      <DependentUpon>201611250420106_ModeloDeCorreo.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201611280514453_migracionCorreoDatos.cs" />
-    <Compile Include="Migrations\201611280514453_migracionCorreoDatos.Designer.cs">
-      <DependentUpon>201611280514453_migracionCorreoDatos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.cs" />
-    <Compile Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.Designer.cs">
-      <DependentUpon>201705251611425_numeroTElefono_to_String_Cliente.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201705280714375_CreacionModeloBanquete.cs" />
-    <Compile Include="Migrations\201705280714375_CreacionModeloBanquete.Designer.cs">
-      <DependentUpon>201705280714375_CreacionModeloBanquete.cs</DependentUpon>
+    <Compile Include="Migrations\201706010200492_initialMigration.cs" />
+    <Compile Include="Migrations\201706010200492_initialMigration.Designer.cs">
+      <DependentUpon>201706010200492_initialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -401,20 +385,8 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201611230437013_migracionPrueba.resx">
-      <DependentUpon>201611230437013_migracionPrueba.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611250420106_ModeloDeCorreo.resx">
-      <DependentUpon>201611250420106_ModeloDeCorreo.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201611280514453_migracionCorreoDatos.resx">
-      <DependentUpon>201611280514453_migracionCorreoDatos.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201705251611425_numeroTElefono_to_String_Cliente.resx">
-      <DependentUpon>201705251611425_numeroTElefono_to_String_Cliente.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201705280714375_CreacionModeloBanquete.resx">
-      <DependentUpon>201705280714375_CreacionModeloBanquete.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201706010200492_initialMigration.resx">
+      <DependentUpon>201706010200492_initialMigration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -3,12 +3,25 @@ namespace Jerry.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class migracionPrueba : DbMigration
+    public partial class initialMigration : DbMigration
     {
         public override void Up()
         {
-
-
+            CreateTable(
+                "dbo.Banquetes",
+                c => new
+                    {
+                        banqueteID = c.Int(nullable: false, identity: true),
+                        fechaBanquete = c.DateTime(nullable: false),
+                        email = c.String(nullable: false),
+                        telefono = c.String(nullable: false),
+                        descripcionServicio = c.String(nullable: false),
+                        clienteID = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => t.banqueteID)
+                .ForeignKey("dbo.Clientes", t => t.clienteID, cascadeDelete: true)
+                .Index(t => t.clienteID);
+            
             CreateTable(
                 "dbo.Clientes",
                 c => new
@@ -18,7 +31,7 @@ namespace Jerry.Migrations
                         apellidoP = c.String(nullable: false),
                         apellidoM = c.String(nullable: false),
                         email = c.String(nullable: false),
-                        telefono = c.Int(nullable: false),
+                        telefono = c.String(nullable: false),
                     })
                 .PrimaryKey(t => t.clienteID);
             
@@ -46,13 +59,16 @@ namespace Jerry.Migrations
                 c => new
                     {
                         pagoID = c.Int(nullable: false, identity: true),
-                        reservacionID = c.Int(nullable: false),
+                        reservacionID = c.Int(),
+                        banqueteID = c.Int(),
                         cantidad = c.Decimal(nullable: false, precision: 18, scale: 2),
                         fechaPago = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.pagoID)
-                .ForeignKey("dbo.Reservacions", t => t.reservacionID, cascadeDelete: true)
-                .Index(t => t.reservacionID);
+                .ForeignKey("dbo.Banquetes", t => t.banqueteID)
+                .ForeignKey("dbo.Reservacions", t => t.reservacionID)
+                .Index(t => t.reservacionID)
+                .Index(t => t.banqueteID);
             
             CreateTable(
                 "dbo.Salons",
@@ -63,6 +79,21 @@ namespace Jerry.Migrations
                         detalles = c.String(nullable: false),
                     })
                 .PrimaryKey(t => t.salonID);
+            
+            CreateTable(
+                "dbo.Correos",
+                c => new
+                    {
+                        correoID = c.Int(nullable: false, identity: true),
+                        To = c.String(),
+                        Subject = c.String(),
+                        Body = c.String(),
+                        correoAdmin = c.String(),
+                        contrasena = c.String(),
+                        smtpHost = c.String(),
+                        puertoCorreo = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => t.correoID);
             
             CreateTable(
                 "dbo.AspNetRoles",
@@ -140,8 +171,10 @@ namespace Jerry.Migrations
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
+            DropForeignKey("dbo.Banquetes", "clienteID", "dbo.Clientes");
             DropForeignKey("dbo.Reservacions", "salonID", "dbo.Salons");
             DropForeignKey("dbo.Pagoes", "reservacionID", "dbo.Reservacions");
+            DropForeignKey("dbo.Pagoes", "banqueteID", "dbo.Banquetes");
             DropForeignKey("dbo.Reservacions", "clienteID", "dbo.Clientes");
             DropIndex("dbo.AspNetUserLogins", new[] { "UserId" });
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
@@ -149,18 +182,22 @@ namespace Jerry.Migrations
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
+            DropIndex("dbo.Pagoes", new[] { "banqueteID" });
             DropIndex("dbo.Pagoes", new[] { "reservacionID" });
             DropIndex("dbo.Reservacions", new[] { "clienteID" });
             DropIndex("dbo.Reservacions", new[] { "salonID" });
+            DropIndex("dbo.Banquetes", new[] { "clienteID" });
             DropTable("dbo.AspNetUserLogins");
             DropTable("dbo.AspNetUserClaims");
             DropTable("dbo.AspNetUsers");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.AspNetRoles");
+            DropTable("dbo.Correos");
             DropTable("dbo.Salons");
             DropTable("dbo.Pagoes");
             DropTable("dbo.Reservacions");
             DropTable("dbo.Clientes");
+            DropTable("dbo.Banquetes");
         }
     }
 }
