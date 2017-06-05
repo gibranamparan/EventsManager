@@ -49,11 +49,6 @@ namespace Jerry.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        [Required]
         [Display(Name = "Nombre")]
         public string nombre { get; set; }
 
