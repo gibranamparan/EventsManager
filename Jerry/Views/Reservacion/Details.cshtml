@@ -15,11 +15,11 @@
     }
     vdd.Add("faltante", Model.cantidadFaltante);
 }
-<a href="@Url.Action("Index")">
+<a class="hidden-print" href="@Url.Action("Index")">
     <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Reservaciones
 </a>
-<br />
-<br />
+<br class="hidden-print" />
+<br class="hidden-print" />
 <div class="panel panel-info">
     <div class="panel-heading">
         <span class="panel-title">
@@ -28,7 +28,6 @@
     </div>
     <div class="panel-body">
         <div>
-            <hr />
             <div class="row">
                 <div class="col-xs-6">
                     <dl class="dl-horizontal">
@@ -107,45 +106,54 @@
 {
     <div class="alert alert-success">Esta reservación no presenta adeudos</div>
 }
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <span class="panel-title">
-            Pagos
-        </span>
-    </div>
-
-    <div class="panel-body">
-        <div class="hidden-print">
-            @Html.Partial("../Reservacion/Partial_IngresarPago", p, vdd)
+else
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-title">
+                Pagos
+            </span>
         </div>
+        <div class="panel-body">
+            <div class="hidden-print">
+                @Html.Partial("../Reservacion/Partial_IngresarPago", p, vdd)
+            </div>
+            @if (Model.pagos.Count != 0)
+            {
+                <div>
+                    @Html.Partial("../Pago/Partial_DetallesDePagos")
+                </div>
+            }
+            else
+            {
+                <br class="hidden-print" />
+                <br class="hidden-print" />
+                <div class="alert alert-info">No se ha realizado ningún pago para esta reservación</div>
+            }
+            <div class="hidden-print" style="display: inline-flex;">
+                    <input type="button" class="hidden-print btn btn-primary"
+                            onClick="window.print()"
+                            value="Print Detalles" />
+                </div>
+            <div class="hidden-print">
+                    @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
+                    {
+                        @Html.ValidationSummary()
+                        @Html.Hidden("To", correo.To)
 
-        <div>
-            @Html.Partial("../Pago/Partial_DetallesDePagos")
+                        <table>
+                            <tr>
+                                <td>
+                                    Adjuntar estado de cuenta
+                                </td>
+                                <td>
+                                    <input type="file" name="fileUploader" />
+                                </td>
+                            </tr>
+                        </table>
+                        <input type="submit" value="Enviar Correo" />
+                    }
+                </div>
         </div>
-        @*<div class="hidden-print" style="display: inline-flex;">
-                <input type="button" class="hidden-print btn btn-primary"
-                        onClick="window.print()"
-                        value="Print Detalles" />
-            </div>*@
-        @*<div class="hidden-print">
-                @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
-                {
-                    @Html.ValidationSummary()
-                    @Html.Hidden("To", correo.To)
-
-                    <table>
-                        <tr>
-                            <td>
-                                Adjuntar estado de cuenta
-                            </td>
-                            <td>
-                                <input type="file" name="fileUploader" />
-                            </td>
-                        </tr>
-                    </table>
-                    <input type="submit" value="Enviar Correo" />
-                }
-            </div>*@
-
     </div>
-</div>
+}

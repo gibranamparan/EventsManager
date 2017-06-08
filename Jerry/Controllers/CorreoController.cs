@@ -168,12 +168,12 @@ namespace Jerry.Controllers
                     }
                     mail.IsBodyHtml = false;
                     SmtpClient smtp = new SmtpClient();
-                    //smtp.Host = "smtp-mail.outlook.com";
-                    smtp.Host = objModelMail.smtpHost;
+                    smtp.Host = "smtp-mail.outlook.com";
+                    //smtp.Host = objModelMail.smtpHost;
                     smtp.EnableSsl = true;
                     //NetworkCredential networkCredential = new NetworkCredential(from, "baltasar153");
                     NetworkCredential networkCredential = new NetworkCredential(from, objModelMail.contrasena);
-                    smtp.UseDefaultCredentials = true;
+                    smtp.UseDefaultCredentials = false;
                     smtp.Credentials = networkCredential;
                     smtp.Port = 587;
                     smtp.Send(mail);

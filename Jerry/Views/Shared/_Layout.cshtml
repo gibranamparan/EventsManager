@@ -3,7 +3,7 @@
 <head>
     @*<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">*@
-    <title>@ViewBag.Title - Sistema de control Quintaventura</title>
+    <title class="hidden-print">@ViewBag.Title - Sistema de control Quintaventura</title>
     @*@Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")*@
     <meta charset="utf-8" />
@@ -95,8 +95,8 @@
             <div class="container body-content">
                 @RenderBody()
             </div>
-            <hr />
-            <footer>
+            <hr class="hidden-print" />
+            <footer class="hidden-print">
                 <p>&copy; @DateTime.Now.Year - Dev. By @Html.RouteLink("Netcode", new { }, new { href = "http://netcodesolutions.net/" }) </p>
             </footer>
         </div>
