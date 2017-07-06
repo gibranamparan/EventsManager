@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Jerry.GeneralTools;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -110,9 +112,34 @@ namespace Jerry.Models
 
         }
 
-        
+        [Display(Name = "Periodo")]
+        public TimePeriod timePeriod
+        {
+            get
+            {
+                return new TimePeriod(this.fechaEventoFinal, this.fechaEventoFinal);
+            }
+        }
 
-
+        public class VMFiltroReservaciones
+        {
+            private TimePeriod _timePeriod { get; set; }
+            public TimePeriod TimePeriod
+            {
+                get
+                {
+                    if(_timePeriod == null)
+                    {
+                        _timePeriod = new TimePeriod(DateTime.Now, DateTime.Now.AddDays(30));
+                    }
+                    return _timePeriod;
+                }
+                set
+                {
+                    _timePeriod = value;
+                }
+            }
+        }
     }
 }
 

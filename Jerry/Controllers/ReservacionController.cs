@@ -1,14 +1,16 @@
-﻿using System;
+﻿using Jerry.GeneralTools;
+using Jerry.Models;
+using Jerry.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Jerry.Models;
-using Jerry.ViewModels;
+
 namespace Jerry.Controllers
 {
     public class ReservacionController : Controller
@@ -17,13 +19,32 @@ namespace Jerry.Controllers
 
         // GET: Reservacion}
         [Authorize]
-        public async Task<ActionResult> Index()
+        public ActionResult Index(Reservacion.VMFiltroReservaciones filtroReservaciones)
         {
             //var reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).OrderBy(r => r.fechaReservacion);
+            TimePeriod periodo = filtroReservaciones.TimePeriod;
+            List<Reservacion> reservaciones = new List<Reservacion>();
+
             DateTime hoyMasMes = DateTime.Today.AddMonths(1);
-            var reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= DateTime.Today &&
-            r.fechaEventoInicial <= hoyMasMes).OrderByDescending(r => r.fechaEventoInicial);
-            return View(await reservaciones.ToListAsync());
+            DateTime inicio = new DateTime();
+            DateTime fin = new DateTime();
+
+            if (periodo.startDate.ToShortDateString() == DateTime.Today.ToShortDateString())
+            {
+                reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= DateTime.Today &&
+                r.fechaEventoInicial <= hoyMasMes).OrderByDescending(r => r.fechaEventoInicial).ToList();
+            }
+            else
+            {
+                inicio = periodo.startDate;
+                fin = periodo.endDate;
+                reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= inicio &&
+                r.fechaEventoInicial <= fin).OrderByDescending(r => r.fechaEventoInicial).ToList();
+            }
+
+            ViewBag.result = reservaciones;
+
+            return View(filtroReservaciones);
         }
 
         // GET: Reservacion/Details/5

@@ -1,10 +1,39 @@
-﻿@model IEnumerable<Jerry.Models.Reservacion>
+﻿@model Jerry.Models.Reservacion.VMFiltroReservaciones
+@using Jerry.Models
+@using Jerry.GeneralTools
 
 @{
     ViewBag.Title = "Reservaciones";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<Reservacion> resultado = ViewBag.result;
+
 }
 
+
+@using (Html.BeginForm("Index", "Reservacion", FormMethod.Get, null))
+{
+    <div class="form-inline">
+        <div class="row">
+            <div class="form-group col-md-5">
+                @Html.LabelFor(model => Model.TimePeriod.startDate)
+                @Html.EditorFor(model => Model.TimePeriod.startDate,
+           new { htmlAttributes = new { @class = "form-control", } })
+            </div>
+
+            <div class="form-group col-md-5">
+                @Html.LabelFor(model => Model.TimePeriod.endDate)
+                @Html.EditorFor(model => Model.TimePeriod.endDate,
+           new { htmlAttributes = new { @class = "form-control", } })
+            </div>
+
+            <button id="btnSearch" name="searchVisits" class="btn btn-primary">
+                <i class="fa fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+}
+<br/>
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Reservaciones</h3>
@@ -14,34 +43,33 @@
             <thead>
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.cliente.nombre)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().cliente.nombre)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.salon.nombre)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().salon.nombre)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.fechaReservacion)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().fechaReservacion)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.fechaEventoInicial)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().fechaEventoInicial)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.fechaEventoFinal)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().fechaEventoFinal)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.costo)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().costo)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Detalles)
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().Detalles)
                     </th>
                     <th></th>
                 </tr>
             </thead>
-
             <tbody>
-                @foreach (var item in Model)
-                {
-                    string nombreCompleto = item.cliente.nombre + " " + item.cliente.apellidoP + " " + item.cliente.apellidoM;
+                @foreach (var item in resultado)
+        {
+            string nombreCompleto = item.cliente.nombre + " " + item.cliente.apellidoP + " " + item.cliente.apellidoM;
                     <tr>
                         <td>
                             @Html.DisplayFor(modelItem => item.cliente.nombre) @Html.DisplayFor(modelItem => item.cliente.apellidoP) @Html.DisplayFor(modelItem => item.cliente.apellidoM)
@@ -79,6 +107,5 @@
                 }
             </tbody>
         </table>
-
     </div>
 </div>
