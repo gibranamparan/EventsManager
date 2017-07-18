@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace Jerry.Models
 {
@@ -38,6 +39,10 @@ namespace Jerry.Models
         [Required]
         [Display(Name ="Descripción")]
         public string Detalles { get; set; }
+
+        [Required]
+        [Display(Name = "Tipo de Contrato")]
+        public string TipoContrato { get; set; }
 
         [Required]
         [Display(Name ="Salón")]
@@ -119,6 +124,26 @@ namespace Jerry.Models
             {
                 return new TimePeriod(this.fechaEventoFinal, this.fechaEventoFinal);
             }
+        }
+
+        public static List<object> getTipoContratoItemArray()
+        {
+            List<object> array = new List<object>();
+            array.Add(new { Text = "Contrato Tipo 1", Value = "Tipo1" });
+            array.Add(new { Text = "Contrato Tipo 2", Value = "Tipo2" });
+
+            return array;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selVal">Optional, valor seleccionado por defecto.</param>
+        /// <returns>Select list listo para ser usado en la vista rellenado</returns>
+        public static SelectList getTipoContratoSelectList(object selVal = null)
+        {
+            return new SelectList(Reservacion.getTipoContratoItemArray(), "Value", "Text", selVal);
         }
 
         public class VMFiltroReservaciones

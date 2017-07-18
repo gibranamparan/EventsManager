@@ -43,6 +43,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DocX">
+      <HintPath>..\..\..\..\Documents\UTPP\DocX.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -178,6 +181,10 @@
     <Compile Include="Migrations\201706010200492_initialMigration.cs" />
     <Compile Include="Migrations\201706010200492_initialMigration.Designer.cs">
       <DependentUpon>201706010200492_initialMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201707180204504_AgregarTipoDeContratoReservacion.cs" />
+    <Compile Include="Migrations\201707180204504_AgregarTipoDeContratoReservacion.Designer.cs">
+      <DependentUpon>201707180204504_AgregarTipoDeContratoReservacion.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -388,6 +395,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201706010200492_initialMigration.resx">
       <DependentUpon>201706010200492_initialMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707180204504_AgregarTipoDeContratoReservacion.resx">
+      <DependentUpon>201707180204504_AgregarTipoDeContratoReservacion.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

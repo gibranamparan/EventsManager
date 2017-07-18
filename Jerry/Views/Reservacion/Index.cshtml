@@ -101,6 +101,9 @@
                             </a> <br />
                             <a href="@Url.Action("Delete", new { id = item.reservacionID })">
                                 <i class="glyphicon glyphicon-remove"></i> Borrar
+                            </a><br/>
+                            <a href="@Url.Action("GenerarContrato",new { id = item.reservacionID })">
+                                <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
                             </a>
                         </td>
                     </tr>

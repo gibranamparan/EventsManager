@@ -10,12 +10,15 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Novacode;
 
 namespace Jerry.Controllers
 {
     public class ReservacionController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private const string BIND_FIELDS = "reservacionID,fechaReservacion,fechaEventoInicial," +
+            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato";
 
         // GET: Reservacion}
         [Authorize]
@@ -84,8 +87,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<ActionResult> Create([Bind(Include = "reservacionID,fechaReservacion,fechaEventoInicial,"+
-            "fechaEventoFinal,costo,Detalles,salonID,clienteID")] Reservacion reservacion)
+        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Reservacion reservacion)
         {
 
             if (ModelState.IsValid && Reservacion.validarFecha(reservacion))
@@ -126,7 +128,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "reservacionID,fechaReservacion,fechaEventoInicial,fechaEventoFinal,costo,Detalles,salonID,clienteID")] Reservacion reservacion)
+        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Reservacion reservacion)
         {
             if (ModelState.IsValid)
             {
@@ -165,6 +167,43 @@ namespace Jerry.Controllers
             db.reservaciones.Remove(reservacion);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
+        }
+
+        public FileResult GenerarContrato(int? id)
+        {
+            Reservacion resContrato = db.reservaciones.Find(id);
+            Cliente cliente = resContrato.cliente;
+            Salon salon = resContrato.salon;
+
+            String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
+            byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath("~/App_Data/Contrato.docx"));
+            System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
+            String descripcionServicios = resContrato.Detalles;
+            String telefono = cliente.telefono;
+            String correo = cliente.email;
+            if (String.IsNullOrEmpty(telefono))
+            {
+                telefono = "";
+            }
+            if (String.IsNullOrEmpty(correo))
+            {
+                correo = "";
+            }
+            String asociadoCliente = cliente.clienteID.ToString();
+            String nombreCliente = cliente.nombreCompleto;
+
+            var doc = DocX.Load(nuevoContrato);
+
+            doc.ReplaceText("<CLIENTE>", nombreCliente);
+            doc.ReplaceText("<DESCRIPCION>", descripcionServicios);
+            doc.ReplaceText("<TELEFONO>", telefono);
+            doc.ReplaceText("<EMAIL>", correo);
+
+            doc.Save();
+
+            byte[] fileBytesNuevoContrato = System.IO.File.ReadAllBytes(nuevoContrato);
+            string nombreArchivoDescargado = "Ejemplo_" + DateTime.Now+".docx";
+            return File(fileBytesNuevoContrato,System.Net.Mime.MediaTypeNames.Application.Octet,nombreArchivoDescargado);
         }
 
         protected override void Dispose(bool disposing)
