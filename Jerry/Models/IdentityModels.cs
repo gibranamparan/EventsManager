@@ -16,6 +16,12 @@ namespace Jerry.Models
             // Add custom user claims here
             return userIdentity;
         }
+
+        public static class UserRoles
+        {
+            public const string ADMIN = "Administrador";
+            public const string CLIENTE = "Cliente";
+        }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

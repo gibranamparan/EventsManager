@@ -138,8 +138,8 @@ namespace Jerry.Controllers
 
         //
         // GET: /Account/Register
-        //[AllowAnonymous]
-        [Authorize(Roles ="Administrador")]
+        [AllowAnonymous]
+        //[Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
         public ActionResult Register()
         {
             return View();
@@ -148,8 +148,8 @@ namespace Jerry.Controllers
         //
         // POST: /Account/Register
         [HttpPost]
-        //[AllowAnonymous]
-        [Authorize(Roles = "Administrador")]
+        [AllowAnonymous]
+        //[Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
