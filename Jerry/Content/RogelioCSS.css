@@ -37,15 +37,22 @@
     color:#C90000 !important;
     font-size:150%;
 }
+
 #loginLink{
     color:#C90000 !important;
     text-align:center;
     font-size:150%;
 }
-#logoutForm {
-    color:#C90000 !important;
-    text-align:center;
-    font-size:150%;
+
+ul#logoutForm li a{
+    color:white;
+}
+ul.nav li a span {
+    font-size: 1.5em;
+}
+
+ul#logoutForm li a:hover{
+    font-weight: bold;
 }
 
 .container.body-content {
@@ -58,4 +65,9 @@ footer{
 
 footer p{
     font-size: 1em;
+}
+
+
+.field-validation-error{
+    color: red;
 }

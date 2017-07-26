@@ -211,13 +211,14 @@ max-width:170px;
 }
 
 .navbar-cls-top .navbar-brand {
-	color: #fff;
-background: #C90000;
-width: 260px;
-text-align: center;
-height: 60px;
-font-size: 30px;
-font-weight: 700;
+    color: #fff;
+    background: #C90000;
+    width: 200px;
+    text-align: center;
+    height: 60px;
+    font-size: 20px;
+    font-weight: 700;
+    list-style-type: none;
 }
 .active-menu {
     background-color:#C90000!important;
@@ -360,7 +361,7 @@ background-color: #FFF;
  
  @media(min-width:768px) {
      #page-wrapper{
-         margin: 0 0 0 260px;
+         margin: 0 0 0 200px;
          padding: 15px 30px;
          /*min-height: 1200px;*/
          min-height: 100vh;
@@ -369,7 +370,7 @@ background-color: #FFF;
     .navbar-side {
         z-index: 1;
         position: absolute;
-        width: 260px;
+        width: 200px;
     }
 
    .navbar {

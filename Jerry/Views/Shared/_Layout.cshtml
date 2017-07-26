@@ -3,7 +3,7 @@
 <head>
     @*<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">*@
-    <title class="hidden-print">@ViewBag.Title - Sistema de control Quintaventura</title>
+    <title class="hidden-print">@ViewBag.Title - Jerry's Control System</title>
     @*@Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")*@
     <meta charset="utf-8" />
@@ -15,7 +15,7 @@
 <body>
     <div id="wrapper">
         
-        <nav class="navbar navbar-default navbar-cls-top " role="navigation" style="margin-bottom: 0">
+        <nav class="navbar navbar-default navbar-cls-top hidden-print" role="navigation" style="margin-bottom: 0">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -26,8 +26,8 @@
                          
                 <ul class="navbar-brand">
                     <li class="text-center">
-                    <a href="@Url.Action("Index","Home", new { style = "color:white" })">
-                        <img src="~/Images/logo.png" />
+                    <a id="linkLogo" href="@Url.Action("Index","Home")" style="color:white">
+                        Jerry's Control System
                     </a>
                     </li>
                 </ul>
@@ -39,52 +39,40 @@
                 
         </nav>
         <!-- /. NAV TOP  -->
-        <nav class="navbar-default navbar-side" role="navigation">
+        <nav class="navbar-default navbar-side hidden-print" role="navigation">
             <div class="sidebar-collapse">
                 <ul class="nav" id="main-menu">
                     <li class="text-center">
                         @*<img src="~/Images/logo.png" class="user-image img-responsive"/>*@
                     </li>
 
-                    @if (User.IsInRole("Estandar") || User.IsInRole("Administrador"))
+                    @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="aside hidden-print">
-                            @*<a class="active-menu" href="index.html"><i class="fa fa-dashboard fa-3x"></i> Dashboard</a>*@
-                            @Html.ActionLink(" Clientes", "Index", "Clientes", "", new { @class = "fa fa-user fa-2x" })
+                        <li class="aside">
+                            <a href="@Url.Action("Index", "Clientes")"><i class="fa fa-user fa-2x"></i>
+                            <span>Clientes</span></a>
                         </li>
-                    }
-                    
-                    @if (User.IsInRole("Estandar") || User.IsInRole("Administrador"))
-                    {
-                        <li class="aside hidden-print">
-                            @*<a href="ui.html"><i class="fa fa-desktop fa-3x"></i> UI Elements</a>*@
-                            @Html.ActionLink(" Contact", "Contact", "Home", "", new { @class = "fa fa-desktop fa-2x" })
+                        <li class="aside">
+                            <a href="@Url.Action("Index", "Reservacion")"><i class="fa fa-calendar fa-2x"></i>
+                            <span>Reservaciones</span></a>
                         </li>
-                    }
-                   
-                    @if (User.IsInRole("Estandar") || User.IsInRole("Administrador"))
-                    {
-                        <li class="aside hidden-print">
-                            @*<a href="tab-panel.html"><i class="fa fa-qrcode fa-3x"></i> Tabs & Panels</a>*@
-                            @Html.ActionLink(" Reservación", "Index", "Reservacion", "", new { @class = "fa fa-calendar fa-2x" })
+                        <li class="aside">
+                            <a href="@Url.Action("Index", "Banquetes")"><i class="fa fa-cutlery fa-2x"></i>
+                            <span>Banquetes</span></a>
                         </li>
                     }
 
-                    @if (User.IsInRole("Estandar") || User.IsInRole("Administrador"))
+                    @if (User.IsInRole(Jerry.Models.ApplicationUser.UserRoles.ADMIN))
                     {
                         <li class="aside hidden-print">
-                            @*<a href="tab-panel.html"><i class="fa fa-qrcode fa-3x"></i> Tabs & Panels</a>*@
-                            @Html.ActionLink(" Banquete", "Index", "Banquetes", "", new { @class = "fa fa-cutlery fa-2x" })
+                            <a href="@Url.Action("Details", "Correo", new { id = 1 })"><i class="fa fa-envelope fa-2x"></i>
+                            <span>Configuración</span></a>
                         </li>
                     }
-
-                    @if (User.IsInRole("Administrador"))
-                    {
-                        <li class="aside hidden-print">
-                            @*<a href="chart.html"><i class="fa fa-bar-chart-o fa-3x"></i> Morris Charts</a>*@
-                            @Html.ActionLink(" Configuración", "Details", "Correo", new { id = 1 }, new { @class = "fa fa-envelope fa-2x" })
-                        </li>
-                    }
+                    <li class="aside">
+                        <a href="@Url.Action("Contact", "Home")"><i class="fa fa-desktop fa-2x"></i>
+                        <span>Contact</span></a>
+                    </li>
                 </ul>
 
             </div>
