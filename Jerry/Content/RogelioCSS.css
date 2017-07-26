@@ -66,3 +66,8 @@ footer{
 footer p{
     font-size: 1em;
 }
+
+
+.field-validation-error{
+    color: red;
+}

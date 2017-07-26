@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Jerry.Models
@@ -69,10 +70,6 @@ namespace Jerry.Models
         public string Email { get; set; }
 
         [Required]
-        [Display(Name = "Nombre")]
-        public string nombre { get; set; }
-
-        [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
@@ -82,6 +79,22 @@ namespace Jerry.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [DisplayName("Rol")]
+        public string rolName { get; set; }
+
+        public string id { get; set; }
+
+        [Display(Name = "Registrar como Administrador")]
+        public bool registerAsAdmin { get; set; }
+
+        public RegisterViewModel() { }
+        public RegisterViewModel(ApplicationUser usr) {
+            this.rolName = usr.role;
+            this.id = usr.Id;
+            this.Email = usr.Email;
+            this.registerAsAdmin = this.rolName == ApplicationUser.UserRoles.ADMIN;
+        }
     }
 
     public class ResetPasswordViewModel

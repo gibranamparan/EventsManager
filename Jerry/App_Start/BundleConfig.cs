@@ -26,13 +26,12 @@ namespace Jerry
                         "~/Scripts/jquery-ui-{version}.js",
                         "~/Scripts/jquery.maskedinput.js",
                         "~/Scripts/jquery.metisMenu.js",
-                        "~/Scripts/morris/raphael-2.1.0.min.js",
                         "~/Scripts/morris/morris.js",
+                        "~/Scripts/morris/raphael-2.1.0.min.js",
                         "~/Scripts/jquery.datetimepicker.full.min.js",
                         "~/Scripts/jquery.dataTables.min.js",
-                        //"//cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js",
-                        "~/Scripts/JavascriptRogelio.js",
-                        "~/Scripts/custom.js"));
+                        "~/Scripts/custom.js",
+                        "~/Scripts/JavascriptRogelio.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
@@ -56,7 +55,6 @@ namespace Jerry
                       "~/Content/RogelioCSS.css"));
 
             bundles.Add(new StyleBundle("~/Content/icons").Include(
-                      "~/Scripts/morris/morris-0.4.3.min.css",
                       "~/Content/font-awesome.css",
                       "~/Content/icomoon.css"));
 

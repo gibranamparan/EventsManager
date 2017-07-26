@@ -13,6 +13,7 @@ namespace Jerry.Controllers
 {
     public class ClientesController : Controller
     {
+        private const string  BIND_FIELDS = "clienteID,nombre,apellidoP,apellidoM,email,telefono";
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Clientes
@@ -51,7 +52,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "clienteID,nombre,apellidoP,apellidoM,email,telefono")] Cliente cliente)
+        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Cliente cliente)
         {
             if (ModelState.IsValid)
             {
@@ -76,7 +77,7 @@ namespace Jerry.Controllers
             {
                 return HttpNotFound();
             }
-            return View(cliente);
+            return View("create",cliente);
         }
 
         // POST: Clientes/Edit/5
@@ -85,7 +86,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "clienteID,nombre,apellidoP,apellidoM,email,telefono")] Cliente cliente)
+        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Cliente cliente)
         {
             if (ModelState.IsValid)
             {

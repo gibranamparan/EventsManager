@@ -9,6 +9,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Jerry.Models;
+using System.Net;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Jerry.Controllers
 {
@@ -51,6 +53,15 @@ namespace Jerry.Controllers
             {
                 _userManager = value;
             }
+        }
+
+        //[Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
+        [AllowAnonymous]
+        public ActionResult ListUsers()
+        {
+            var users = from user in db.Users.ToList()
+                        select new RegisterViewModel(user);
+            return View(users);
         }
 
         //
@@ -142,7 +153,67 @@ namespace Jerry.Controllers
         //[Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
         public ActionResult Register()
         {
-            return View();
+            RegisterViewModel vmUser = new RegisterViewModel();
+            return View(vmUser);
+        }
+
+        //
+        // GET: /Account/Register
+        [AllowAnonymous]
+        //[Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
+        public ActionResult Edit(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var user = db.Users.Find(id);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            RegisterViewModel vmUser = new RegisterViewModel(user);
+            return View("Register", vmUser);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //[Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
+        [AllowAnonymous]
+        public async System.Threading.Tasks.Task<ActionResult> Edit(RegisterViewModel vmOwner)
+        {
+            //ApplicationUser userEdited = new ApplicationUser(vmOwner);
+            var userEdited = db.Users.Find(vmOwner.id);
+            UserStore<ApplicationUser> store = new UserStore<ApplicationUser>(db);
+
+            string newPassword = vmOwner.Password;
+            //If new password was introduced, it is encripted and saved
+            if (!String.IsNullOrEmpty(newPassword))
+            {
+                //Is found in db just to update his password
+                UserManager<ApplicationUser> UserManager = new UserManager<ApplicationUser>(store);
+                String hashedNewPassword = UserManager.PasswordHasher.HashPassword(newPassword);
+                await store.SetPasswordHashAsync(userEdited, hashedNewPassword);
+            }
+
+            //It is possible to update the user if password is not introduced, it means it will still invariable
+            bool updateWithPasswordInvariable = ModelState.Where(ms => ms.Value.Errors.Count() > 0).Count() == 1
+                && ModelState["Password"].Errors.Count == 1;
+            if (ModelState.IsValid || updateWithPasswordInvariable)
+            {
+                //Remaininig fields are updated
+                //db.Entry(userEdited).State = EntityState.Modified;
+                userEdited.Email = vmOwner.Email;
+                userEdited.UserName = vmOwner.Email;
+
+                await store.UpdateAsync(userEdited);
+                var updatedRegs = db.SaveChangesAsync();
+                return RedirectToAction("ListUsers", "Account");
+            }
+            
+            return View(vmOwner);
         }
 
         //
@@ -155,20 +226,20 @@ namespace Jerry.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.nombre, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    string rolName = "Administrador";
+                    string rolName = model.registerAsAdmin? ApplicationUser.UserRoles.ADMIN: ApplicationUser.UserRoles.ASISTENTE;
                     UserManager.AddToRole(user.Id, rolName);
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                    //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-                    return RedirectToAction("Index", "Home");
+                    
+                    return RedirectToAction("ListUsers", "Account");
                 }
                 AddErrors(result);
             }

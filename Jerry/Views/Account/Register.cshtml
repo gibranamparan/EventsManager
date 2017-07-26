@@ -1,49 +1,61 @@
 ﻿@model Jerry.Models.RegisterViewModel
 @{
-    ViewBag.Title = "Register";
+    bool editMode = !String.IsNullOrEmpty(Model.id);
+    ViewBag.Title = (editMode?"Editar":"Registrar")+" Usuario";
 }
 
-<h2>@ViewBag.Title.</h2>
-
-@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-{
-    @Html.AntiForgeryToken()
-    <h4>Registra una nueva cuenta de usuario.</h4>
-    <hr />
-
-    @Html.ValidationSummary("", new { @class = "text-danger" })
-    <div class="form-group">
-        @Html.LabelFor(m => m.nombre, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(m => m.nombre, new { @class = "form-control" })
-        </div>
+<p>
+    <a href="@Url.Action("ListUsers")">
+        <i class="glyphicon glyphicon-arrow-left"></i> Lista de Usuarios
+    </a>
+</p>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">@(editMode?"Editar":"Registrar") cuenta de usuario.</h3>
     </div>
-
-   
-    <div class="form-group">
-        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
-        </div>
+    <div class="panel-body">
+        @using (Html.BeginForm((editMode ? "Edit" : "Register"), "Account", FormMethod.Post,
+            new { @class = "form-horizontal", role = "form", autocomplete = "off" }))
+        {
+            @Html.ValidationSummary(true,"", new { @class = "text-danger" })
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.Email)
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
+                <div class="col-md-10">
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.Password)
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
+                <div class="col-md-10">
+                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.ConfirmPassword)
+                </div>
+            </div>
+            if (!editMode) { 
+                <div class="form-group">
+                    @Html.LabelFor(m => m.registerAsAdmin, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(m => m.registerAsAdmin, new { @class = "form-control" })
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button class="btn btn-success">Registrar</button>
+                </div>
+            </div>
+        }
     </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-        </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" class="btn btn-default" value="Register" />
-        </div>
-    </div>
-}
+</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

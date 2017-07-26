@@ -376,12 +376,13 @@
     <Content Include="Views\Correo\Index.cshtml" />
     <Content Include="Views\Correo\Edit.cshtml" />
     <Content Include="Views\Correo\Details.cshtml" />
-    <Content Include="Views\Reservacion\Partial_IngresarPago.cshtml" />
+    <Content Include="Views\Pago\Partial_IngresarPago.cshtml" />
     <Content Include="Views\Banquetes\Create.cshtml" />
     <Content Include="Views\Banquetes\Delete.cshtml" />
     <Content Include="Views\Banquetes\Details.cshtml" />
     <Content Include="Views\Banquetes\Edit.cshtml" />
     <Content Include="Views\Banquetes\Index.cshtml" />
+    <Content Include="Views\Account\ListUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
