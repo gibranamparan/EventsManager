@@ -48,11 +48,6 @@ namespace Jerry.Models
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        //En esta parte defino las tablas del sistema
-        public DbSet<Cliente> clientes { get; set; }
-        public DbSet<Salon> salones { get; set; }
-        public DbSet<Reservacion> reservaciones { get; set; }
-        public DbSet<Pago> pagos { get; set; }
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -63,8 +58,14 @@ namespace Jerry.Models
             return new ApplicationDbContext();
         }
 
-        public System.Data.Entity.DbSet<Jerry.Models.Correo> Correos { get; set; }
-
-        public System.Data.Entity.DbSet<Jerry.Models.Banquete> Banquetes { get; set; }
+        //En esta parte defino las tablas del sistema
+        public DbSet<Cliente> clientes { get; set; }
+        public DbSet<Salon> salones { get; set; }
+        public DbSet<Reservacion> reservaciones { get; set; }
+        public DbSet<Pago> pagos { get; set; }
+        public DbSet<Correo> Correos { get; set; }
+        public DbSet<Banquete> Banquetes { get; set; }
+        public DbSet<Servicio> Servicios { get; set; }
+        public DbSet<ServiciosEnReservacion> ServiciosEnReservaciones { get; set; }
     }
 }

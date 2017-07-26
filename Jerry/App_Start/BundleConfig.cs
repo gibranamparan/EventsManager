@@ -8,13 +8,6 @@ namespace Jerry
         // For more information on bundling, visit http://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-            //bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-            //            "~/Scripts/jquery-{version}.js"));
-
-            //bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-            //            "~/Scripts/jquery.validate*",
-            //            "~/Scripts/jquery.dataTables.min.js"));
-
             /*SCRIPTS BUNDLES*/
             bundles.Add(new ScriptBundle("~/bundles/template").Include(
                         "~/Scripts/skel.min.js",
@@ -24,13 +17,10 @@ namespace Jerry
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js",
                         "~/Scripts/jquery-ui-{version}.js",
+                        "~/Scripts/jquery.datetimepicker.js",
                         "~/Scripts/jquery.maskedinput.js",
-                        "~/Scripts/jquery.metisMenu.js",
-                        "~/Scripts/morris/morris.js",
-                        "~/Scripts/morris/raphael-2.1.0.min.js",
-                        "~/Scripts/jquery.datetimepicker.full.min.js",
                         "~/Scripts/jquery.dataTables.min.js",
-                        "~/Scripts/custom.js",
+                        //"~/Scripts/custom.js",
                         "~/Scripts/JavascriptRogelio.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
@@ -49,8 +39,7 @@ namespace Jerry
             bundles.Add(new StyleBundle("~/Content/template").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/custom.css",
-                      "~/Content/jquery.datetimepicker.min.css",
-                      //"//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css",
+                      "~/Content/jquery.datetimepicker.css",
                       "~/Content/jquery.dataTables.min.css",
                       "~/Content/RogelioCSS.css"));
 
@@ -60,10 +49,6 @@ namespace Jerry
 
             bundles.Add(new StyleBundle("~/Content/jqueryui").Include(
                       "~/Content/themes/base/*.css"));
-
-            //bundles.Add(new StyleBundle("~/Content/css").Include(
-            //          "~/Content/bootstrap.css",
-            //          "~/Content/site.css"));
         }
     }
 }

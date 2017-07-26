@@ -16,18 +16,21 @@ namespace Jerry.Models
 
         [Required]
         [Display(Name = "Fecha de Reservación")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}",
+            ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
         public DateTime fechaReservacion { get; set; }
 
         [Required]
         [Display(Name = "Inicio del evento")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}",
+            ApplyFormatInEditMode = true)]
         public DateTime fechaEventoInicial { get; set; }
 
         [Required]
         [Display(Name = "Fin del evento")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}", 
+            ApplyFormatInEditMode = true)]
         public DateTime fechaEventoFinal { get; set; }
 
         [Required]
@@ -37,6 +40,7 @@ namespace Jerry.Models
         public decimal costo { get; set; }
 
         [Required]
+        [DataType(DataType.MultilineText)]
         [Display(Name ="Descripción")]
         public string Detalles { get; set; }
 
@@ -58,6 +62,9 @@ namespace Jerry.Models
 
         //Una reservacion puede tener muchos pagos asociados a ella.
         virtual public ICollection<Pago> pagos { get; set; }
+
+        //Servicios seleccionados para esta reservacion
+        public ICollection<ServiciosEnReservacion> serviciosContratados { get; set; }
 
         [Display(Name = "Faltante")]
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]

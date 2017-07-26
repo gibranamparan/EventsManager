@@ -17,79 +17,54 @@
             </span>
             <i class="pull-right fa fa-window-minimize"></i>
         </div>
-        <div class="panel-body collapse" id="reservasTable">
-            <div>
+        <div class="panel-body" id="reservasTable">
+            @*Forma de creacion de nueva reservacion*@
+            <div class="col-md-12">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 @Html.HiddenFor(model => model.clienteID)
                 @Html.HiddenFor(model => model.fechaReservacion)
-                <div class="form-group col-md-6">
-                    @Html.LabelFor(model => model.fechaEventoInicial)
-                    @Html.EditorFor(model => model.fechaEventoInicial, new { htmlAttributes = new { @class = "form-control", id = "fechas" } })
-                    @Html.ValidationMessageFor(model => model.fechaEventoInicial, "", new { @class = "text-danger" })
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.fechaEventoInicial)
+                        @Html.EditorFor(model => model.fechaEventoInicial, new { htmlAttributes = new { @class = "form-control"} })
+                        @Html.ValidationMessageFor(model => model.fechaEventoInicial, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.fechaEventoFinal)
+                        @Html.EditorFor(model => model.fechaEventoFinal, new { htmlAttributes = new { @class = "form-control"} })
+                        @Html.ValidationMessageFor(model => model.fechaEventoFinal, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.costo)
+                        @Html.EditorFor(model => model.costo, new { htmlAttributes = new { @class = "form-control", data_mask = "0000000000.00", data_mask_reverse = "true" } })
+                        @Html.ValidationMessageFor(model => model.costo, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.salonID)
+                        @Html.DropDownList("salonID", Salon.getSalonesSelectList(), htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.salonID, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.TipoContrato)
+                        @Html.DropDownList("TipoContrato", Reservacion.getTipoContratoSelectList(), htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.TipoContrato, "", new { @class = "text-danger" })
+                    </div>
                 </div>
-                <div class="form-group col-md-6">
-                    @Html.LabelFor(model => model.fechaEventoFinal)
-                    @Html.EditorFor(model => model.fechaEventoFinal, new { htmlAttributes = new { @class = "form-control", id = "fechas" } })
-                    @Html.ValidationMessageFor(model => model.fechaEventoFinal, "", new { @class = "text-danger" })
-                </div>
-                <div class="form-group col-md-6">
-                    @Html.LabelFor(model => model.costo)
-                    @Html.EditorFor(model => model.costo, new { htmlAttributes = new { @class = "form-control", data_mask = "0000000000.00", data_mask_reverse = "true" } })
-                    @Html.ValidationMessageFor(model => model.costo, "", new { @class = "text-danger" })
-                </div>
-                <div class="form-group col-md-6">
-                    @Html.LabelFor(model => model.Detalles)
-                    @Html.EditorFor(model => model.Detalles, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Detalles, "", new { @class = "text-danger" })
-                </div>
-                <div class="form-group col-md-6">
-                    @Html.LabelFor(model => model.salonID)
-                    @Html.DropDownList("salonID", Salon.getSalonesSelectList(), htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.salonID, "", new { @class = "text-danger" })
-                </div>
-                <div class="form-group col-md-6">
-                    @Html.LabelFor(model => model.TipoContrato)
-                    @Html.DropDownList("TipoContrato", Reservacion.getTipoContratoSelectList(), htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.TipoContrato, "", new { @class = "text-danger" })
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
+
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.Detalles, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Detalles, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Detalles, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
                         <input type="submit" value="Reservar" class="btn btn-success" />
                     </div>
                 </div>
             </div>
+                
         </div>
     </div>
-}
-   
-        
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-    <script>
-        $("input[type='datetime']").datetimepicker();
-    </script>
-    <script>
-        $('input#fechas').blur(function () {
-            $.ajax({
-                type: 'GET',
-                url: "@Url.Action("ReservacionesConflictivas", "Reservacion")",
-                success: function (resultado) {
-                    //$("#tablaCargada").remove('.rowData');
-                    var trs = $("#tablaCargada tr").length;
-                    if (trs > 1) {
-                        // Eliminamos la ultima columna
-                        $("#tablaCargada tr:last").remove();
-                    }
-                    $("#tablaCargada").parent("tr").remove();
-                    var datos = resultado[0];
-                    var newR = $('<tr>').addClass('rowData');
-                    $('<td>').html(datos.nombre).appendTo(newR);
-                    $('<td>').html(datos.nombreSalon).appendTo(newR);
-                    $('<td>').html(datos.fechaEventoInicial).appendTo(newR);
-                    newR.appendTo("#tablaCargada");
-                }
-            });
-
-        });
-    </script>
 }
