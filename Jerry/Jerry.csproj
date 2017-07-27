@@ -175,6 +175,8 @@
     <Compile Include="Controllers\PagoController.cs" />
     <Compile Include="Controllers\ReservacionController.cs" />
     <Compile Include="Controllers\SalonController.cs" />
+    <Compile Include="GeneralTools\DatesTools.cs" />
+    <Compile Include="GeneralTools\NumbersTools.cs" />
     <Compile Include="GeneralTools\TimePeriod.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

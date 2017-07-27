@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Novacode;
+using System.Globalization;
 
 namespace Jerry.Controllers
 {
@@ -169,18 +170,50 @@ namespace Jerry.Controllers
             return RedirectToAction("Index");
         }
 
-        public FileResult GenerarContrato(int? id)
+        public FileResult GenerarContrato(int? id, string tipoContrato)
         {
             Reservacion resContrato = db.reservaciones.Find(id);
             Cliente cliente = resContrato.cliente;
             Salon salon = resContrato.salon;
-
+            String rutaContrato = "";
+            /*
+             Ventura Kids
+             Fecha
+             Cliente
+             Teléfono
+             Día, Mes, Año
+             Hora Inicio
+             Hora Fin
+             Costo (Letra)
+             Anticipo
+             Debe (Letra)
+             */
+            if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
+            {
+                rutaContrato = "~/App_Data/CONTRATO-MODIFICADO.docx";
+            }
+            else if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))
+            {
+                rutaContrato = "~/App_Data/CONTRATO.VENTURA.KIDs.NEW.docx";
+            }
             String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
-            byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath("~/App_Data/Contrato.docx"));
+            byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
             System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
             String descripcionServicios = resContrato.Detalles;
             String telefono = cliente.telefono;
             String correo = cliente.email;
+            String fechaReservacion = resContrato.fechaReservacion.ToLongDateString();
+            String diaEvento = resContrato.fechaEventoInicial.Day.ToString();
+            String mesEvento = DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoInicial, "es").ToUpperInvariant();
+            String yearEvento = resContrato.fechaEventoInicial.Year.ToString();
+            String horaInicioEvento = resContrato.fechaEventoInicial.Hour.ToString();
+            String horaFinEvento = resContrato.fechaEventoFinal.Hour.ToString();
+            String costo = resContrato.costo.ToString();
+            String costoLetra = NumbersTools.NumberToText.Convert(resContrato.costo, "pesos");
+            String anticipo = resContrato.cantidadPagada.ToString();
+            String adeudo = resContrato.cantidadFaltante.ToString();
+            String adeudoLetra = NumbersTools.NumberToText.Convert(resContrato.cantidadFaltante, "pesos");
+
             if (String.IsNullOrEmpty(telefono))
             {
                 telefono = "";
@@ -190,14 +223,23 @@ namespace Jerry.Controllers
                 correo = "";
             }
             String asociadoCliente = cliente.clienteID.ToString();
-            String nombreCliente = cliente.nombreCompleto;
+            String nombreCliente = cliente.nombreCompleto.ToUpperInvariant();
 
             var doc = DocX.Load(nuevoContrato);
 
+            doc.ReplaceText("<FECHA>", fechaReservacion);
             doc.ReplaceText("<CLIENTE>", nombreCliente);
-            doc.ReplaceText("<DESCRIPCION>", descripcionServicios);
             doc.ReplaceText("<TELEFONO>", telefono);
-            doc.ReplaceText("<EMAIL>", correo);
+            doc.ReplaceText("<DIA>", diaEvento);
+            doc.ReplaceText("<MES>", mesEvento);
+            doc.ReplaceText("<AÑO>", yearEvento);
+            doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
+            doc.ReplaceText("<HORA_FIN>", horaFinEvento);
+            doc.ReplaceText("<COSTO>", costo);
+            doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
+            doc.ReplaceText("<ANTICIPO>", anticipo);
+            doc.ReplaceText("<DEBE>", adeudo);
+            doc.ReplaceText("<LETRA_DEUDA>", adeudoLetra);
 
             doc.Save();
 
