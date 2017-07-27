@@ -132,8 +132,7 @@ else
             }
             <div class="hidden-print" style="display: inline-flex;">
                     <input type="button" class="hidden-print btn btn-primary"
-                            onClick="window.print()"
-                            value="Print Detalles" />
+                            onClick="window.print()" value="Print Detalles" />
                 </div>
             <div class="hidden-print">
                     @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))

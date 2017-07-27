@@ -40,12 +40,11 @@
             <div class="col-md-9">
                 <p class="form-control-static">@Html.DisplayFor(model => model.email)</p>
             </div>
+
+            <a href="@Url.Action("Edit", new { id = Model.clienteID })">
+                <i class="fa fa-pencil-square-o"></i> Editar
+            </a>
         </div>
-
-
-        <a href="@Url.Action("Edit", new { id = Model.clienteID })">
-            <i class="fa fa-pencil-square-o"></i> Editar
-        </a>
     </div>
 </div>
 
@@ -59,3 +58,12 @@
         @Html.Partial("../Reservacion/Partial_Reservaciones", Model.reservaciones)
     </div>
 </div>
+
+
+@section Scripts{
+    
+<script>
+    inicializarInterfazRequerimientos();
+</script>
+    
+}

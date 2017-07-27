@@ -84,8 +84,17 @@
                 @RenderBody()
             </div>
             <hr class="hidden-print" />
+
             <footer class="hidden-print">
-                <p>&copy; @DateTime.Now.Year - Dev. By @Html.RouteLink("Netcode", new { }, new { href = "http://netcodesolutions.net/" }) </p>
+                <p>
+                    <span> @DateTime.Now.Year - Events Reservation & Administration System.</span>
+                    <span style="font-size: .8em">
+                        <span>Developed by</span>
+                        <a target="_blank" href="http://www.netcodesolutions.net/">
+                            <span class="icon-netcode"><span class="path1"></span><span class="path2"></span></span> Netcode
+                        </a>
+                    </span>
+                </p>
             </footer>
         </div>
     </div>
@@ -95,9 +104,6 @@
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
-    <script>
-            $("input[type='datetime']").datetimepicker();
-    </script>
 
 </body>
 </html>
