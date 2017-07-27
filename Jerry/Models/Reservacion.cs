@@ -129,8 +129,9 @@ namespace Jerry.Models
         public static List<object> getTipoContratoItemArray()
         {
             List<object> array = new List<object>();
-            array.Add(new { Text = "Contrato Tipo 1", Value = "Tipo1" });
-            array.Add(new { Text = "Contrato Tipo 2", Value = "Tipo2" });
+            array.Add(new { Text = "Contrato Prestación de Servicios", Value = "Sevicios" });
+            array.Add(new { Text = "Contrato Por Evento", Value = "Evento" });
+            array.Add(new { Text = "Contrato Ventura Kids", Value = "Ventura Kids" });
 
             return array;
         }
