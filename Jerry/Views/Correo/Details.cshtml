@@ -1,16 +1,19 @@
-﻿@model Jerry.Models.Correo
+﻿@using Jerry.Models
+@model Jerry.Models.Correo
 
 @{
     ViewBag.Title = "Configuración";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Servicio> servicios = ViewBag.servicios;
 }
 
-<h2>Configuración del Correo Electronico</h2>
+<h2>Configuración</h2>
 
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Correo</h3>
     </div>
+    <!--Detalles de correo del administrador-->
     <div class="panel-body">
         <dl class="dl-horizontal">
 
@@ -68,3 +71,6 @@
         <i class="fa fa-users"></i>Usuarios
     </a>
 </p>
+
+@Html.Partial("../Servicios/Partial_CreateServicio", new Servicio())
+@Html.Partial("../Servicios/Partial_ListServicios", servicios)

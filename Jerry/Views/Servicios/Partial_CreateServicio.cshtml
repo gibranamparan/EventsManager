@@ -1,0 +1,47 @@
+﻿@model Jerry.Models.Servicio
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Nuevo Servicio</h3>
+    </div>
+    <div class="panel-body">
+        @using (Html.BeginForm("Create","Servicio"))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(model => model.nombre)
+                    @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(model => model.costo)
+                    @Html.EditorFor(model => model.costo,
+                       new { htmlAttributes = new
+                           {
+                               @class = "form-control",
+                               data_mask = "###0.00",
+                               data_mask_reverse = "true",
+                           }
+                       })
+                    @Html.ValidationMessageFor(model => model.costo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-12">
+                    @Html.LabelFor(model => model.descripcion)
+                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                </div>
+            </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <input type="submit" value="Registrar" class="btn btn-success" />
+                    </div>
+                </div>
+        }
+    </div>
+</div>

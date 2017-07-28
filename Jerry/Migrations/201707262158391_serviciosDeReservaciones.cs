@@ -19,7 +19,7 @@ namespace Jerry.Migrations
                     })
                 .PrimaryKey(t => t.id)
                 .ForeignKey("dbo.Reservacions", t => t.reservacionID, cascadeDelete: true)
-                .ForeignKey("dbo.Servicios", t => t.serviciosID, cascadeDelete: true)
+                .ForeignKey("dbo.Servicios", t => t.serviciosID, cascadeDelete: false)
                 .Index(t => t.reservacionID)
                 .Index(t => t.serviciosID);
             

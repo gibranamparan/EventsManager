@@ -25,18 +25,11 @@ namespace Jerry.Controllers
         }
 
         // GET: Correo/Details/5
-        [Authorize(Roles ="Administrador")]
-        public async Task<ActionResult> Details(int? id)
+        [Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
+        public async Task<ActionResult> Details()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Correo correo = await db.Correos.FindAsync(id);
-            if (correo == null)
-            {
-                return HttpNotFound();
-            }
+            Correo correo = db.Correos.ToList().ElementAt(0);
+            ViewBag.servicios = db.Servicios.ToList();
             return View(correo);
         }
 
