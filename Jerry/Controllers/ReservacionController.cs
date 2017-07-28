@@ -230,6 +230,7 @@ namespace Jerry.Controllers
                 doc.ReplaceText("<AÑO>", yearEvento);
                 doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
                 doc.ReplaceText("<HORA_FIN>", horaFinEvento);
+
                 if (fechaInicioEvento.Equals(fechaFinEvento))
                 {
                     doc.ReplaceText("<CONCLUYE>", "mismo día");
@@ -238,6 +239,7 @@ namespace Jerry.Controllers
                 {
                     doc.ReplaceText("<CONCLUYE>", resContrato.fechaEventoFinal.Day + " DE " + DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoFinal, "es").ToUpperInvariant() + " DEL " + resContrato.fechaEventoFinal.Year);
                 }
+
                 doc.ReplaceText("<COSTO>", costo);
                 doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
                 doc.ReplaceText("<ANTICIPO>", anticipo);

@@ -175,9 +175,10 @@
     <Compile Include="Controllers\PagoController.cs" />
     <Compile Include="Controllers\ReservacionController.cs" />
     <Compile Include="Controllers\SalonController.cs" />
-	<Compile Include="Controllers\ServicioController.cs" />
-	<Compile Include="GeneralTools\DatesTools.cs" />
-	<Compile Include="GeneralTools\TimePeriod.cs" />
+    <Compile Include="Controllers\ServicioController.cs" />
+    <Compile Include="GeneralTools\DatesTools.cs" />
+    <Compile Include="GeneralTools\NumbersTools.cs" />
+    <Compile Include="GeneralTools\TimePeriod.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -196,6 +197,10 @@
     <Compile Include="Migrations\201707280046447_ModificacionReservacionCantidadPersonas.cs" />
     <Compile Include="Migrations\201707280046447_ModificacionReservacionCantidadPersonas.Designer.cs">
       <DependentUpon>201707280046447_ModificacionReservacionCantidadPersonas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201707280152499_CambiosBanqueteModel.cs" />
+    <Compile Include="Migrations\201707280152499_CambiosBanqueteModel.Designer.cs">
+      <DependentUpon>201707280152499_CambiosBanqueteModel.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -420,6 +425,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201707280046447_ModificacionReservacionCantidadPersonas.resx">
       <DependentUpon>201707280046447_ModificacionReservacionCantidadPersonas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707280152499_CambiosBanqueteModel.resx">
+      <DependentUpon>201707280152499_CambiosBanqueteModel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

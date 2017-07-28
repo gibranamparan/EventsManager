@@ -13,7 +13,7 @@ namespace Jerry.Controllers
     public class BanquetesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
+        private const string BIND_FIELDS = "banqueteID,fechaBanquete,email,telefono,descripcionServicio,cantidadPersonas,costo,tipoContrato,clienteID";
         // GET: Banquetes
         public ActionResult Index()
         {
@@ -48,7 +48,7 @@ namespace Jerry.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "banqueteID,fechaBanquete,email,telefono,descripcionServicio,clienteID")] Banquete banquete)
+        public ActionResult Create([Bind(Include = BIND_FIELDS)] Banquete banquete)
         {
             if (ModelState.IsValid)
             {
@@ -82,7 +82,7 @@ namespace Jerry.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "banqueteID,fechaBanquete,email,telefono,descripcionServicio,clienteID")] Banquete banquete)
+        public ActionResult Edit([Bind(Include = BIND_FIELDS)] Banquete banquete)
         {
             if (ModelState.IsValid)
             {
