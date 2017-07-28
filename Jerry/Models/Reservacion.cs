@@ -49,6 +49,10 @@ namespace Jerry.Models
         public string TipoContrato { get; set; }
 
         [Required]
+        [Display(Name = "Cantidad de Personas")]
+        public int CantidadPersonas { get; set; }
+
+        [Required]
         [Display(Name ="Salón")]
         public int salonID { get; set; }
         //Una reservacion es unicamente a un salon
@@ -136,7 +140,7 @@ namespace Jerry.Models
         public static List<object> getTipoContratoItemArray()
         {
             List<object> array = new List<object>();
-            array.Add(new { Text = "Contrato Prestación de Servicios", Value = Reservacion.TiposContrato.SERVICIO });
+            //array.Add(new { Text = "Contrato Prestación de Servicios", Value = Reservacion.TiposContrato.SERVICIO });
             array.Add(new { Text = "Contrato Por Arrendamiento de Evento", Value = Reservacion.TiposContrato.EVENTO });
             array.Add(new { Text = "Contrato Ventura Kids", Value = Reservacion.TiposContrato.KIDS });
 

@@ -19,7 +19,7 @@ namespace Jerry.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private const string BIND_FIELDS = "reservacionID,fechaReservacion,fechaEventoInicial," +
-            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato";
+            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato,CantidadPersonas";
 
         // GET: Reservacion}
         [Authorize]
@@ -33,7 +33,7 @@ namespace Jerry.Controllers
             DateTime inicio = new DateTime();
             DateTime fin = new DateTime();
 
-            if (periodo.startDate.ToShortDateString() == DateTime.Today.ToShortDateString())
+            if (periodo.startDate.ToShortDateString() == DateTime.Today.ToShortDateString() && periodo.endDate.ToShortDateString() == hoyMasMes.ToShortDateString())
             {
                 reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= DateTime.Today &&
                 r.fechaEventoInicial <= hoyMasMes).OrderByDescending(r => r.fechaEventoInicial).ToList();
@@ -176,18 +176,10 @@ namespace Jerry.Controllers
             Cliente cliente = resContrato.cliente;
             Salon salon = resContrato.salon;
             String rutaContrato = "";
-            /*
-             Ventura Kids
-             Fecha
-             Cliente
-             Teléfono
-             Día, Mes, Año
-             Hora Inicio
-             Hora Fin
-             Costo (Letra)
-             Anticipo
-             Debe (Letra)
-             */
+            String fechaInicioEvento = resContrato.fechaEventoInicial.ToShortDateString();
+            String fechaFinEvento = resContrato.fechaEventoFinal.ToShortDateString();
+            String duracionEvento = (resContrato.fechaEventoFinal - resContrato.fechaEventoInicial).TotalHours.ToString();
+
             if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
             {
                 rutaContrato = "~/App_Data/CONTRATO-MODIFICADO.docx";
@@ -203,6 +195,7 @@ namespace Jerry.Controllers
             String telefono = cliente.telefono;
             String correo = cliente.email;
             String fechaReservacion = resContrato.fechaReservacion.ToLongDateString();
+            String cantidadPersonas = resContrato.CantidadPersonas.ToString();
             String diaEvento = resContrato.fechaEventoInicial.Day.ToString();
             String mesEvento = DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoInicial, "es").ToUpperInvariant();
             String yearEvento = resContrato.fechaEventoInicial.Year.ToString();
@@ -226,25 +219,57 @@ namespace Jerry.Controllers
             String nombreCliente = cliente.nombreCompleto.ToUpperInvariant();
 
             var doc = DocX.Load(nuevoContrato);
-
-            doc.ReplaceText("<FECHA>", fechaReservacion);
-            doc.ReplaceText("<CLIENTE>", nombreCliente);
-            doc.ReplaceText("<TELEFONO>", telefono);
-            doc.ReplaceText("<DIA>", diaEvento);
-            doc.ReplaceText("<MES>", mesEvento);
-            doc.ReplaceText("<AÑO>", yearEvento);
-            doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
-            doc.ReplaceText("<HORA_FIN>", horaFinEvento);
-            doc.ReplaceText("<COSTO>", costo);
-            doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
-            doc.ReplaceText("<ANTICIPO>", anticipo);
-            doc.ReplaceText("<DEBE>", adeudo);
-            doc.ReplaceText("<LETRA_DEUDA>", adeudoLetra);
+            if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))
+            {
+                doc.ReplaceText("<FECHA>", fechaReservacion);
+                doc.ReplaceText("<CLIENTE>", nombreCliente);
+                doc.ReplaceText("<TELEFONO>", telefono);
+                doc.ReplaceText("<INVITADOS>", cantidadPersonas);
+                doc.ReplaceText("<DIA>", diaEvento);
+                doc.ReplaceText("<MES>", mesEvento);
+                doc.ReplaceText("<AÑO>", yearEvento);
+                doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
+                doc.ReplaceText("<HORA_FIN>", horaFinEvento);
+                if (fechaInicioEvento.Equals(fechaFinEvento))
+                {
+                    doc.ReplaceText("<CONCLUYE>", "mismo día");
+                }
+                else
+                {
+                    doc.ReplaceText("<CONCLUYE>", resContrato.fechaEventoFinal.Day + " DE " + DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoFinal, "es").ToUpperInvariant() + " DEL " + resContrato.fechaEventoFinal.Year);
+                }
+                doc.ReplaceText("<COSTO>", costo);
+                doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
+                doc.ReplaceText("<ANTICIPO>", anticipo);
+                doc.ReplaceText("<DEBE>", adeudo);
+                doc.ReplaceText("<LETRA_DEUDA>", adeudoLetra);
+            }
+            else if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
+            {
+                doc.ReplaceText("<CLIENTE>", nombreCliente);
+                doc.ReplaceText("<TIEMPO>", duracionEvento);
+                doc.ReplaceText("<DIA>", diaEvento);
+                doc.ReplaceText("<MES>", mesEvento);
+                doc.ReplaceText("<AÑO>", yearEvento);
+                doc.ReplaceText("<DESCRIPCION>", descripcionServicios);
+                doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
+                doc.ReplaceText("<HORA_FIN>", horaFinEvento);
+                doc.ReplaceText("<DIA_FIN>", resContrato.fechaEventoFinal.Day.ToString());
+                doc.ReplaceText("<MES_FIN>", DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoFinal,"es"));
+                doc.ReplaceText("<AÑO_FIN>", resContrato.fechaEventoFinal.Year.ToString());
+                doc.ReplaceText("<INVITADOS>", cantidadPersonas);
+                doc.ReplaceText("<COSTO>", costo);
+                doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
+                doc.ReplaceText("<TIEMPO_LETRA>", NumbersTools.NumberToText.Convert(decimal.Parse(duracionEvento)).Split(' ')[0]);
+                doc.ReplaceText("<DIA_HOY>", DateTime.Today.Day.ToString());
+                doc.ReplaceText("<MES_HOY>", DatesTools.DatesToText.ConvertToMonth(DateTime.Today,"es"));
+                doc.ReplaceText("<AÑO_HOY>", DateTime.Today.Year.ToString());
+            }
 
             doc.Save();
 
             byte[] fileBytesNuevoContrato = System.IO.File.ReadAllBytes(nuevoContrato);
-            string nombreArchivoDescargado = "Ejemplo_" + DateTime.Now+".docx";
+            string nombreArchivoDescargado = tipoContrato+"_"+nombreCliente.ToUpperInvariant()+".docx";
             return File(fileBytesNuevoContrato,System.Net.Mime.MediaTypeNames.Application.Octet,nombreArchivoDescargado);
         }
 
@@ -281,16 +306,5 @@ namespace Jerry.Controllers
 
             return Json(res, JsonRequestBehavior.AllowGet);
         }
-
-
-
-
-
-
-
-
-
-
-
     }
 }
