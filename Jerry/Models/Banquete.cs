@@ -27,6 +27,11 @@ namespace Jerry.Models
         public string telefono { get; set; }
 
         [Required]
+        [Display(Name ="Lugar")]
+        public string lugar { get; set; }
+
+        [Required]
+        [DataType(DataType.MultilineText)]
         [Display(Name = "Descripción de Servicios")]
         public string descripcionServicio { get; set; }
 

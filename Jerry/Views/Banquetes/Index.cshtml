@@ -67,6 +67,9 @@
                         </a> <br />
                         <a href="@Url.Action("Delete", new { id = item.banqueteID })">
                             <i class="glyphicon glyphicon-remove"></i> Borrar
+                        </a> <br/>
+                        <a href="@Url.Action("GenerarContrato",new { id = item.banqueteID, tipoContrato = item.tipoContrato })">
+                            <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
                         </a>
                     </td>
                 </tr>

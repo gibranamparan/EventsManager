@@ -7,13 +7,15 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Jerry.Models;
+using Jerry.GeneralTools;
+using Novacode;
 
 namespace Jerry.Controllers
 {
     public class BanquetesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        private const string BIND_FIELDS = "banqueteID,fechaBanquete,email,telefono,descripcionServicio,cantidadPersonas,costo,tipoContrato,clienteID";
+        private const string BIND_FIELDS = "banqueteID,fechaBanquete,email,telefono,lugar,descripcionServicio,cantidadPersonas,costo,tipoContrato,clienteID";
         // GET: Banquetes
         public ActionResult Index()
         {
@@ -118,6 +120,49 @@ namespace Jerry.Controllers
             db.Banquetes.Remove(banquete);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public FileResult GenerarContrato(int? id, string tipoContrato)
+        {
+            Banquete resContrato = db.Banquetes.Find(id);
+            Cliente cliente = resContrato.cliente;
+            String rutaContrato = "";
+            String fechaInicioEvento = resContrato.fechaBanquete.ToLongDateString();
+            String horaEvento = resContrato.fechaBanquete.Hour.ToString();
+            String lugar = resContrato.lugar;
+            if (tipoContrato.Equals(Reservacion.TiposContrato.SERVICIO))
+            {
+                rutaContrato = "~/App_Data/CONTRATO-de-Prestacion-de-Servicios.docx";
+            }
+            String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
+            byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
+            System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
+            String descripcionServicios = resContrato.descripcionServicio;
+            String cantidadPersonas = resContrato.cantidadPersonas.ToString();
+            String costo = resContrato.costo.ToString();
+            String anticipo = resContrato.cantidadPagada.ToString();
+            String adeudo = resContrato.cantidadFaltante.ToString();
+            String asociadoCliente = cliente.clienteID.ToString();
+            String nombreCliente = cliente.nombreCompleto.ToUpperInvariant();
+
+            var doc = DocX.Load(nuevoContrato);
+            doc.ReplaceText("<FECHA>", DateTime.Today.ToLongDateString());
+            doc.ReplaceText("<CLIENTE>", nombreCliente);
+            doc.ReplaceText("<FECHA_EVENTO>", fechaInicioEvento);            
+            doc.ReplaceText("<HORA>", horaEvento);
+            doc.ReplaceText("<INVITADOS>", cantidadPersonas);
+            doc.ReplaceText("<LUGAR>", lugar);
+            doc.ReplaceText("<COSTO>", costo);
+            //TODO cambiar anticipo por un valor que indique la cantidad de anticipo
+            doc.ReplaceText("<ANTICIPO>", anticipo);
+            doc.ReplaceText("<ABONOS>", anticipo);
+            doc.ReplaceText("<DESCRIPCION>", descripcionServicios);
+
+            doc.Save();
+
+            byte[] fileBytesNuevoContrato = System.IO.File.ReadAllBytes(nuevoContrato);
+            string nombreArchivoDescargado = tipoContrato + "_" + nombreCliente.ToUpperInvariant() + ".docx";
+            return File(fileBytesNuevoContrato, System.Net.Mime.MediaTypeNames.Application.Octet, nombreArchivoDescargado);
         }
 
         protected override void Dispose(bool disposing)
