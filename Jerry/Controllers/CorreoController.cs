@@ -15,6 +15,7 @@ namespace Jerry.Controllers
 {
     public class CorreoController : Controller
     {
+        public const string BIND_FIELDS = "correoID,To,Subject,Body,correoAdmin,contrasena,smtpHost,puertoCorreo";
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Correo
@@ -26,9 +27,9 @@ namespace Jerry.Controllers
 
         // GET: Correo/Details/5
         [Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
-        public async Task<ActionResult> Details()
+        public ActionResult Details()
         {
-            Correo correo = db.Correos.ToList().ElementAt(0);
+            Correo correo = db.Correos.ToList().FirstOrDefault();
             ViewBag.servicios = db.Servicios.ToList();
             return View(correo);
         }
@@ -37,7 +38,8 @@ namespace Jerry.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            return View();
+            Correo correo = new Correo();
+            return View("Form_Correo", correo);
         }
 
         // POST: Correo/Create
@@ -46,16 +48,16 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "correoID,To,Subject,Body,correoAdmin,contrasena,smtpHost,puertoCorreo")] Correo correo)
+        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Correo correo)
         {
             if (ModelState.IsValid)
             {
                 db.Correos.Add(correo);
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details");
             }
 
-            return View(correo);
+            return View("Form_Correo",correo);
         }
 
         // GET: Correo/Edit/5
@@ -69,9 +71,9 @@ namespace Jerry.Controllers
             Correo correo = await db.Correos.FindAsync(id);
             if (correo == null)
             {
-                return HttpNotFound();
+                return RedirectToAction("Create");
             }
-            return View(correo);
+            return View("Form_Correo", correo);
         }
 
         // POST: Correo/Edit/5
@@ -80,15 +82,15 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "correoID,To,Subject,Body,correoAdmin,contrasena,smtpHost,puertoCorreo")] Correo correo)
+        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Correo correo)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(correo).State = EntityState.Modified;
                 await db.SaveChangesAsync();
-                return RedirectToAction("Details", new { id = 1 });
+                return RedirectToAction("Details");
             }
-            return View(correo);
+            return View("Form_Correo", correo);
         }
 
         // GET: Correo/Delete/5

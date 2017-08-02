@@ -40,13 +40,8 @@ namespace Jerry.Models
 
         [ForeignKey("servicio")]
         [DisplayName("Servicio")]
-        public int serviciosID { get; set; }
+        public int? serviciosID { get; set; }
         public virtual Servicio servicio { get; set; }
-
-        [DisplayName("Costo")]
-        [DisplayFormat(DataFormatString = "{0:C}",
-            ApplyFormatInEditMode = true)]
-        public decimal costo { get; set; }
 
         [DisplayName("Costo")]
         [DataType(DataType.MultilineText)]

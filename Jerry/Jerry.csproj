@@ -206,6 +206,18 @@
     <Compile Include="Migrations\201707282130198_CambioBanqueteModelLugar.Designer.cs">
       <DependentUpon>201707282130198_CambioBanqueteModelLugar.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.cs" />
+    <Compile Include="Migrations\201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.Designer.cs">
+      <DependentUpon>201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708010226157_retirar_costo_ServiciosEnReservacion.cs" />
+    <Compile Include="Migrations\201708010226157_retirar_costo_ServiciosEnReservacion.Designer.cs">
+      <DependentUpon>201708010226157_retirar_costo_ServiciosEnReservacion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.cs" />
+    <Compile Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.Designer.cs">
+      <DependentUpon>201708020400464_reservaciones_dividadesPor_Sesiones.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -231,6 +243,7 @@
     <Content Include="Content\jquery.dataTables.min.css" />
     <Content Include="Content\jquery.datetimepicker.css" />
     <Content Include="Content\RogelioCSS.css" />
+    <Content Include="Content\select.dataTables.min.css" />
     <Content Include="Content\themes\base\accordion.css" />
     <Content Include="Content\themes\base\all.css" />
     <Content Include="Content\themes\base\autocomplete.css" />
@@ -301,6 +314,7 @@
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\custom.js" />
+    <Content Include="Scripts\dataTables.select.min.js" />
     <Content Include="Scripts\JavascriptRogelio.js" />
     <Content Include="Scripts\jquery-3.1.1.min.map" />
     <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
@@ -326,6 +340,7 @@
     <Content Include="Scripts\morris\morris-0.4.3.min.css" />
     <Content Include="Scripts\morris\morris.js" />
     <Content Include="Scripts\morris\raphael-2.1.0.min.js" />
+    <Content Include="Scripts\numeral.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\skel.min.js" />
@@ -377,7 +392,6 @@
     <Content Include="Views\Salon\Details.cshtml" />
     <Content Include="Views\Salon\Edit.cshtml" />
     <Content Include="Views\Salon\Index.cshtml" />
-    <Content Include="Views\Reservacion\Create.cshtml" />
     <Content Include="Views\Reservacion\Delete.cshtml" />
     <Content Include="Views\Reservacion\Details.cshtml" />
     <Content Include="Views\Reservacion\Edit.cshtml" />
@@ -387,14 +401,10 @@
     <Content Include="Views\Pago\Details.cshtml" />
     <Content Include="Views\Pago\Edit.cshtml" />
     <Content Include="Views\Pago\Index.cshtml" />
-    <Content Include="Views\Reservacion\Partial_CreateReservacion.cshtml" />
     <Content Include="Views\Pago\Partial_DetallesDePagos.cshtml" />
-    <Content Include="Views\Correo\Create.cshtml" />
-    <Content Include="Views\Correo\Delete.cshtml" />
     <Content Include="Views\Correo\EnviarCorreo.cshtml" />
     <Content Include="Views\Reservacion\Partial_Reservaciones.cshtml" />
-    <Content Include="Views\Correo\Index.cshtml" />
-    <Content Include="Views\Correo\Edit.cshtml" />
+    <Content Include="Views\Correo\Form_Correo.cshtml" />
     <Content Include="Views\Correo\Details.cshtml" />
     <Content Include="Views\Pago\Partial_IngresarPago.cshtml" />
     <Content Include="Views\Banquetes\Create.cshtml" />
@@ -405,10 +415,12 @@
     <Content Include="Views\Account\ListUsers.cshtml" />
     <Content Include="Views\Servicios\Partial_ListServicios.cshtml" />
     <Content Include="Views\Servicios\Partial_CreateServicio.cshtml" />
+    <Content Include="Views\Reservacion\Form_Reservacion.cshtml" />
+    <Content Include="Views\Clientes\Partial_ClienteDetailsSummary.cshtml" />
+    <Content Include="Views\Reservacion\Partial_ListSesiones.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Servicio\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -435,6 +447,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201707282130198_CambioBanqueteModelLugar.resx">
       <DependentUpon>201707282130198_CambioBanqueteModelLugar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.resx">
+      <DependentUpon>201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708010226157_retirar_costo_ServiciosEnReservacion.resx">
+      <DependentUpon>201708010226157_retirar_costo_ServiciosEnReservacion.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.resx">
+      <DependentUpon>201708020400464_reservaciones_dividadesPor_Sesiones.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

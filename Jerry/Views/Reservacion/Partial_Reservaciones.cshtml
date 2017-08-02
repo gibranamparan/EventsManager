@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<Jerry.Models.Reservacion>
-
 <table class="table table-hover table-striped datatable">
     <thead>
         <tr>
@@ -25,14 +24,14 @@
                 @Html.DisplayNameFor(model => model.cantidadFaltante)
             </th>
 
-            <th>
+            <th style="width: 20em">
                 @Html.DisplayNameFor(model => model.Detalles)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.OrderBy(res => res.fechaEventoInicial))
         {
             <tr>
                 <td>
@@ -59,13 +58,24 @@
                     @Html.DisplayFor(model => item.cantidadFaltante)
                 </td>
 
-                <td>
+                <td style="width: 20em">
                     @Html.DisplayFor(modelItem => item.Detalles)
                 </td>
                 <td>
-                    <a href="@Url.Action("Details","Reservacion", new { id = item.reservacionID })">
-                        <i class="fa fa-list-alt"></i> Detalle
-                    </a>
+                    <div class="dropdown_actions">
+                        <button onclick="openActionsDropDown(this)"
+                                class="dropbtn btn btn-default">
+                            <i class="glyphicon glyphicon-option-horizontal"></i>
+                        </button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <a href="@Url.Action("Details","Reservacion", new { id = item.reservacionID })">
+                                <i class="fa fa-credit-card"></i> Pagos
+                            </a>
+                            <a href="@Url.Action("Edit","Reservacion", new { id = item.reservacionID })">
+                                <i class="fa fa-pencil"></i> Editar
+                            </a>
+                        </div>
+                    </div>
                 </td>
             </tr>
         }

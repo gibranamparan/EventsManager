@@ -7,7 +7,7 @@
     List<Servicio> servicios = ViewBag.servicios;
 }
 
-<h2>Configuración</h2>
+<h2>@ViewBag.Title</h2>
 
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -15,6 +15,7 @@
     </div>
     <!--Detalles de correo del administrador-->
     <div class="panel-body">
+        @if (Model != null) { 
         <dl class="dl-horizontal">
 
             <dt>
@@ -58,12 +59,20 @@
             </dd>
 
         </dl>
+        <a href="@Url.Action("Edit", new { id = Model.correoID})">
+            <i class="fa fa-pencil"></i>Editar
+        </a>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                <strong>No ha sido configurado su correo electrónico</strong> como administrador, favor de hacer la configuracion en el siguiente 
+                <a href="@Url.Action("Create")">enlace</a>.
+            </div>
+        }
     </div>
 </div>
 <p>
-    <a href="@Url.Action("Edit", new { id = Model.correoID})">
-        <i class="fa fa-pencil"></i>Editar
-    </a> |
     <a href="@Url.Action("index","Salon")">
         <i class="glyphicon glyphicon-list-alt"></i>Salones
     </a>|

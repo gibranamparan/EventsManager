@@ -67,5 +67,6 @@ namespace Jerry.Models
         public DbSet<Banquete> Banquetes { get; set; }
         public DbSet<Servicio> Servicios { get; set; }
         public DbSet<ServiciosEnReservacion> ServiciosEnReservaciones { get; set; }
+        public DbSet<SesionDeReservacion> sesionesEnReservaciones { get; set; }
     }
 }

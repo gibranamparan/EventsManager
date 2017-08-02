@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -16,25 +17,48 @@ namespace Jerry.Models
 
         [Required]
         [Display(Name = "Fecha de Reservación")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}",
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd HH:mm}",
             ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
         public DateTime fechaReservacion { get; set; }
 
         [Required]
         [Display(Name = "Inicio del evento")]
-        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}",
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd HH:mm}",
             ApplyFormatInEditMode = true)]
-        public DateTime fechaEventoInicial { get; set; }
+        public DateTime fechaEventoInicial { get {
+                DateTime res = new DateTime();
+                //Si hay sesiones en la reservacion, se toma la fecha inicial de la 1ra sesion
+                if(this.sesiones!=null && this.sesiones.Count() > 0)
+                {
+                    var sesiones = this.sesiones.OrderBy(ses => ses.periodoDeSesion.startDate);
+                    res = sesiones.FirstOrDefault().periodoDeSesion.startDate;
+                }
+
+                return res;
+            }
+        }
 
         [Required]
         [Display(Name = "Fin del evento")]
-        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm}", 
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd HH:mm}",
             ApplyFormatInEditMode = true)]
-        public DateTime fechaEventoFinal { get; set; }
+        public DateTime fechaEventoFinal {
+            get
+            {
+                DateTime res = new DateTime();
+                //Si hay sesiones en la reservacion, se toma la fecha inicial de la 1ra sesion
+                if (this.sesiones != null && this.sesiones.Count() > 0)
+                {
+                    var sesiones = this.sesiones.OrderByDescending(ses => ses.periodoDeSesion.endDate);
+                    res = sesiones.FirstOrDefault().periodoDeSesion.endDate;
+                }
+                return res;
+            }
+        }
 
         [Required]
-        [Display(Name ="Costo")]
+        [Display(Name ="Costo Total")]
         [DisplayFormat(DataFormatString = "{0:C}",
             ApplyFormatInEditMode = true)]
         public decimal costo { get; set; }
@@ -68,7 +92,9 @@ namespace Jerry.Models
         virtual public ICollection<Pago> pagos { get; set; }
 
         //Servicios seleccionados para esta reservacion
-        public ICollection<ServiciosEnReservacion> serviciosContratados { get; set; }
+        public virtual ICollection<ServiciosEnReservacion> serviciosContratados { get; set; }
+        //Sesiones en las que se divide la reservación
+        public virtual ICollection<SesionDeReservacion> sesiones { get; set; }
 
         [Display(Name = "Faltante")]
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
@@ -91,21 +117,38 @@ namespace Jerry.Models
             }
         }
 
-        public static bool validarFecha(Reservacion reservacion)
+        public decimal costoTotalPorServicios
+        {
+            get
+            {
+                decimal res = 0;
+
+                if(this.serviciosContratados!=null && this.serviciosContratados.Count()>0)
+                {
+                    res = this.serviciosContratados.Sum(ser => ser.servicio.costo);
+                }
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// Verifica si existen reservaciones cuyas sesiones colisionan con las sesiones
+        /// de la instancia que se encuentra siendo registrada.
+        /// </summary>
+        /// <param name="reservacion">Instancia que se encuentra siendo verificada</param>
+        /// <returns>Una lista de reservaciones cuyas sesiones colisionan.</returns>
+        public static List<Reservacion> reservacionesQueColisionan(Reservacion reservacion)
         {
             ApplicationDbContext db = new ApplicationDbContext();
             DateTime fechaI = reservacion.fechaEventoInicial;
             DateTime fechaF = reservacion.fechaEventoFinal;
-            var query = db.reservaciones.Where(res=>res.fechaEventoInicial<=fechaI && res.fechaEventoFinal >= fechaI || res.fechaEventoInicial <= fechaF && res.fechaEventoFinal >= fechaF).Count();
-            //var query2= db.reservaciones.Where(res => res.fechaEventoFinal >= fechaI).Count();
-            if (query > 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+
+            //TODO: Se debe modificar para que verifique por sesiones en salones.
+            List<Reservacion> resultado = db.reservaciones.ToList()
+                .Where(res => res.fechaEventoInicial <= fechaI && res.fechaEventoFinal >= fechaI
+                    || res.fechaEventoInicial <= fechaF && res.fechaEventoFinal >= fechaF).ToList();
+
+            return resultado;
 
         }
         public static bool ObtenerReservaciones(object fechaI, object fechaF, out IEnumerable<Jerry.Models.Reservacion> resultado)
@@ -177,12 +220,30 @@ namespace Jerry.Models
                 }
             }
         }
-
+        
         public static class TiposContrato
         {
             public const string SERVICIO = "Prestación de Sevicios";
             public const string KIDS = "Ventura Kids";
             public const string EVENTO = "Arrendamiento por Evento";
+        }
+    }
+
+    public class SesionDeReservacion
+    {
+        [Key]
+        public int SesionDeReservacionID { get; set; }
+
+        [DisplayName("Sesion")]
+        public TimePeriod periodoDeSesion { get; set; }
+
+        [ForeignKey("reservacion")]
+        public int reservacionID { get; set; }
+        public virtual Reservacion reservacion { get; set; }
+
+        public SesionDeReservacion()
+        {
+            periodoDeSesion = new TimePeriod();
         }
     }
 }

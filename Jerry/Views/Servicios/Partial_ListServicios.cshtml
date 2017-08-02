@@ -1,49 +1,194 @@
-﻿@model IEnumerable<Jerry.Models.Servicio>
+﻿@using Jerry.Models
+@model IEnumerable<Jerry.Models.Servicio>
 
-<table class="table table-striped table-hover">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.costo)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.descripcion)
-        </th>
-        <th></th>
-    </tr>
-    @if (Model != null && Model.Count() > 0)
+@{
+    bool selectMode = ViewData["selectMode"] != null ? (bool)ViewData["selectMode"] : false;
+    bool showOptions = ViewData["showOptions"] != null ? (bool)ViewData["showOptions"] : true;
+    @*Variables para editar la lista de productos comprados*@
+    bool editMode = false;
+    bool found = false;
+    List<ServiciosEnReservacion> servicios = null;
+    ServiciosEnReservacion itemIndex = null;
+    if (ViewData["serviciosSeleccionados"] != null)
     {
-        foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.nombre)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.costo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.descripcion)
-                </td>
-                <td>
-                    <a href="@Url.Action("Delete","Servicio", new { id = item.serviciosID })">
-                        <i class="fa fa-remove"></i><span>Eliminar</span>
-                    </a>
-                </td>
-            </tr>
+        servicios = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
+        editMode = servicios != null && servicios.Count() > 0;
+    }
+}
+@if (Model != null && Model.Count() > 0)
+{
+<table id="tblServicios" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            @if (selectMode)
+            {
+                <th>
+
+                </th>
+                @*
+                    <th width="1em">
+                        Cantidad
+                    </th>*@
+            }
+            <th class="hidden">
+                @Html.DisplayNameFor(model => model.serviciosID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.costo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.descripcion)
+            </th>
+            @if (!selectMode && showOptions)
+            {
+                <th></th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+            @foreach (var item in Model)
+            {
+                if (editMode)
+                {
+                    itemIndex = servicios.FirstOrDefault(serv => serv.serviciosID == item.serviciosID);
+                    found = itemIndex != null;
+                }
+
+                <tr @(found ? "default-selected" : "")>
+                    @if (selectMode)
+                    {
+                        <td></td>
+                        @*
+                            <td width="1em">
+                                <input type="number" productoID="@(item.serviciosID)"
+                                        id="producto@(item.serviciosID)" min="0"
+                                        oninput="editarElemento(this)"
+                                        value="@(editMode && found?compraIndex.cantidadMaterial:0)" />
+                            </td>*@
+                    }
+                    <td class="hidden">
+                        @Html.DisplayFor(modelItem => item.serviciosID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.nombre)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.costo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.descripcion)
+                    </td>
+                    @if (!selectMode && showOptions)
+                    {
+                        <td>
+                            <a href="@Url.Action("Delete","Servicio", new { id = item.serviciosID })">
+                                <i class="fa fa-remove"></i><span>Eliminar</span>
+                            </a>
+                        </td>
+                    }
+                </tr>
+            }
+    </tbody>
+</table>
+}
+else
+{
+    <div class="alert alert-warning">
+        No hay servicios @(selectMode ? "seleccionados" : "registrados").
+    </div>
+}
+
+<script>
+    /*Funciones y varialbes propias de la implementacion*/
+    var totalPorServicios = 0;
+
+    function calcularValoresPropiosDeImplementacion(total) {
+        totalPorServicios = total;
+        $("#totalPorServicios").val(numberToCurrency(totalPorServicios))
+        var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
+        var costoTotal = costoPorReservacion + totalPorServicios;
+        $("#costoTotal").val(numberToCurrency(costoTotal))
+        $("#costo").attr('value', costoTotal)
+        //Preparacion de forma para enviar datos seleccionados
+        $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
+        //test/
+        console.log($('#listServiciosSeleccionados').val())
+    }
+
+    function selectForEdition() {
+        $("#tblServicios").DataTable().table().rows('[default-selected]').select();
+    }
+
+    /*Funciones y variables de seleccion de elementos*/
+    var table;
+    var COLS_ENUM = Object.freeze({ ID: 1, COSTO: 3})
+    var elementosSeleccionados = new Array();
+    function inicializarSeleccionTablaServicios(){
+        table = $("#tblServicios").DataTable({
+            columnDefs: [{
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0
+            }],
+            select: {
+                style: 'multiselect',
+                selector: 'td:first-child'
+            },
+            selected: {},
+            order: [[2, 'asc']]
+        });
+        table.on('select', function (e, dt, type, indexes) {
+            var selRow = dt.data()
+            agregarSeleccion(selRow)
+            recalcularTotales();
+        }).on('deselect', function (e, dt, type, indexes) {
+            var unSelRows = dt.data();
+            removerSeleccion(unSelRows);
+            recalcularTotales();
+        });
+    }
+
+    //Metodo que agrega del estado de compras los elementos desseleccionados
+    function agregarSeleccion(rows) {
+        var renglones = new Array();
+        if (!rows.rows) { //Si es un solo elemento
+            introducirNuevoDato(rows);
+        } else { //Si son varios
+            renglones = rows;
+            //selectedIngresosIDs = new Array();
+            $.each(renglones, function (idx, row) {
+                introducirNuevoDato(row);
+            })
         }
     }
-    else
-    {
-        <tr>
-            <td colspan="4">
-                <div class="alert alert-warning">
-                    No hay servicios registrados.
-                </div>
-            </td>
-        </tr>
+
+    //Metodo que elimina del estado de compras los elementos desseleccionados
+    function removerSeleccion(rows) {
+        var renglonesAEliminar = new Array();
+        if (!rows.rows) {
+            renglonesAEliminar.push(rows);
+        } else {
+            renglonesAEliminar = rows;
+        }
+        $.each(renglonesAEliminar, function (idx, row) {
+            elementosSeleccionados = $.grep(elementosSeleccionados, function (item, idx) {
+                return item.serviciosID == row[COLS_ENUM.ID] //ID del elemento donde se esta implementando
+            }, true)
+        })
     }
 
-</table>
+    function introducirNuevoDato(dato){
+        elementosSeleccionados.push({ serviciosID: dato[COLS_ENUM.ID], costo: currencyToNumber(dato[COLS_ENUM.COSTO]) })
+    }
+
+    function recalcularTotales() {
+        var total = 0;
+        $.each(elementosSeleccionados, function (idx, item) {
+            total += item.costo //Propiedad de costo es cambiable
+        })
+        calcularValoresPropiosDeImplementacion(total)
+    }
+</script>

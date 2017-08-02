@@ -1,8 +1,12 @@
-﻿@model Jerry.Models.Reservacion
-
+﻿@using Jerry.Models
+@model Jerry.Models.Reservacion
 @{
     ViewBag.Title = "Detalles";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //Servicios contratados dentro de la reservacion
+    List<Servicio> serviciosContratados = Model.serviciosContratados != null && Model.serviciosContratados.Count() > 0
+        ? Model.serviciosContratados.Select(sc => sc.servicio).ToList() : new List<Servicio>();
 
     Jerry.Models.Correo correo = new Jerry.Models.Correo();
     Jerry.Models.Pago p = new Jerry.Models.Pago();
@@ -15,15 +19,15 @@
     }
     vdd.Add("faltante", Model.cantidadFaltante);
 }
-<a class="hidden-print" href="@Url.Action("Index")">
-    <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Reservaciones
+<a class="hidden-print" href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
+    <i class="glyphicon glyphicon-arrow-left"></i> Historial de Reservaciones del Cliente
 </a>
 <br class="hidden-print" />
 <br class="hidden-print" />
 <div class="panel panel-info">
     <div class="panel-heading">
         <span class="panel-title">
-            Información pagos de Reservaciones
+            Información Sobre la Reservación
         </span>
     </div>
     <div class="panel-body">
@@ -34,31 +38,24 @@
                         <dt>
                             @Html.DisplayNameFor(model => model.cliente.nombre)
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.cliente.nombre) @Html.DisplayFor(model => model.cliente.apellidoP) @Html.DisplayFor(model => model.cliente.apellidoM)
                         </dd>
-
                         <dt>
                             @Html.DisplayNameFor(model => model.salon.nombre)
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.salon.nombre)
                         </dd>
-
                         <dt>
                             @Html.DisplayNameFor(model => model.Detalles)
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.Detalles)
                         </dd>
-
                         <dt>
                             Fecha del evento
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.fechaEventoInicial)
                         </dd>
@@ -69,36 +66,42 @@
                         <dt>
                             @Html.DisplayNameFor(model => model.costo)
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.costo)
                         </dd>
                         <dt>
                             @Html.LabelFor(model => model.cantidadPagada)
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.cantidadPagada)
                         </dd>
                         <dt>
                             @Html.LabelFor(model => model.cantidadFaltante)
                         </dt>
-
                         <dd>
                             @Html.DisplayFor(model => model.cantidadFaltante)
                         </dd>
                     </dl>
-
                 </div>
             </div>
         </div>
+        <a href="@Url.Action("Edit", new { id = Model.reservacionID })">
+            <i class="fa fa-pencil-square-o"></i> Editar
+        </a>
     </div>
-    <div class="col-md-12">
-        <p class = "hidden-print">
-            <a href="@Url.Action("Edit", new { id = Model.reservacionID })">
-                <i class="fa fa-pencil-square-o"></i> Editar
-            </a>
-        </p>
+</div>
+@Html.Partial("Partial_ListSesiones", Model.sesiones)
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Servicios Contratados</h3>
+    </div>
+    <div class="panel-body">
+        @{ 
+            ViewDataDictionary vddServicios = new ViewDataDictionary();
+            vddServicios.Add("showOptions", false);
+        }
+        @Html.Partial("../Servicios/Partial_ListServicios", serviciosContratados, vddServicios)
     </div>
 </div>
 
@@ -111,7 +114,7 @@ else
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-title">
-                Pagos
+                Historial de Pagos
             </span>
         </div>
         <div class="panel-body">
@@ -131,28 +134,28 @@ else
                 <div class="alert alert-info">No se ha realizado ningún pago para esta reservación</div>
             }
             <div class="hidden-print" style="display: inline-flex;">
-                    <input type="button" class="hidden-print btn btn-primary"
-                            onClick="window.print()" value="Print Detalles" />
-                </div>
+                <input type="button" class="hidden-print btn btn-primary"
+                        onClick="window.print()" value="Print Detalles" />
+            </div>
             <div class="hidden-print">
-                    @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
-                    {
-                        @Html.ValidationSummary()
-                        @Html.Hidden("To", correo.To)
+                @using (@Html.BeginForm("EnviarCorreo", "Correo", FormMethod.Post, new { @id = "form1", @enctype = "multipart/form-data" }))
+                {
+                    @Html.ValidationSummary()
+                    @Html.Hidden("To", correo.To)
 
-                        <table>
-                            <tr>
-                                <td>
-                                    Adjuntar estado de cuenta
-                                </td>
-                                <td>
-                                    <input type="file" name="fileUploader" />
-                                </td>
-                            </tr>
-                        </table>
-                        <input type="submit" value="Enviar Correo" />
-                    }
-                </div>
+                    <table>
+                        <tr>
+                            <td>
+                                Adjuntar estado de cuenta
+                            </td>
+                            <td>
+                                <input type="file" name="fileUploader" />
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="submit" value="Enviar Correo" />
+                }
+            </div>
         </div>
     </div>
 }

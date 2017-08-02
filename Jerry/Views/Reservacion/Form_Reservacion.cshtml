@@ -1,0 +1,262 @@
+﻿@using Jerry.Models
+@model Jerry.Models.Reservacion
+@{
+    bool editMode = Model.reservacionID > 0;
+    ViewBag.Title = (editMode ? "Editar" : "Registrar") + " Reservación";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<Servicio> servicios = ViewBag.servicios;
+    List<SesionDeReservacion> sesiones = new List<SesionDeReservacion>();
+    List<ServiciosEnReservacion> serviciosSeleccionados = new List<ServiciosEnReservacion>();
+    decimal costoTotalPorServicios = 0;
+    decimal costoTotal = 0;
+    if (editMode)
+    {
+        serviciosSeleccionados = Model.serviciosContratados.ToList();
+        costoTotalPorServicios = Model.costoTotalPorServicios;
+        costoTotal = Model.costo;
+        sesiones = Model.sesiones.ToList();
+    }
+    else
+    {
+        //Por defecto la fecha de reservacion es hoy
+        Model.fechaReservacion = DateTime.Today;
+        SesionDeReservacion primeraSesion = new SesionDeReservacion();
+        //Y la primera sesion es mañana
+        primeraSesion.periodoDeSesion.startDate = DateTime.Today.AddDays(1);
+        primeraSesion.periodoDeSesion.endDate = primeraSesion.periodoDeSesion.startDate;
+        //Siempre por defecto habra al menos una sesion
+        sesiones.Add(primeraSesion);
+
+        @*Para pruebas*@
+        Model.Detalles = "ESTA ES SOLO UNA DESCRIPCIOND E PRUEBA";
+        Model.CantidadPersonas = 15;
+
+}
+
+}
+
+<p>
+    <a href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
+        <i class="fa fa-arrow-left"></i><span>Volver al historial del cliente</span>
+    </a>
+</p>
+
+@Html.Partial("../Clientes/Partial_ClienteDetailsSummary",Model.cliente)
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="panel panel-primary">
+        <div class="panel-heading" onclick="changeIcon(this)"
+             data-toggle="collapse" data-target="#reservasTable">
+            <span class="panel-title">
+                @ViewBag.Title
+            </span>
+            <i class="pull-right fa fa-window-minimize"></i>
+        </div>
+        <div class="panel-body" id="reservasTable">
+            @*Forma de creacion de nueva reservacion*@
+            <div class="col-md-12">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.clienteID)
+                @Html.HiddenFor(model => model.fechaReservacion)
+                @Html.HiddenFor(model => model.reservacionID)
+                @Html.HiddenFor(model => model.costo)
+                @Html.Hidden("listServiciosSeleccionados")
+                @Html.Hidden("listSesiones")
+
+                @*PANEL PARA AGREGAR SESIONES DENTRO DE LA RESERVACION*@
+                <div class="row">
+                    <fieldset>
+                        <legend style="padding-bottom: .5em;">
+                            <span>Sesiones</span>
+                            <span class="pull-right" style="margin-bottom: .5em">
+                                <button class="btn btn-primary" type="button" onclick="agregarSesion()">
+                                    <i class="fa fa-plus"></i><span>Agregar Sesión</span>
+                                </button>
+                            </span>
+                        </legend>
+                        <div id="divSesiones">
+                            @{
+                                int cont = 1;
+                                foreach (var sesion in sesiones)
+                                {
+                                    <div class="divSesion col-md-12">
+                                        <div class="panel panel-info">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">
+                                                    Sesión #<span id="spanNum">@cont</span>
+                                                </h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="form-group col-md-6">
+                                                    @Html.LabelFor(model => sesion.periodoDeSesion.startDate)
+                                                    <input class = "form-control" id="sesion_periodoDeSesion_startDate" name="sesion.periodoDeSesion.startDate"
+                                                           value='@sesion.periodoDeSesion.startDate.ToString("yyyy/MM/dd HH:mm")' 
+                                                           onchange = "prepararDatosJSON($('.divSesion'))" datetimepicker />
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    @Html.LabelFor(model => sesion.periodoDeSesion.endDate)
+                                                    <input class = "form-control" id="sesion_periodoDeSesion_endDate" name="sesion.periodoDeSesion.endDate"
+                                                           value='@sesion.periodoDeSesion.endDate.ToString("yyyy/MM/dd HH:mm")' 
+                                                           onchange = "prepararDatosJSON($('.divSesion'))" datetimepicker />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    cont++;
+                                }
+                            }
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="row">
+                    <fieldset>
+                        <legend>Información General</legend>
+                        <div class="form-group col-md-6">
+                            <label for="costoPorReservacion">Costo Por Reservacion</label>
+                            <input id="costoPorReservacion" name="costoPorReservacion" onkeyup="recalcularMontoTotal()"
+                                   class="form-control" value="@(costoTotal - costoTotalPorServicios)" data-mask="###0.00" data-mask-reverse="true" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            @Html.LabelFor(model => model.salonID)
+                            @Html.DropDownList("salonID", Salon.getSalonesSelectList(), htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.salonID, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group col-md-6">
+                            @Html.LabelFor(model => model.TipoContrato)
+                            @Html.DropDownList("TipoContrato", Reservacion.getTipoContratoSelectList(), htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.TipoContrato, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group col-md-6">
+                            @Html.LabelFor(model => model.CantidadPersonas)
+                            @Html.EditorFor(model => model.CantidadPersonas, new
+                               {
+                                   htmlAttributes = new
+                                   {
+                                       @class = "form-control",
+                                       min = 0
+                                   }
+                               })
+                            @Html.ValidationMessageFor(model => model.CantidadPersonas, "", new { @class = "text-danger" })
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.Detalles, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Detalles, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Detalles, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="totalPorServicios">Total Por Servicios</label>
+                        <input id="totalPorServicios" name="totalPorServicios" value="@costoTotalPorServicios"
+                               class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.costo, htmlAttributes: new { @class = "control-label" })
+                        <input id="costoTotal" name="costoTotal" class="form-control" 
+                               value="@(costoTotal)" readonly />
+                    </div>
+                </div>
+                @{
+                    ViewDataDictionary vdd = new ViewDataDictionary();
+                    vdd.Add("selectMode", true);
+                    if (editMode)
+                    {
+                        vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
+                    }
+                }
+                @Html.Partial("../Servicios/Partial_ListServicios", servicios, vdd)
+                <br />
+                <div class="form-group">
+                    <button class="btn btn-success">@(editMode ? "Guardar" : "Reservar")</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+@section Scripts{
+<script>
+    inicializarSeleccionTablaServicios()
+    function recalcularMontoTotal() {
+        var totalPorServicios = currencyToNumber($("#totalPorServicios").val())
+        var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
+        var costoTotal = costoPorReservacion + totalPorServicios;
+        $("#costoTotal").val(numberToCurrency(costoTotal))
+        $("#costo").attr('value', costoTotal)
+    }
+
+    @*CONTROL DE PANEL DE SESIONES DENTRO DE LA RESERVACION*@
+    var sesiones = new Array();
+    //Se introduce a los datos de sesiones al menos una sesion por defecto
+    prepararDatosJSON($('.divSesion'))
+
+    //Funcion para agregar al GUI un nuevo control de sesion, ademas reenumera los paneles y actualiza el estado de datos
+    function agregarSesion() {
+        var divsSesiones = $('.divSesion'); //Se toman todas las sesiones agregadas
+        var newDivSesion = divsSesiones.first().clone(); //Se clona el layout de la sesion  
+        //Se habilita datetimepicker para los inputs dentro del div de sesion
+        $.each(newDivSesion.find("[type=datetime]"), function (idx, item) {
+            $(item).attr('type', 'datetime')
+            $(item).datetimepicker({ lang: 'es', mask: true, value: item.value });
+        })
+
+        var btnRemover = $('<i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>')
+        newDivSesion.find('.panel-title').append(btnRemover)
+        //Se agrega la nueva sesion al panel
+        $('#divSesiones').append(newDivSesion)
+
+        enumerar($('.divSesion'))
+        prepararDatosJSON($('.divSesion'))
+    }
+
+    //Remueve un panel de sesion de la reservacion y ademas actualiza el estado de datos
+    function removerSesion(btnRemover) {
+        $(btnRemover).closest(".divSesion").remove()
+        enumerar($('.divSesion'))
+        prepararDatosJSON($('.divSesion'))
+    }
+
+    //Renumera las sesiones en su encabezado
+    function enumerar(divsSesiones) {
+        $.each(divsSesiones, function (idx, item) {
+            $(item).find('#spanNum').html(idx + 1) //Se enumera la nueva sesion
+        })
+    }
+    
+    //Funcion que interpreta los datos del GUI en un arreglo JSON para ser enviado al server
+    function prepararDatosJSON(divsSesiones) {
+        sesiones = new Array()
+        $.each(divsSesiones, function (idx, item) {
+            sesiones.push(nuevoReg($(item)))
+        })
+        $('#listSesiones').val(JSON.stringify(sesiones))
+        console.log(sesiones)
+    }
+
+    //Crea un objeto JSON de sesion dado un panel GUI rellenado por el usuario
+    function nuevoReg(divSesion) {
+        var dato = {
+            periodoDeSesion: {
+                startDate: divSesion.find('#sesion_periodoDeSesion_startDate').val(),
+                endDate: divSesion.find('#sesion_periodoDeSesion_endDate').val()
+            }
+        }
+        return dato;
+    }
+</script>
+@if(editMode)
+{
+    <script>
+        selectForEdition();
+    </script>
+}
+}

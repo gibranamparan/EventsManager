@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Jerry.Models.SesionDeReservacion>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Sesiones</h3>
+    </div>
+    <div class="panel-body">
+        @if(Model!=null && Model.Count() > 0) { 
+        <table class="table">
+            <tr>
+                <th># Sesión</th>
+                <th>
+                    @Html.DisplayNameFor(model => model.periodoDeSesion.startDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.periodoDeSesion.endDate)
+                </th>
+                <th></th>
+            </tr>
+            @{ 
+                int cont = 1;
+                foreach (var item in Model.OrderBy(ses=>ses.periodoDeSesion.startDate))
+                {
+                    <tr>
+                        <td>@cont</td>
+                        <td>
+                            @item.periodoDeSesion.startDate.ToString("dd/MMM/yy")
+                            @item.periodoDeSesion.startDate.ToShortTimeString()
+                        </td>
+                        <td>
+                            @item.periodoDeSesion.endDate.ToString("dd/MMM/yy")
+                            @item.periodoDeSesion.endDate.ToShortTimeString()
+                        </td>
+                    </tr>
+                    cont++;
+                }
+            }
+
+        </table>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                Oops!, No hay sesiones registradas para esta reservación, esto es algo que no debería suceder, 
+                intenta editar la reservacion para agregar al menos una sesión, si no es posible, consulta al administrador del sistema.
+            </div>
+        }
+    </div>
+</div>

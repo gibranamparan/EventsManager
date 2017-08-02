@@ -20,6 +20,8 @@ namespace Jerry
                         "~/Scripts/jquery.datetimepicker.js",
                         "~/Scripts/jquery.maskedinput.js",
                         "~/Scripts/jquery.dataTables.min.js",
+                        "~/Scripts/dataTables.select.min.js",
+                        "~/Scripts/numeral.min.js",
                         //"~/Scripts/custom.js",
                         "~/Scripts/JavascriptRogelio.js"));
 
@@ -41,6 +43,7 @@ namespace Jerry
                       "~/Content/custom.css",
                       "~/Content/jquery.datetimepicker.css",
                       "~/Content/jquery.dataTables.min.css",
+                      "~/Content/select.dataTables.min.css",
                       "~/Content/RogelioCSS.css"));
 
             bundles.Add(new StyleBundle("~/Content/icons").Include(

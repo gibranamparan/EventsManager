@@ -12,6 +12,7 @@ using System.Web;
 using System.Web.Mvc;
 using Novacode;
 using System.Globalization;
+using System.Web.Script.Serialization;
 
 namespace Jerry.Controllers
 {
@@ -29,20 +30,20 @@ namespace Jerry.Controllers
             TimePeriod periodo = filtroReservaciones.TimePeriod;
             List<Reservacion> reservaciones = new List<Reservacion>();
 
-            DateTime hoyMasMes = DateTime.Today.AddMonths(1);
+            DateTime hoyMasMes = DateTime.Today.AddMonths(1).AddDays(1).AddMilliseconds(-1);
             DateTime inicio = new DateTime();
             DateTime fin = new DateTime();
 
             if (periodo.startDate.ToShortDateString() == DateTime.Today.ToShortDateString() && periodo.endDate.ToShortDateString() == hoyMasMes.ToShortDateString())
             {
-                reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= DateTime.Today &&
+                reservaciones = db.reservaciones.ToList().Where(r => r.fechaEventoInicial >= DateTime.Today &&
                 r.fechaEventoInicial <= hoyMasMes).OrderByDescending(r => r.fechaEventoInicial).ToList();
             }
             else
             {
-                inicio = periodo.startDate;
-                fin = periodo.endDate;
-                reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).Where(r => r.fechaEventoInicial >= inicio &&
+                inicio = periodo.startDate.Date;
+                fin = periodo.endDate.Date.AddDays(1).AddMilliseconds(-1);
+                reservaciones = db.reservaciones.ToList().Where(r => r.fechaEventoInicial >= inicio &&
                 r.fechaEventoInicial <= fin).OrderByDescending(r => r.fechaEventoInicial).ToList();
             }
 
@@ -75,11 +76,26 @@ namespace Jerry.Controllers
 
         // GET: Reservacion/Create
         [Authorize]
-        public ActionResult Create()
+        public ActionResult Create(int id=0)
         {
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre");
+            if (id == 0)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            Reservacion newReservacion = prepararVista(id);
+            return View("Form_Reservacion", newReservacion);
+        }
+
+        private Reservacion prepararVista(int clienteID=0)
+        {
+            Reservacion newReservacion = new Reservacion();
+            Cliente cliente = db.clientes.Find(clienteID);
+            newReservacion.clienteID = clienteID;
+            newReservacion.cliente = cliente;
             ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre");
-            return View();
+            ViewBag.servicios = db.Servicios.ToList();
+            return newReservacion;
         }
 
         // POST: Reservacion/Create
@@ -88,39 +104,62 @@ namespace Jerry.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Reservacion reservacion)
+        public ActionResult Create([Bind(Include = BIND_FIELDS)]
+        Reservacion reservacion, string listServiciosSeleccionados, string listSesiones)
         {
-
-            if (ModelState.IsValid && Reservacion.validarFecha(reservacion))
+            //Se deserializa la lista de compras en un objeto
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
+            List<SesionDeReservacion> sesionesEnReservacion = js.Deserialize<List<SesionDeReservacion>>(listSesiones);
+            int numRegs = 0;
+            //Si la informacion es valida y no hay colisiones
+            if (ModelState.IsValid)
             {
-                db.reservaciones.Add(reservacion);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Details", "Clientes", new { id = reservacion.clienteID });
+                //Se obtienes todas las reservaciones que colisionan con la que se encuentra registrando
+                var colisiones = Reservacion.reservacionesQueColisionan(reservacion);
+                if(colisiones.Count() == 0)
+                { //Si no hay colisiones se registra
+                    //Se registran los servicios relacionados si existen
+                    if (serviciosSeleccionados != null && serviciosSeleccionados.Count > 0)
+                        reservacion.serviciosContratados = serviciosSeleccionados;
+                    //Se registran las sesiones en las que se divide la reservación
+                    if (sesionesEnReservacion != null && sesionesEnReservacion.Count > 0)
+                        reservacion.sesiones = sesionesEnReservacion;
+
+                    //Guardar registro
+                    db.reservaciones.Add(reservacion);
+                    numRegs = db.SaveChanges();
+                    return RedirectToAction("Details", "Clientes", new { id = reservacion.clienteID });
+                }else
+                {
+                    //Se reporta que hubo colsiones
+                    ModelState.AddModelError("", "La fecha seleccionada ya esta ocupada por "+
+                        "otras reservaciones ya registradas");
+                    ViewBag.colisiones = colisiones;
+                }
             }
 
-            //ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", reservacion.clienteID);
-            ViewBag.id = reservacion.clienteID;
-            ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre", reservacion.salonID);
-            //return View(reservacion);
-            return RedirectToAction("Details","Clientes", new { id = reservacion.clienteID });
+            //Si llega hasta aca, hubo un problema y se muestra la forma de nuevo
+            Reservacion newRes = prepararVista(reservacion.clienteID);
+            reservacion.cliente = newRes.cliente;
+            return View("Form_Reservacion",reservacion);
         }
 
         // GET: Reservacion/Edit/5
         [Authorize]
-        public async Task<ActionResult> Edit(int? id)
+        public ActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Reservacion reservacion = await db.reservaciones.FindAsync(id);
+            Reservacion reservacion = db.reservaciones.Find(id);
             if (reservacion == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", reservacion.clienteID);
-            ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre", reservacion.salonID);
-            return View(reservacion);
+            prepararVista();
+            return View("Form_Reservacion",reservacion);
         }
 
         // POST: Reservacion/Edit/5
@@ -129,17 +168,38 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Reservacion reservacion)
+        public ActionResult Edit([Bind(Include = BIND_FIELDS)]
+        Reservacion reservacion, string listServiciosSeleccionados)
         {
+            int numRegs = 0;
             if (ModelState.IsValid)
             {
+                //Se eliminan la seleccion de servicios hecha anteriormente
+                var itemsAEliminar = db.ServiciosEnReservaciones
+                    .Where(ser => ser.reservacionID == reservacion.reservacionID);
+                db.ServiciosEnReservaciones.RemoveRange(itemsAEliminar);
+                numRegs = db.SaveChanges();
+
+                //Se deserializa la lista de servicios seleccionados
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
+
+                //Se asocia nuevamente el servicio con la reservacion
+                serviciosSeleccionados.ForEach(ser => ser.reservacionID = reservacion.reservacionID);
+                serviciosSeleccionados.ForEach(ser => db.Entry(ser).State = EntityState.Added);
+
+                //Se guardan cambios
                 db.Entry(reservacion).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                numRegs = db.SaveChanges();
+
+                if(numRegs>0) //Si la operacion fue satisfactoria, se redirecciona al historial del cliente
+                    return RedirectToAction("Details","Clientes", new { id = reservacion.clienteID });
             }
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", reservacion.clienteID);
-            ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre", reservacion.salonID);
-            return View(reservacion);
+
+            //Si llega aqui, es que hubo un error, se muestra nuevamente la forma
+            Reservacion newRes = prepararVista(reservacion.clienteID);
+            reservacion.cliente = newRes.cliente;
+            return View("Form_Reservacion",reservacion);
         }
 
         // GET: Reservacion/Delete/5

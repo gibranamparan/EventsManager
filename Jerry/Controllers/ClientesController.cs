@@ -25,17 +25,18 @@ namespace Jerry.Controllers
 
         // GET: Clientes/Details/5
         [Authorize]
-        public async Task<ActionResult> Details(int? id)
+        public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Cliente cliente = await db.clientes.FindAsync(id);
+            Cliente cliente = db.clientes.Find(id);
             if (cliente == null)
             {
                 return HttpNotFound();
             }
+
             return View(cliente);
         }
 
