@@ -87,7 +87,10 @@
                                         <div class="panel panel-info">
                                             <div class="panel-heading">
                                                 <h3 class="panel-title">
-                                                    Sesión #<span id="spanNum">@cont</span>
+                                                    <span>Sesión #</span><span id="spanNum">@cont</span>
+                                                    @if(editMode && cont > 1) {
+                                                        <i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>
+                                                    }
                                                 </h3>
                                             </div>
                                             <div class="panel-body">

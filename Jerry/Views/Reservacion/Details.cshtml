@@ -33,55 +33,37 @@
     <div class="panel-body">
         <div>
             <div class="row">
-                <div class="col-xs-6">
-                    <dl class="dl-horizontal">
-                        <dt>
-                            @Html.DisplayNameFor(model => model.cliente.nombre)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.cliente.nombre) @Html.DisplayFor(model => model.cliente.apellidoP) @Html.DisplayFor(model => model.cliente.apellidoM)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.salon.nombre)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.salon.nombre)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.Detalles)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Detalles)
-                        </dd>
-                        <dt>
-                            Fecha del evento
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.fechaEventoInicial)
-                        </dd>
-                    </dl>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.cliente.nombre)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.cliente.nombre)</p>
                 </div>
-                <div class="col-xs-6">
-                    <dl class="dl-horizontal">
-                        <dt>
-                            @Html.DisplayNameFor(model => model.costo)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.costo)
-                        </dd>
-                        <dt>
-                            @Html.LabelFor(model => model.cantidadPagada)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.cantidadPagada)
-                        </dd>
-                        <dt>
-                            @Html.LabelFor(model => model.cantidadFaltante)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.cantidadFaltante)
-                        </dd>
-                    </dl>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.salon.nombre)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.salon.nombre)</p>
+                </div>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.Detalles)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.Detalles)</p>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Fecha del Evento</label>
+                    <p class="form-control-static">@Html.DisplayFor(model => model.fechaEventoInicial)</p>
+                </div>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.costo)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.costo)</p>
+                </div>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.cantidadPagada)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.cantidadPagada)</p>
+                </div>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.cantidadFaltante)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.cantidadFaltante)</p>
+                </div>
+                <div class="col-md-4 form-group">
+                    @Html.LabelFor(model => model.CantidadPersonas)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.CantidadPersonas)</p>
                 </div>
             </div>
         </div>
@@ -129,8 +111,6 @@ else
             }
             else
             {
-                <br class="hidden-print" />
-                <br class="hidden-print" />
                 <div class="alert alert-info">No se ha realizado ningún pago para esta reservación</div>
             }
             <div class="hidden-print" style="display: inline-flex;">

@@ -169,24 +169,38 @@ namespace Jerry.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = BIND_FIELDS)]
-        Reservacion reservacion, string listServiciosSeleccionados)
+        Reservacion reservacion, string listServiciosSeleccionados, string listSesiones)
         {
             int numRegs = 0;
             if (ModelState.IsValid)
             {
-                //Se eliminan la seleccion de servicios hecha anteriormente
-                var itemsAEliminar = db.ServiciosEnReservaciones
-                    .Where(ser => ser.reservacionID == reservacion.reservacionID);
-                db.ServiciosEnReservaciones.RemoveRange(itemsAEliminar);
-                numRegs = db.SaveChanges();
-
-                //Se deserializa la lista de servicios seleccionados
                 JavaScriptSerializer js = new JavaScriptSerializer();
-                List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
 
-                //Se asocia nuevamente el servicio con la reservacion
-                serviciosSeleccionados.ForEach(ser => ser.reservacionID = reservacion.reservacionID);
-                serviciosSeleccionados.ForEach(ser => db.Entry(ser).State = EntityState.Added);
+                //Se eliminan la seleccion de servicios hecha anteriormente
+                var serviciosEliminar = db.ServiciosEnReservaciones
+                    .Where(ser => ser.reservacionID == reservacion.reservacionID);
+                db.ServiciosEnReservaciones.RemoveRange(serviciosEliminar);
+
+                //Se eliminan la sesiones en las que se divide la reservacion
+                var sesionesEliminar = db.sesionesEnReservaciones
+                    .Where(ser => ser.reservacionID == reservacion.reservacionID);
+                db.sesionesEnReservaciones.RemoveRange(sesionesEliminar);
+
+                numRegs = db.SaveChanges(); //Se guardan cambios
+
+                //Se deserializa la lista de servicios seleccionados y sesiones modificadas
+                List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
+                List<SesionDeReservacion> sesionesDeReservacion = js.Deserialize<List<SesionDeReservacion>>(listSesiones);
+
+                //Se asocia nuevamente los servicios y sesiones con la reservacion
+                serviciosSeleccionados.ForEach(ser => {
+                    ser.reservacionID = reservacion.reservacionID;
+                    db.Entry(ser).State = EntityState.Added;
+                });
+                sesionesDeReservacion.ForEach(ses=> {
+                    ses.reservacionID = reservacion.reservacionID;
+                    db.Entry(ses).State = EntityState.Added;
+                });
 
                 //Se guardan cambios
                 db.Entry(reservacion).State = EntityState.Modified;
