@@ -22,56 +22,9 @@
 <a class="hidden-print" href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
     <i class="glyphicon glyphicon-arrow-left"></i> Historial de Reservaciones del Cliente
 </a>
-<br class="hidden-print" />
-<br class="hidden-print" />
-<div class="panel panel-info">
-    <div class="panel-heading">
-        <span class="panel-title">
-            Información Sobre la Reservación
-        </span>
-    </div>
-    <div class="panel-body">
-        <div>
-            <div class="row">
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.cliente.nombre)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.cliente.nombre)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.salon.nombre)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.salon.nombre)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.Detalles)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.Detalles)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    <label>Fecha del Evento</label>
-                    <p class="form-control-static">@Html.DisplayFor(model => model.fechaEventoInicial)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.costo)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.costo)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.cantidadPagada)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.cantidadPagada)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.cantidadFaltante)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.cantidadFaltante)</p>
-                </div>
-                <div class="col-md-4 form-group">
-                    @Html.LabelFor(model => model.CantidadPersonas)
-                    <p class="form-control-static">@Html.DisplayFor(model => model.CantidadPersonas)</p>
-                </div>
-            </div>
-        </div>
-        <a href="@Url.Action("Edit", new { id = Model.reservacionID })">
-            <i class="fa fa-pencil-square-o"></i> Editar
-        </a>
-    </div>
-</div>
+
+@Html.Partial("Partial_DetailsReservacion")
+
 @Html.Partial("Partial_ListSesiones", Model.sesiones)
 
 <div class="panel panel-primary">

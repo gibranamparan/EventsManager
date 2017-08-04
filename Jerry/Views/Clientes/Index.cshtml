@@ -58,16 +58,25 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.telefono)
                         </td>
+
                         <td>
-                            <a href="@Url.Action("Details", new { id = item.clienteID })">
-                                <i class="fa fa-list-alt"></i> Reservaciones
-                            </a> <br />
-                            <a href="@Url.Action("Edit", new { id = item.clienteID })">
-                                <i class="fa fa-pencil-square-o"></i> Editar
-                            </a> <br />
-                            <a href="@Url.Action("Delete", new { id = item.clienteID })">
-                                <i class="glyphicon glyphicon-remove"></i> Borrar
-                            </a>
+                            <div class="dropdown_actions">
+                                <button onclick="openActionsDropDown(this)"
+                                        class="dropbtn btn btn-default">
+                                    <i class="glyphicon glyphicon-option-horizontal"></i>
+                                </button>
+                                <div id="myDropdown" class="dropdown-content">
+                                    <a href="@Url.Action("Details", new { id = item.clienteID })">
+                                        <i class="fa fa-list-alt"></i> Reservaciones
+                                    </a>
+                                    <a href="@Url.Action("Edit", new { id = item.clienteID })">
+                                        <i class="fa fa-pencil-square-o"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.clienteID })">
+                                        <i class="glyphicon glyphicon-remove"></i> Borrar
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 }

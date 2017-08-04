@@ -5,76 +5,21 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Borrar</h2>
+<p>
+    <a href="@Url.Action("Index","Reservaciones")">
+        <i class="fa fa-arrow-left"></i><span>Volver a la lista de reservaciones</span>
+    </a>
+</p>
 
-<h3>¿Desea elimiar la reservación?</h3>
-<div>
-    <h4>Reservación</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.cliente.nombre)
-        </dt>
+<h3>¿Confirma que desea elimiar esta reservación?</h3>
 
-        <dd>
-            @Html.DisplayFor(model => model.cliente.nombre)
-        </dd>
+@Html.Partial("Partial_DetailsReservacion")
 
-        <dt>
-            @Html.DisplayNameFor(model => model.salon.nombre)
-        </dt>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
 
-        <dd>
-            @Html.DisplayFor(model => model.salon.nombre)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.fechaReservacion)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.fechaReservacion)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.fechaEventoInicial)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.fechaEventoInicial)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.fechaEventoFinal)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.fechaEventoFinal)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.costo)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.costo)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Detalles)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Detalles)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Borrar" class="btn btn-danger" /> |
-            @Html.ActionLink("Regresar", "Index")
-        </div>
-    }
-</div>
+    <div class="form-actions no-color">
+        <input type="submit" value="Borrar" class="btn btn-danger" />
+    </div>
+}

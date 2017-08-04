@@ -13,7 +13,7 @@ namespace Jerry.Models
         public int salonID { get; set; }
 
         [Required]
-        [Display(Name ="Salon")]
+        [Display(Name ="Salón")]
         public string nombre { get; set; }
 
         [Required]
@@ -21,9 +21,8 @@ namespace Jerry.Models
         public string detalles { get; set; }
 
         //Un salon puede tener una coleccion de reservaciones, es decir, puede tener varias reservaciones
-        virtual public ICollection<Reservacion> reservaciones { get; set; }
-
-
+        virtual public ICollection<SesionDeReservacion> sesionesReservadas { get; set; }
+        
         /// <summary>
         /// Arroja aregglo objetos enumeradas en la clase estatica Salon.
         /// </summary>

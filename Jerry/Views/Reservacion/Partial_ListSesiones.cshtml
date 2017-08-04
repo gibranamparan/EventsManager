@@ -15,6 +15,9 @@
                 <th>
                     @Html.DisplayNameFor(model => model.periodoDeSesion.endDate)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.salon.nombre)
+                </th>
                 <th></th>
             </tr>
             @{ 
@@ -31,6 +34,7 @@
                             @item.periodoDeSesion.endDate.ToString("dd/MMM/yy")
                             @item.periodoDeSesion.endDate.ToShortTimeString()
                         </td>
+                        <td>@Html.DisplayFor(model=>item.salon.nombre)</td>
                     </tr>
                     cont++;
                 }

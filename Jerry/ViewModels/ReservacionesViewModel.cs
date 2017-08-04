@@ -44,7 +44,6 @@ namespace Jerry.ViewModels
         public ReservacionesViewModel(Reservacion reservacion)
         {
             this.nombre = reservacion.cliente.nombre;
-            this.nombreSalon = reservacion.salon.nombre;
             this.fechaEventoInicial = reservacion.fechaEventoInicial;
             this.fechaEventoFinal = reservacion.fechaEventoFinal;
             this.Detalles = reservacion.Detalles;
@@ -55,7 +54,6 @@ namespace Jerry.ViewModels
            foreach(var R in reservacion)
             {
                 this.nombre = R.cliente.nombre;
-                this.nombreSalon = R.salon.nombre;
                 this.fechaEventoInicial = R.fechaEventoInicial;
                 this.fechaEventoFinal = R.fechaEventoFinal;
                 this.Detalles = R.Detalles;

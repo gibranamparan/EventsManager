@@ -72,19 +72,28 @@ namespace Jerry.Models
         [Display(Name = "Tipo de Contrato")]
         public string TipoContrato { get; set; }
 
+        [DisplayName("Salón")]
+        public string salon { get {
+                string res = "";
+
+                if(this.sesiones!=null && this.sesiones.Count() > 0)
+                {
+                    var sesiones = this.sesiones.Select(ses => ses.salon.nombre).Distinct();
+                    sesiones.ToList().ForEach(nam => res += nam+",");
+                    res = res.Trim(',');
+                }
+
+                return res;
+            } }
+
         [Required]
         [Display(Name = "Cantidad de Personas")]
         public int CantidadPersonas { get; set; }
-
-        [Required]
-        [Display(Name ="Salón")]
-        public int salonID { get; set; }
-        //Una reservacion es unicamente a un salon
-        virtual public Salon salon { get; set; }
-
+        
         [Required]
         [Display(Name ="Cliente")]
         public int clienteID { get; set; }
+
         //Una reservacion pertenece unicamente a un cliente
         virtual public Cliente cliente { get; set; }
 
@@ -137,20 +146,25 @@ namespace Jerry.Models
         /// </summary>
         /// <param name="reservacion">Instancia que se encuentra siendo verificada</param>
         /// <returns>Una lista de reservaciones cuyas sesiones colisionan.</returns>
-        public static List<Reservacion> reservacionesQueColisionan(Reservacion reservacion)
+        public List<Reservacion> reservacionesQueColisionan(ApplicationDbContext db)
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            DateTime fechaI = reservacion.fechaEventoInicial;
-            DateTime fechaF = reservacion.fechaEventoFinal;
+            List<Reservacion> res = new List<Reservacion>();
 
-            //TODO: Se debe modificar para que verifique por sesiones en salones.
-            List<Reservacion> resultado = db.reservaciones.ToList()
-                .Where(res => res.fechaEventoInicial <= fechaI && res.fechaEventoFinal >= fechaI
-                    || res.fechaEventoInicial <= fechaF && res.fechaEventoFinal >= fechaF).ToList();
+            //Se filtran todas las sesiones que estan dentro del rango de tiempo total de la reservacion validada
+            var sesionesFiltradas = db.sesionesEnReservaciones.
+                Where(ses => ses.periodoDeSesion.startDate >= this.fechaEventoInicial && ses.periodoDeSesion.startDate <= this.fechaEventoFinal
+                || ses.periodoDeSesion.endDate >= this.fechaEventoInicial && ses.periodoDeSesion.endDate <= this.fechaEventoFinal).ToList();
+            //Si hay resultados
+            if (sesionesFiltradas != null && sesionesFiltradas.Count() > 0)
+            {
+                //Se verifica sesion por sesion si se traslapa con 
+                
+                res = sesiones.Select(ses => ses.reservacion).Distinct().ToList();
+            }
 
-            return resultado;
-
+            return res;
         }
+
         public static bool ObtenerReservaciones(object fechaI, object fechaF, out IEnumerable<Jerry.Models.Reservacion> resultado)
         {
             ApplicationDbContext db = new ApplicationDbContext();
@@ -237,6 +251,12 @@ namespace Jerry.Models
         [DisplayName("Sesion")]
         public TimePeriod periodoDeSesion { get; set; }
 
+        [Required]
+        [Display(Name = "Salón")]
+        public int salonID { get; set; }
+        //Una reservacion es unicamente a un salon
+        virtual public Salon salon { get; set; }
+
         [ForeignKey("reservacion")]
         public int reservacionID { get; set; }
         public virtual Reservacion reservacion { get; set; }
@@ -244,6 +264,11 @@ namespace Jerry.Models
         public SesionDeReservacion()
         {
             periodoDeSesion = new TimePeriod();
+        }
+
+        public string ToString()
+        {
+            return String.Format("{0} - {1}", this.salon.nombre, this.periodoDeSesion);
         }
     }
 }

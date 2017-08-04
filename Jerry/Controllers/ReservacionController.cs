@@ -115,16 +115,19 @@ namespace Jerry.Controllers
             //Si la informacion es valida y no hay colisiones
             if (ModelState.IsValid)
             {
+                //Se registran las sesiones en las que se divide la reservación
+                if (sesionesEnReservacion != null && sesionesEnReservacion.Count > 0)
+                    reservacion.sesiones = sesionesEnReservacion;
+
                 //Se obtienes todas las reservaciones que colisionan con la que se encuentra registrando
-                var colisiones = Reservacion.reservacionesQueColisionan(reservacion);
+                var colisiones = reservacion.reservacionesQueColisionan(reservacion,db);
+
+                //Si no hay colisiones
                 if(colisiones.Count() == 0)
                 { //Si no hay colisiones se registra
                     //Se registran los servicios relacionados si existen
                     if (serviciosSeleccionados != null && serviciosSeleccionados.Count > 0)
                         reservacion.serviciosContratados = serviciosSeleccionados;
-                    //Se registran las sesiones en las que se divide la reservación
-                    if (sesionesEnReservacion != null && sesionesEnReservacion.Count > 0)
-                        reservacion.sesiones = sesionesEnReservacion;
 
                     //Guardar registro
                     db.reservaciones.Add(reservacion);
@@ -248,7 +251,6 @@ namespace Jerry.Controllers
         {
             Reservacion resContrato = db.reservaciones.Find(id);
             Cliente cliente = resContrato.cliente;
-            Salon salon = resContrato.salon;
             String rutaContrato = "";
             String fechaInicioEvento = resContrato.fechaEventoInicial.ToShortDateString();
             String fechaFinEvento = resContrato.fechaEventoFinal.ToShortDateString();

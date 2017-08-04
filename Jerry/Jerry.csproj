@@ -218,6 +218,10 @@
     <Compile Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.Designer.cs">
       <DependentUpon>201708020400464_reservaciones_dividadesPor_Sesiones.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.cs" />
+    <Compile Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.Designer.cs">
+      <DependentUpon>201708022016454_changed_salon_fromReservacion_ToSesion.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -394,7 +398,6 @@
     <Content Include="Views\Salon\Index.cshtml" />
     <Content Include="Views\Reservacion\Delete.cshtml" />
     <Content Include="Views\Reservacion\Details.cshtml" />
-    <Content Include="Views\Reservacion\Edit.cshtml" />
     <Content Include="Views\Reservacion\Index.cshtml" />
     <Content Include="Views\Pago\Create.cshtml" />
     <Content Include="Views\Pago\Delete.cshtml" />
@@ -418,6 +421,7 @@
     <Content Include="Views\Reservacion\Form_Reservacion.cshtml" />
     <Content Include="Views\Clientes\Partial_ClienteDetailsSummary.cshtml" />
     <Content Include="Views\Reservacion\Partial_ListSesiones.cshtml" />
+    <Content Include="Views\Reservacion\Partial_DetailsReservacion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -456,6 +460,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.resx">
       <DependentUpon>201708020400464_reservaciones_dividadesPor_Sesiones.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.resx">
+      <DependentUpon>201708022016454_changed_salon_fromReservacion_ToSesion.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

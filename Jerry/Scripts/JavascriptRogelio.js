@@ -54,5 +54,17 @@ function numberToCurrency(num) {
     num = !num ? 0 : numeral(num).format("$0,0.00")
     return num;
 }
+
+function strToDateTime(strDt) {
+    var dt = new Date(strDt);
+    return dt;
+}
+
+function dateTimeToDateTimePickerFormat(dt) {
+    //yyyy/MM/dd HH:mm
+    return (dt.getFullYear() + "/" + numeral(dt.getMonth() + 1).format("00") + "/"
+        + numeral(dt.getDate()).format("00") + " " + numeral(dt.getHours()).format("00") + ":"
+        + numeral(dt.getMinutes()).format("00"))
+}
     
    
