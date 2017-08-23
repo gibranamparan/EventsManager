@@ -1,0 +1,38 @@
+﻿@model Jerry.GeneralTools.VMConfirmModalAttributes
+@using Jerry.GeneralTools
+
+<div class="modal fade" id="@Model.modalID">
+    <div class="modal-dialog @Model.size">
+        <div class="modal-content">
+            <div class="modal-header alert alert-@Model.modalStyle">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-window-close-o"></i></button>
+                <h4 class="modal-title">@Model.modalTitle</h4>
+            </div>
+            <div class="modal-body">
+                <p>@Html.Raw(Model.primaryMessage)</p>
+                @if (Model.callType != VMConfirmModalAttributes.CallType.NONE &&
+                    Model.callType != VMConfirmModalAttributes.CallType.PARTIAL_VIEW) {
+                    <p><strong>¿Estás seguro?</strong></p>
+                }
+                @if (Model.callType == VMConfirmModalAttributes.CallType.PARTIAL_VIEW)
+                {
+                    @Html.Partial(Model.partialViewURL, Model.modelForPartial, Model.datosDeVista)
+                }
+            </div>
+            <div class="modal-footer">
+                @if (Model.callType != VMConfirmModalAttributes.CallType.NONE && 
+                    Model.callType != VMConfirmModalAttributes.CallType.PARTIAL_VIEW)
+                {
+                    <a id="btnConfirm" class="btn btn-@Model.modalStyle"
+                        href="@(Model.callType == VMConfirmModalAttributes.CallType.POSTBACK?
+                        Url.Action(Model.action,Model.controller,Model.routeVals):"#")"
+                        onclick="@(Model.callType == VMConfirmModalAttributes.CallType.JAVASCRIPT?
+                        Model.javascriptFunction+"()":"")">
+                            <i class="glyphicon glyphicon-ok"></i> Si
+                    </a>
+                }
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

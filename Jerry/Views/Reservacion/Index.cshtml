@@ -8,8 +8,24 @@
 
     List<Reservacion> resultado = ViewBag.result;
 
+    bool listMode = ViewBag.listMode == null ? false : ViewBag.listMode;
 }
 
+<p>
+    <a href="@Url.Action("Index",new { listMode = !listMode })">
+        @if (!listMode)
+        {
+            <i class="fa fa-list"></i>
+        }
+        else
+        {
+            <i class="fa fa-calendar"></i>
+        }
+        <span>Ver reservaciones en @(!listMode ? "lista" : "calendario")</span>
+    </a>
+</p>
+
+@if (listMode) { //Se muestra la forma de vista
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Reservaciones</h3>
@@ -17,6 +33,7 @@
     <div class="panel-body">
         @using (Html.BeginForm("Index", "Reservacion", FormMethod.Get, null))
         {
+            @Html.Hidden("listMode",false)
             <div>
                 <div class="row">
                     <div class="form-group col-md-5">
@@ -68,10 +85,9 @@
             <tbody>
                 @foreach (var item in resultado)
         {
-            string nombreCompleto = item.cliente.nombre + " " + item.cliente.apellidoP + " " + item.cliente.apellidoM;
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => item.cliente.nombre) @Html.DisplayFor(modelItem => item.cliente.apellidoP) @Html.DisplayFor(modelItem => item.cliente.apellidoM)
+                            @Html.DisplayFor(modelItem => item.cliente.nombreCompleto)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.salon)
@@ -92,18 +108,26 @@
                             @Html.DisplayFor(modelItem => item.Detalles)
                         </td>
                         <td>
-                            <a href="@Url.Action("Details", new { id = item.reservacionID })">
-                                <i class="fa fa-list-alt"></i> Detalle
-                            </a> <br />
-                            <a href="@Url.Action("Edit", new { id = item.reservacionID })">
-                                <i class="fa fa-pencil-square-o"></i> Editar
-                            </a> <br />
-                            <a href="@Url.Action("Delete", new { id = item.reservacionID })">
-                                <i class="glyphicon glyphicon-remove"></i> Borrar
-                            </a><br/>
-                            <a href="@Url.Action("GenerarContrato",new { id = item.reservacionID, tipoContrato = item.TipoContrato })">
-                                <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
-                            </a>
+                            <div class="dropdown_actions">
+                                <button onclick="openActionsDropDown(this)"
+                                        class="dropbtn btn btn-default">
+                                    <i class="glyphicon glyphicon-option-horizontal"></i>
+                                </button>
+                                <div id="myDropdown" class="dropdown-content">
+                                    <a href="@Url.Action("Details", new { id = item.reservacionID })">
+                                        <i class="fa fa-list-alt"></i> Detalle
+                                    </a>
+                                    <a href="@Url.Action("Edit", new { id = item.reservacionID })">
+                                        <i class="fa fa-pencil-square-o"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.reservacionID })">
+                                        <i class="glyphicon glyphicon-remove"></i> Borrar
+                                    </a>
+                                    <a href="@Url.Action("GenerarContrato",new { id = item.reservacionID, tipoContrato = item.TipoContrato })">
+                                        <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -111,3 +135,14 @@
         </table>
     </div>
 </div>
+}
+else
+{
+    @Html.Partial("Partial_Schedule")
+
+    @section Scripts{
+        <script>
+    initSchedule()
+        </script>
+    }
+}

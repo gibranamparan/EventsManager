@@ -9,11 +9,6 @@ namespace Jerry
         public static void RegisterBundles(BundleCollection bundles)
         {
             /*SCRIPTS BUNDLES*/
-            bundles.Add(new ScriptBundle("~/bundles/template").Include(
-                        "~/Scripts/skel.min.js",
-                        "~/Scripts/util.js",
-                        "~/Scripts/main.js"));
-
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js",
                         "~/Scripts/jquery-ui-{version}.js",
@@ -22,21 +17,31 @@ namespace Jerry
                         "~/Scripts/jquery.dataTables.min.js",
                         "~/Scripts/dataTables.select.min.js",
                         "~/Scripts/numeral.min.js",
-                        //"~/Scripts/custom.js",
                         "~/Scripts/JavascriptRogelio.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
 
-            // Use the development version of Modernizr to develop with and learn from. Then, when you're
-            // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
+            bundles.Add(new ScriptBundle("~/bundles/template").Include(
+                        "~/Scripts/skel.min.js",
+                        "~/Scripts/util.js",
+                        "~/Scripts/main.js"));
+            
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
+
+            bundles.Add(new ScriptBundle("~/bundles/moment").Include(
+                      "~/Scripts/moment-with-locales.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/bower").Include(
+                "~/bower_components/underscore/underscore-min.js",
+                "~/bower_components/bootstrap-calendar/js/calendar.js",
+                "~/bower_components/bootstrap-calendar/js/language/es-MX.js"));
+            
             /*STYLE BUNDLES*/
             bundles.Add(new StyleBundle("~/Content/template").Include(
                       "~/Content/bootstrap.css",
@@ -52,6 +57,9 @@ namespace Jerry
 
             bundles.Add(new StyleBundle("~/Content/jqueryui").Include(
                       "~/Content/themes/base/*.css"));
+
+            bundles.Add(new StyleBundle("~/bower_componentes/calendar").Include(
+            "~/bower_components/bootstrap-calendar/css/calendar.min.css"));
         }
     }
 }

@@ -1,0 +1,118 @@
+﻿@model Jerry.Models.Reservacion.VMReservacion
+
+<div id="divSesionesConflictivas">
+    <div class="panel panel-primary panelReservacionConflicto">
+        <div class="panel-heading">
+            <h3 class="panel-title">Sesiones</h3>
+        </div>
+        <div class="panel-body">
+            <strong>Cliente:</strong> <span id="spanNombreCliente">@Model.nombreCliente</span>
+            <table class="table tblSesiones">
+                <thead>
+                    <tr>
+                        <th># Sesión</th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.sesiones.FirstOrDefault().periodoDeTiempo.startDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.sesiones.FirstOrDefault().periodoDeTiempo.endDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.sesiones.FirstOrDefault().nombreSalon)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int cont = 1;
+                        foreach (var item in Model.sesiones.OrderBy(ses => ses.periodoDeTiempo.startDate))
+                        {
+                            <tr class="@(item.conflicto?"conflictivo":"")">
+                                <td>@cont</td>
+                                <td>
+                                    @item.periodoDeTiempo.startDate.ToString("dd/MMM/yy")
+                                    @item.periodoDeTiempo.startDate.ToShortTimeString()
+                                </td>
+                                <td>
+                                    @item.periodoDeTiempo.endDate.ToString("dd/MMM/yy")
+                                    @item.periodoDeTiempo.endDate.ToShortTimeString()
+                                </td>
+                                <td>@Html.DisplayFor(model => item.nombreSalon)</td>
+                            </tr>
+                            cont++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    var selPanelesConflicto
+    var panelConflictoModelo
+    function initPartialConflictos() {
+        //Selector de paneles de reservaciones en conflicto
+        selPanelesConflicto = '#divSesionesConflictivas .panelReservacionConflicto'
+        panelConflictoModelo = $(selPanelesConflicto).first().clone();
+    }
+
+    function renderData(res) {
+        limparPanelConflictos();
+        $.each(res, function (idx, reservacion) {
+            if (idx == 0) {
+                panel = $('.panelReservacionConflicto').last()
+                panel = renderReservacionConflictiva(reservacion, panel)
+            }
+            else {
+                panel = panelConflictoModelo.clone()
+                panel = renderReservacionConflictiva(reservacion, panel)
+                $('#divSesionesConflictivas').append(panel);
+            }
+        })
+    }
+
+    function renderReservacionConflictiva(item, panel) {
+        panel.find('#spanNombreCliente').html(item.nombreCliente)
+        var tblSesiones = panel.find('.tblSesiones')
+        //Se muestran las sesiones
+        $.each(item.sesiones, function (idx, item2) {
+            var startDate = moment(jsonDateToJSDate(item2.periodoDeTiempo.startDate)).format('LLL')
+            var endDate = moment(jsonDateToJSDate(item2.periodoDeTiempo.endDate)).format('LLL')
+
+            var row = $('<tr>');
+            if (item2.conflicto) {
+                row.addClass('conflictivo')
+            }
+            row.append($('<td>').html(idx + 1))
+            row.append($('<td>').html(startDate))
+            row.append($('<td>').html(endDate))
+            row.append($('<td>').html(item2.nombreSalon))
+            tblSesiones.find('tbody').append(row);
+        })
+        return panel;
+    }
+
+    function limparPanelConflictos() {
+        var paneles = $(selPanelesConflicto);
+        if (paneles.length > 1) { //Si hay paneles adicionales al modelo
+            //Se toma el 1er elemento como modelo y se vacian sus datos
+            var panelNuevo = panelConflictoModelo.clone();
+
+            //Se elimina todo el conteido de panel de errores y se introduce el elemento modelo
+            $('#divSesionesConflictivas').empty();
+            $('#divSesionesConflictivas').append(panelNuevo);
+        } else {
+            var panel = paneles.first();
+            panel.find("table tbody").empty();
+        }
+    }
+</script>
+<style>
+    tr.conflictivo td{
+        background-color: pink !important;
+    }
+    div#divSesionesConflictivas {
+        overflow-y: scroll;
+    }
+</style>

@@ -63,7 +63,7 @@ namespace Jerry.Controllers
             }
 
             ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.reservacionID);
-            return RedirectToAction("Details", "Reservacion", new { id = pago.reservacionID, errorMsg = "Verifique la información introducida"});
+            return RedirectToAction("Details", "Reservacion", new { id = pago.reservacionID, errorPagoMsg = "Verifique la información introducida"});
         }
 
         // GET: Pago/Edit/5
@@ -102,6 +102,7 @@ namespace Jerry.Controllers
         }
 
         // GET: Pago/Delete/5
+        /*
         [Authorize]
         public async Task<ActionResult> Delete(int? id)
         {
@@ -115,11 +116,12 @@ namespace Jerry.Controllers
                 return HttpNotFound();
             }
             return View(pago);
-        }
+        }*/
 
         // POST: Pago/Delete/5
         [HttpPost, ActionName("Delete")]
-        [Authorize]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + ","
+            +ApplicationUser.UserRoles.ASISTENTE)]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {

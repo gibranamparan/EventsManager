@@ -13,6 +13,7 @@ namespace Jerry.Controllers
 {
     public class SalonController : Controller
     {
+        private const string BIND_FIELDS = "salonID,nombre,detalles,capacidadMaxima";
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Salon
@@ -42,7 +43,7 @@ namespace Jerry.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            return View();
+            return View("Form_Salones");
         }
 
         // POST: Salon/Create
@@ -51,7 +52,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "salonID,nombre,detalles")] Salon salon)
+        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Salon salon)
         {
             if (ModelState.IsValid)
             {
@@ -60,7 +61,7 @@ namespace Jerry.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(salon);
+            return View("Form_Salones",salon);
         }
 
         // GET: Salon/Edit/5
@@ -76,7 +77,7 @@ namespace Jerry.Controllers
             {
                 return HttpNotFound();
             }
-            return View(salon);
+            return View("Form_Salones",salon);
         }
 
         // POST: Salon/Edit/5
@@ -85,7 +86,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "salonID,nombre,detalles")] Salon salon)
+        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Salon salon)
         {
             if (ModelState.IsValid)
             {
@@ -93,7 +94,7 @@ namespace Jerry.Controllers
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            return View(salon);
+            return View("Form_Salones",salon);
         }
 
         // GET: Salon/Delete/5

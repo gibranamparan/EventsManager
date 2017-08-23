@@ -1,9 +1,30 @@
-﻿@model Jerry.Models.Reservacion
+﻿@using Jerry.Models
+@using Jerry.GeneralTools
+@model Jerry.Models.Reservacion
+@{ 
+    VMConfirmModalAttributes vmModalOpts = new VMConfirmModalAttributes
+    {
+        modalTitle = "Confirmar Eliminación de Pago",
+        action = "DeleteConfirmed",
+        callType = VMConfirmModalAttributes.CallType.PARTIAL_VIEW,
+        controller = "Pago",
+        primaryMessage = "Si confirma, eliminará el registro de pago seleccionado.",
+        modalID = "modalDeletePago",
+        partialViewURL = "../Pago/Partial_DeletePagoConfirm",
+        modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.DANGER)
+    };
+}
 
-<p>
-    <table class="table table-hover table-striped datatable">
+@Html.Partial("Partial_ConfirmationModal", vmModalOpts)
+
+<div> 
+    @if (Model.pagos.Count() > 0) { 
+    <table class="table table-hover table-striped">
         <thead>
             <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().pagoID)
+                </th>
                 <th>
                     @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().cantidad)
                 </th>
@@ -17,27 +38,38 @@
             @foreach (var item in Model.pagos)
             {
                 <tr>
-
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pagoID)
+                    </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.cantidad)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.fechaPago)
+                        @item.fechaPago.ToString("dd/MMM/yy")
                     </td>
                     <td class="hidden-print">
-                        @*@Html.ActionLink("Edit", "Edit","Pago" ,new { id=item.pagoID },"") |
-                            @Html.ActionLink("Details", "Details", "Pago", new { id=item.pagoID },"")*@
-                        @*@Html.ActionLink("Delete", "Delete", "Pago", new { id = item.pagoID }, new { @class = "btn btn-danger" })*@
-                        
-                        <a href="@Url.Action("Delete","Pago", new { id = item.pagoID })">
+                        <a pago_id ='@item.pagoID' pago_monto ="@item.cantidad.ToString("C")" 
+                           pago_fecha="@item.fechaPago.ToString("dd/MMM/yyyy")"
+                           data-toggle="modal" data-target="#@vmModalOpts.modalID" onclick="prepareModalDeletePago(this)">
                             <i class="glyphicon glyphicon-remove"></i> Borrar
                         </a>
                     </td>
                 </tr>
             }
         </tbody>
+    </table>}
+    else
+    {
+        <div class="alert alert-info">No se ha realizado ningún pago para esta reservación</div>
+    }
+</div>
 
-        
-
-    </table>
-</p>
+<script>
+    function prepareModalDeletePago(link) {
+        link = $(link);
+        $('#@(vmModalOpts.modalID) #spanPagoID').html(link.attr('pago_id'))
+        $('#@(vmModalOpts.modalID) #spanMonto').html(link.attr('pago_monto'))
+        $('#@(vmModalOpts.modalID) #spanPagoFecha').html(link.attr('pago_fecha'))
+        $('#@(vmModalOpts.modalID) form').attr('action', '/Pago/Delete/' + link.attr('pago_id'))
+    }
+</script>

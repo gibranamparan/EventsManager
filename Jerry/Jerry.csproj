@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -24,6 +25,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -179,6 +181,7 @@
     <Compile Include="GeneralTools\DatesTools.cs" />
     <Compile Include="GeneralTools\NumbersTools.cs" />
     <Compile Include="GeneralTools\TimePeriod.cs" />
+    <Compile Include="GeneralTools\VMConfirmModalAttributes.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -222,6 +225,10 @@
     <Compile Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.Designer.cs">
       <DependentUpon>201708022016454_changed_salon_fromReservacion_ToSesion.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201708162044002_salones_CapacidadMaxima.cs" />
+    <Compile Include="Migrations\201708162044002_salones_CapacidadMaxima.Designer.cs">
+      <DependentUpon>201708162044002_salones_CapacidadMaxima.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -238,6 +245,60 @@
     <Compile Include="ViewModels\ReservacionesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bower_components\bootstrap-calendar\css\calendar.css" />
+    <Content Include="bower_components\bootstrap-calendar\css\calendar.min.css" />
+    <Content Include="bower_components\bootstrap-calendar\img\dark_wood.png" />
+    <Content Include="bower_components\bootstrap-calendar\img\slide-bg.png" />
+    <Content Include="bower_components\bootstrap-calendar\img\tick.png" />
+    <Content Include="bower_components\bootstrap-calendar\js\app.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\calendar.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\calendar.min.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ar-SA.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\bg-BG.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\bs-BA.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ca-ES.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\cs-CZ.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\da-DK.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\de-AT.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\de-DE.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\el-GR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\es-CO.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\es-ES.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\es-MX.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\fi-FI.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\fr-FR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\hr-HR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\hu-HU.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\id-ID.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\it-IT.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ja-JP.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ko-KR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ms-MY.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\nl-NL.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\no-NO.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\pl-PL.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\pt-BR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ro-RO.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\ru-RU.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\sk-SR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\sl-SL.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\sv-SE.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\template.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\th-TH.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\tr-TR.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\zh-CN.js" />
+    <Content Include="bower_components\bootstrap-calendar\js\language\zh-TW.js" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\day.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\events-list.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\modal.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\month-day.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\month.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\week-days.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\week.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\year-month.html" />
+    <Content Include="bower_components\bootstrap-calendar\tmpls\year.html" />
+    <Content Include="bower_components\underscore\underscore-min.js" />
+    <Content Include="bower_components\underscore\underscore.js" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\custom.css" />
@@ -315,6 +376,19 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="bower_components\underscore\.bower.json" />
+    <Content Include="bower_components\underscore\bower.json" />
+    <Content Include="bower_components\underscore\LICENSE" />
+    <Content Include="bower_components\underscore\README.md" />
+    <Content Include="bower_components\underscore\underscore-min.map" />
+    <Content Include="bower_components\bootstrap-calendar\less\calendar.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\day.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\events.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\grid.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\month.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\theme.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\variables.less" />
+    <Content Include="bower_components\bootstrap-calendar\less\week.less" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\custom.js" />
@@ -341,6 +415,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\moment-with-locales.js" />
     <Content Include="Scripts\morris\morris-0.4.3.min.css" />
     <Content Include="Scripts\morris\morris.js" />
     <Content Include="Scripts\morris\raphael-2.1.0.min.js" />
@@ -350,6 +425,15 @@
     <Content Include="Scripts\skel.min.js" />
     <Content Include="Scripts\util.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="tmpls\day.html" />
+    <Content Include="tmpls\events-list.html" />
+    <Content Include="tmpls\modal.html" />
+    <Content Include="tmpls\month-day.html" />
+    <Content Include="tmpls\month.html" />
+    <Content Include="tmpls\week-days.html" />
+    <Content Include="tmpls\week.html" />
+    <Content Include="tmpls\year-month.html" />
+    <Content Include="tmpls\year.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -386,26 +470,24 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Clientes\Create.cshtml" />
+    <Content Include="Views\Clientes\Form_Cliente.cshtml" />
     <Content Include="Views\Clientes\Delete.cshtml" />
     <Content Include="Views\Clientes\Details.cshtml" />
     <Content Include="Views\Clientes\Edit.cshtml" />
     <Content Include="Views\Clientes\Index.cshtml" />
-    <Content Include="Views\Salon\Create.cshtml" />
+    <Content Include="Views\Salon\Form_Salones.cshtml" />
     <Content Include="Views\Salon\Delete.cshtml" />
     <Content Include="Views\Salon\Details.cshtml" />
-    <Content Include="Views\Salon\Edit.cshtml" />
     <Content Include="Views\Salon\Index.cshtml" />
     <Content Include="Views\Reservacion\Delete.cshtml" />
     <Content Include="Views\Reservacion\Details.cshtml" />
     <Content Include="Views\Reservacion\Index.cshtml" />
     <Content Include="Views\Pago\Create.cshtml" />
-    <Content Include="Views\Pago\Delete.cshtml" />
+    <Content Include="Views\Pago\Partial_DeletePagoConfirm.cshtml" />
     <Content Include="Views\Pago\Details.cshtml" />
     <Content Include="Views\Pago\Edit.cshtml" />
     <Content Include="Views\Pago\Index.cshtml" />
     <Content Include="Views\Pago\Partial_DetallesDePagos.cshtml" />
-    <Content Include="Views\Correo\EnviarCorreo.cshtml" />
     <Content Include="Views\Reservacion\Partial_Reservaciones.cshtml" />
     <Content Include="Views\Correo\Form_Correo.cshtml" />
     <Content Include="Views\Correo\Details.cshtml" />
@@ -422,6 +504,10 @@
     <Content Include="Views\Clientes\Partial_ClienteDetailsSummary.cshtml" />
     <Content Include="Views\Reservacion\Partial_ListSesiones.cshtml" />
     <Content Include="Views\Reservacion\Partial_DetailsReservacion.cshtml" />
+    <Content Include="Views\Shared\Partial_ConfirmationModal.cshtml" />
+    <Content Include="Views\Reservacion\Partial_ReservacionesConflictivas.cshtml" />
+    <Content Include="Views\Reservacion\Partial_Schedule.cshtml" />
+    <Content Include="Views\Shared\Partial_EncabezadoReporte.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -464,12 +550,19 @@
     <EmbeddedResource Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.resx">
       <DependentUpon>201708022016454_changed_salon_fromReservacion_ToSesion.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708162044002_salones_CapacidadMaxima.resx">
+      <DependentUpon>201708162044002_salones_CapacidadMaxima.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">

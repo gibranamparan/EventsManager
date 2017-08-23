@@ -11,6 +11,7 @@
     @Styles.Render("~/Content/template")
     @Styles.Render("~/Content/icons")
     @Styles.Render("~/Content/jqueryui")
+    @Styles.Render("~/bower_componentes/calendar")
 </head>
 <body>
     <div id="wrapper">
@@ -65,7 +66,7 @@
                     @if (User.IsInRole(Jerry.Models.ApplicationUser.UserRoles.ADMIN))
                     {
                         <li class="aside hidden-print">
-                            <a href="@Url.Action("Details", "Correo")"><i class="fa fa-envelope fa-2x"></i>
+                            <a href="@Url.Action("Details", "Correo")"><i class="fa fa-gears fa-2x"></i>
                             <span>Configuración</span></a>
                         </li>
                     }
@@ -98,11 +99,13 @@
             </footer>
         </div>
     </div>
-            
+
+    @Scripts.Render("~/bundles/moment")
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/template")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/bower")
     @RenderSection("scripts", required: false)
 
 </body>

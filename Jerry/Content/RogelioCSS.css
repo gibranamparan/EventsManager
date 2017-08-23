@@ -1,5 +1,4 @@
-﻿
-#confirmBox
+﻿#confirmBox
 {
     display: none;
     background-color: #eee;
@@ -13,6 +12,7 @@
     box-sizing: border-box;
     text-align: center;
 }
+
 #confirmBox button {
     background-color: #ccc;
     display: inline-block;
@@ -23,10 +23,12 @@
     width: 80px;
     cursor: pointer;
 }
+
 #confirmBox button:hover
 {
     background-color: #ddd;
 }
+
 #confirmBox .message
 {
     text-align: left;
@@ -57,6 +59,10 @@ ul#logoutForm li a:hover{
 
 .container.body-content {
     min-height: 760px;
+}
+
+a[data-toggle="modal"]{
+    cursor: pointer
 }
 
 footer{
@@ -119,4 +125,22 @@ footer p{
 
 .btnRemover:hover {
     color: red;
+}
+
+@media print {
+
+    body, html, #page-wrapper {
+        margin:0; padding: 0
+    }
+    body{
+        padding: .5in;
+    }
+    #panelReportInfo{
+        margin-bottom: .5em;
+        font-size: 1em;
+        margin-bottom: 1em;
+    }
+    a#linkLogo{
+        font-size: 1.5em;
+    }
 }

@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using Novacode;
 using System.Globalization;
 using System.Web.Script.Serialization;
+using static Jerry.Models.Correo;
 
 namespace Jerry.Controllers
 {
@@ -24,53 +25,75 @@ namespace Jerry.Controllers
 
         // GET: Reservacion}
         [Authorize]
-        public ActionResult Index(Reservacion.VMFiltroReservaciones filtroReservaciones)
+        public ActionResult Index(Reservacion.VMFiltroReservaciones filtroReservaciones, bool listMode=false)
         {
-            //var reservaciones = db.reservaciones.Include(r => r.cliente).Include(r => r.salon).OrderBy(r => r.fechaReservacion);
-            TimePeriod periodo = filtroReservaciones.TimePeriod;
-            List<Reservacion> reservaciones = new List<Reservacion>();
-
-            DateTime hoyMasMes = DateTime.Today.AddMonths(1).AddDays(1).AddMilliseconds(-1);
-            DateTime inicio = new DateTime();
-            DateTime fin = new DateTime();
-
-            if (periodo.startDate.ToShortDateString() == DateTime.Today.ToShortDateString() && periodo.endDate.ToShortDateString() == hoyMasMes.ToShortDateString())
-            {
-                reservaciones = db.reservaciones.ToList().Where(r => r.fechaEventoInicial >= DateTime.Today &&
-                r.fechaEventoInicial <= hoyMasMes).OrderByDescending(r => r.fechaEventoInicial).ToList();
-            }
-            else
-            {
-                inicio = periodo.startDate.Date;
-                fin = periodo.endDate.Date.AddDays(1).AddMilliseconds(-1);
-                reservaciones = db.reservaciones.ToList().Where(r => r.fechaEventoInicial >= inicio &&
-                r.fechaEventoInicial <= fin).OrderByDescending(r => r.fechaEventoInicial).ToList();
-            }
-
+            var reservaciones = filterReservaciones(filtroReservaciones);
             ViewBag.result = reservaciones;
+            ViewBag.listMode = listMode;
 
             return View(filtroReservaciones);
         }
 
+        [AllowAnonymous]
+        public JsonResult apiReservacionesFilter(string from, string to)
+        {
+            //Se prepara el filtro para buscar las reservaciones
+            Reservacion.VMFiltroReservaciones filtroReservaciones = new Reservacion.VMFiltroReservaciones();
+            if (!string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(to)) { 
+                DateTime dtRef = Reservacion.ReservacionInScheduleJS.JS_DATE_REF;
+                //El cliente esta enviando hora con GMT -7, se corrige
+                //TODO: ¿De que manera es posible indicarle al calendario que la fecha debe enviarse en formato universal
+                DateTime startDate = dtRef.AddMilliseconds(double.Parse(from)).AddHours(-7);
+                DateTime endDate = dtRef.AddMilliseconds(double.Parse(to)).AddHours(-7);
+                filtroReservaciones.TimePeriod = new TimePeriod(startDate, endDate);
+            }
+
+            var reservaciones = filterReservaciones(filtroReservaciones);
+            List<Reservacion.ReservacionInScheduleJS> itemsForSchedule = new List<Reservacion.ReservacionInScheduleJS>();
+            reservaciones.ToList().ForEach(res => Reservacion.ReservacionInScheduleJS.ReservacionInSesionesForScheduleJS(res, ref itemsForSchedule));
+
+            return Json(new { success = 1, result=itemsForSchedule }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        /// <summary>
+        /// Busca las reservaciones cuyas sesiones entran dentro del rango de tiempo indicado.
+        /// </summary>
+        /// <param name="filtroReservaciones">Objeto que representa el rango de tiempo de busqueda.</param>
+        /// <returns></returns>
+        private IEnumerable<Reservacion> filterReservaciones(Reservacion.VMFiltroReservaciones filtroReservaciones)
+        {
+            TimePeriod periodo = filtroReservaciones.TimePeriod;
+            List<Reservacion> reservaciones = new List<Reservacion>();
+
+            //Se seleccionan las reservaciones cuyas sesiones tienen horarios de inicio o fin dentro del rango de busqueda
+            reservaciones = db.reservaciones.SelectMany(res=>res.sesiones)
+                .Where(s => s.periodoDeSesion.startDate >= periodo.startDate && s.periodoDeSesion.startDate <= periodo.endDate
+                || s.periodoDeSesion.endDate >= periodo.startDate && s.periodoDeSesion.endDate <= periodo.endDate)
+                .Select(s=>s.reservacion).Distinct().ToList();
+            //Se ordenan cronologicamente por fecha de inicio
+            reservaciones = reservaciones.OrderByDescending(r => r.fechaEventoInicial).ToList();
+
+            return reservaciones;
+        }
+
         // GET: Reservacion/Details/5
         [Authorize]
-        public async Task<ActionResult> Details(int? id, string errorMsg = null)
+        public async Task<ActionResult> Details(int? id, string errorPagoMsg)
         {
-            Pago pago = new Pago();
-            
             if (id == null)
-            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+
+            ErrorEmail errorEmail = TempData["errorEmail"] != null
+                ? (ErrorEmail)TempData["errorEmail"] : new ErrorEmail();
+
             Reservacion reservacion = await db.reservaciones.FindAsync(id);
-            
-            ViewBag.errorMsg = errorMsg;
 
             if (reservacion == null)
-            {
                 return HttpNotFound();
-            }
 
+            ViewBag.errorMail = errorEmail;
+            ViewBag.errorPagoMsg = errorPagoMsg;
             return View(reservacion);
         }
 
@@ -118,17 +141,18 @@ namespace Jerry.Controllers
                 //Se registran las sesiones en las que se divide la reservación
                 if (sesionesEnReservacion != null && sesionesEnReservacion.Count > 0)
                     reservacion.sesiones = sesionesEnReservacion;
+                
+                //Se registran los servicios relacionados si existen
+                if (serviciosSeleccionados != null && serviciosSeleccionados.Count > 0)
+                    reservacion.serviciosContratados = serviciosSeleccionados;
 
                 //Se obtienes todas las reservaciones que colisionan con la que se encuentra registrando
-                var colisiones = reservacion.reservacionesQueColisionan(reservacion,db);
+                var colisiones = reservacion.reservacionesQueColisionan(db);
 
                 //Si no hay colisiones
                 if(colisiones.Count() == 0)
                 { //Si no hay colisiones se registra
-                    //Se registran los servicios relacionados si existen
-                    if (serviciosSeleccionados != null && serviciosSeleccionados.Count > 0)
-                        reservacion.serviciosContratados = serviciosSeleccionados;
-
+                    
                     //Guardar registro
                     db.reservaciones.Add(reservacion);
                     numRegs = db.SaveChanges();
@@ -138,6 +162,13 @@ namespace Jerry.Controllers
                     //Se reporta que hubo colsiones
                     ModelState.AddModelError("", "La fecha seleccionada ya esta ocupada por "+
                         "otras reservaciones ya registradas");
+
+                    //Se carga la informacion relacioada con los servicios ya seleccionados
+                    foreach (var ser in reservacion.serviciosContratados) {
+                        db.Entry(ser).State = EntityState.Added;
+                        db.Entry(ser).Reference(s => s.servicio).Load();
+                    }
+
                     ViewBag.colisiones = colisiones;
                 }
             }
@@ -145,6 +176,7 @@ namespace Jerry.Controllers
             //Si llega hasta aca, hubo un problema y se muestra la forma de nuevo
             Reservacion newRes = prepararVista(reservacion.clienteID);
             reservacion.cliente = newRes.cliente;
+            ViewBag.failPostBack = true;
             return View("Form_Reservacion",reservacion);
         }
 
@@ -163,6 +195,34 @@ namespace Jerry.Controllers
             }
             prepararVista();
             return View("Form_Reservacion",reservacion);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public JsonResult checarConflictos(Reservacion reservacion)
+        {
+            //Se encuentran las reservaciones y sesiones en conflicto
+            var sesionesConConflictos = reservacion.reservacionesQueColisionan(db).ToList();
+            var reservacionesConflictos = sesionesConConflictos.Select(ses => ses.reservacion).Distinct().ToList();
+            //Se prepara la informacion para ser respondida como vista en JSON
+            var resultado = (from res in reservacionesConflictos
+                            select new Reservacion.VMReservacion(res)).ToList();
+
+            var vmReservacionComprobada = new Reservacion.VMReservacion(reservacion);
+            //Dentro del resultado, se marca cada una de las sesiones que estan causando conflicto
+
+            vmReservacionComprobada.sesiones.ForEach(s2 => //Sesiones consultadas
+            {
+                resultado.ForEach(
+                    res => res.sesiones.ForEach(s1 => //Sesiones con conflicto encontradas
+                    {
+                        if (!s1.conflicto) { 
+                            s1.conflicto = s2.periodoDeTiempo.hasPartInside(s1.periodoDeTiempo) && s1.salonID == s2.salonID;
+                        }
+                    }));
+            });
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
         // POST: Reservacion/Edit/5
@@ -250,139 +310,59 @@ namespace Jerry.Controllers
         public FileResult GenerarContrato(int? id, string tipoContrato)
         {
             Reservacion resContrato = db.reservaciones.Find(id);
-            Cliente cliente = resContrato.cliente;
-            String rutaContrato = "";
-            String fechaInicioEvento = resContrato.fechaEventoInicial.ToShortDateString();
-            String fechaFinEvento = resContrato.fechaEventoFinal.ToShortDateString();
-            String duracionEvento = (resContrato.fechaEventoFinal - resContrato.fechaEventoInicial).TotalHours.ToString();
+            String rutaContrato = getContratoPath(resContrato.TipoContrato);
 
-            if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
-            {
-                rutaContrato = "~/App_Data/CONTRATO-MODIFICADO.docx";
-            }
-            else if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))
-            {
-                rutaContrato = "~/App_Data/CONTRATO.VENTURA.KIDs.NEW.docx";
-            }
+            //Se hace una copia una instancia de contrato para ser modificada basada en una plantilla
             String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
             byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
             System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
-            String descripcionServicios = resContrato.Detalles;
-            String telefono = cliente.telefono;
-            String correo = cliente.email;
-            String fechaReservacion = resContrato.fechaReservacion.ToLongDateString();
-            String cantidadPersonas = resContrato.CantidadPersonas.ToString();
-            String diaEvento = resContrato.fechaEventoInicial.Day.ToString();
-            String mesEvento = DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoInicial, "es").ToUpperInvariant();
-            String yearEvento = resContrato.fechaEventoInicial.Year.ToString();
-            String horaInicioEvento = resContrato.fechaEventoInicial.Hour.ToString();
-            String horaFinEvento = resContrato.fechaEventoFinal.Hour.ToString();
-            String costo = resContrato.costo.ToString();
-            String costoLetra = NumbersTools.NumberToText.Convert(resContrato.costo, "pesos");
-            String anticipo = resContrato.cantidadPagada.ToString();
-            String adeudo = resContrato.cantidadFaltante.ToString();
-            String adeudoLetra = NumbersTools.NumberToText.Convert(resContrato.cantidadFaltante, "pesos");
 
-            if (String.IsNullOrEmpty(telefono))
-            {
-                telefono = "";
-            }
-            if (String.IsNullOrEmpty(correo))
-            {
-                correo = "";
-            }
-            String asociadoCliente = cliente.clienteID.ToString();
-            String nombreCliente = cliente.nombreCompleto.ToUpperInvariant();
+            Reservacion.VMDataContract dataContracts = new Reservacion.VMDataContract(resContrato);
 
             var doc = DocX.Load(nuevoContrato);
-            if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))
-            {
-                doc.ReplaceText("<FECHA>", fechaReservacion);
-                doc.ReplaceText("<CLIENTE>", nombreCliente);
-                doc.ReplaceText("<TELEFONO>", telefono);
-                doc.ReplaceText("<INVITADOS>", cantidadPersonas);
-                doc.ReplaceText("<DIA>", diaEvento);
-                doc.ReplaceText("<MES>", mesEvento);
-                doc.ReplaceText("<AÑO>", yearEvento);
-                doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
-                doc.ReplaceText("<HORA_FIN>", horaFinEvento);
+            if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))//CONTRATO VENTURA KIDS
+                resContrato.fillContratoA(dataContracts, ref doc);
+            else if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))//CONTRATO MODIFICADO
+                resContrato.fillContratoB(dataContracts, ref doc);
 
-                if (fechaInicioEvento.Equals(fechaFinEvento))
-                {
-                    doc.ReplaceText("<CONCLUYE>", "mismo día");
-                }
-                else
-                {
-                    doc.ReplaceText("<CONCLUYE>", resContrato.fechaEventoFinal.Day + " DE " + DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoFinal, "es").ToUpperInvariant() + " DEL " + resContrato.fechaEventoFinal.Year);
-                }
+            doc.Save(); //Guardar documento en servidor
 
-                doc.ReplaceText("<COSTO>", costo);
-                doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
-                doc.ReplaceText("<ANTICIPO>", anticipo);
-                doc.ReplaceText("<DEBE>", adeudo);
-                doc.ReplaceText("<LETRA_DEUDA>", adeudoLetra);
-            }
-            else if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
-            {
-                doc.ReplaceText("<CLIENTE>", nombreCliente);
-                doc.ReplaceText("<TIEMPO>", duracionEvento);
-                doc.ReplaceText("<DIA>", diaEvento);
-                doc.ReplaceText("<MES>", mesEvento);
-                doc.ReplaceText("<AÑO>", yearEvento);
-                doc.ReplaceText("<DESCRIPCION>", descripcionServicios);
-                doc.ReplaceText("<HORA_INICIO>", horaInicioEvento);
-                doc.ReplaceText("<HORA_FIN>", horaFinEvento);
-                doc.ReplaceText("<DIA_FIN>", resContrato.fechaEventoFinal.Day.ToString());
-                doc.ReplaceText("<MES_FIN>", DatesTools.DatesToText.ConvertToMonth(resContrato.fechaEventoFinal,"es"));
-                doc.ReplaceText("<AÑO_FIN>", resContrato.fechaEventoFinal.Year.ToString());
-                doc.ReplaceText("<INVITADOS>", cantidadPersonas);
-                doc.ReplaceText("<COSTO>", costo);
-                doc.ReplaceText("<LETRA_TOTAL>", costoLetra);
-                doc.ReplaceText("<TIEMPO_LETRA>", NumbersTools.NumberToText.Convert(decimal.Parse(duracionEvento)).Split(' ')[0]);
-                doc.ReplaceText("<DIA_HOY>", DateTime.Today.Day.ToString());
-                doc.ReplaceText("<MES_HOY>", DatesTools.DatesToText.ConvertToMonth(DateTime.Today,"es"));
-                doc.ReplaceText("<AÑO_HOY>", DateTime.Today.Year.ToString());
-            }
-
-            doc.Save();
-
+            //Descargar documento
             byte[] fileBytesNuevoContrato = System.IO.File.ReadAllBytes(nuevoContrato);
-            string nombreArchivoDescargado = tipoContrato+"_"+nombreCliente.ToUpperInvariant()+".docx";
+            string nombreArchivoDescargado = tipoContrato+"_"+resContrato.cliente.nombreCompleto.ToUpperInvariant()+".docx";
             return File(fileBytesNuevoContrato,System.Net.Mime.MediaTypeNames.Application.Octet,nombreArchivoDescargado);
+        }
+
+        /// <summary>
+        /// Se determina el directorio de la plantilla correspondiente al tipo de contrato
+        /// </summary>
+        /// <param name="tipoContrato">Nombre de tipo de contrato, los cuales son constantes definidos en Reservacion.TiposContrato.</param>
+        /// <returns>Cadena de caracteres con la ubicacion de la plantilla.</returns>
+        private string getContratoPath(string tipoContrato)
+        {
+            string res = string.Empty;
+
+            if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
+                res = "~/App_Data/CONTRATO-MODIFICADO.docx";
+            else if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))
+                res = "~/App_Data/CONTRATO.VENTURA.KIDs.NEW.docx";
+
+            return res;
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
+
             base.Dispose(disposing);
         }
+
         public ActionResult CreateReservacion(int id)
         {
             ViewBag.clienteID = id;
             ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre");
             return View();
-        }
-        public JsonResult ReservacionesConflictivas(/*object fechaI, object fechaF*/)
-        {
-            DateTime fechaI = DateTime.Parse("2016/01/25");
-            DateTime fechaF = DateTime.Parse("2016/12/26");
-
-
-            //var res = from R in db.reservaciones.
-            //          Where(R => R.fechaEventoInicial <= (DateTime)fechaI && R.fechaEventoFinal >= (DateTime)fechaI ||
-            //          R.fechaEventoInicial <= (DateTime)fechaF && R.fechaEventoFinal >= (DateTime)fechaF).ToList()
-            //          select new ReservacionesViewModel(R);
-
-            //var res = Jerry.ViewModels.ReservacionesViewModel.ObtenerReservaciones();
-            var res = from R in db.reservaciones.
-                      Where(R => R.fechaEventoInicial <= (DateTime)fechaI && R.fechaEventoFinal >= (DateTime)fechaI ||
-                      R.fechaEventoInicial <= (DateTime)fechaF && R.fechaEventoFinal >= (DateTime)fechaF).ToList()
-                      select new ReservacionesViewModel(R);
-
-            return Json(res, JsonRequestBehavior.AllowGet);
         }
     }
 }

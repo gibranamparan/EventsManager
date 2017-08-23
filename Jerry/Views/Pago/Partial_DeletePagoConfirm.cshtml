@@ -1,0 +1,12 @@
+﻿<div>
+    Pago #<strong id=spanPagoID></strong> 
+    de un monto de <strong id=spanMonto></strong> hecho el <strong id=spanPagoFecha></strong>.
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+        <br />
+        <div class="form-actions no-color">
+            <button class="btn btn-danger">Confirmar</button>
+        </div>
+    }
+</div>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -9,6 +10,7 @@ namespace Jerry.Models
     public class Pago
     {
         [Key]
+        [DisplayName("No. Pago")]
         public int pagoID { get; set; }
 
         public int? reservacionID { get; set; }

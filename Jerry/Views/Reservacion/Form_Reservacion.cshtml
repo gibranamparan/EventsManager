@@ -1,6 +1,8 @@
 ﻿@using Jerry.Models
+@using Jerry.GeneralTools
 @model Jerry.Models.Reservacion
 @{
+    bool failPostBack = ViewBag.failPostBack == null ? false : ViewBag.failPostBack;
     bool editMode = Model.reservacionID > 0;
     ViewBag.Title = (editMode ? "Editar" : "Registrar") + " Reservación";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -11,13 +13,12 @@
     decimal costoTotalPorServicios = 0;
     decimal costoTotal = 0;
     SelectList salones = ViewBag.salonID;
-    if (editMode)
+    if (editMode || failPostBack)
     {
-        serviciosSeleccionados = Model.serviciosContratados.ToList();
+        sesiones = Model.sesiones!=null?Model.sesiones.ToList():sesiones;
+        serviciosSeleccionados = Model.serviciosContratados!=null?Model.serviciosContratados.ToList():serviciosSeleccionados;
         costoTotalPorServicios = Model.costoTotalPorServicios;
         costoTotal = Model.costo;
-        sesiones = Model.sesiones.ToList();
-
     }
     else
     {
@@ -31,12 +32,27 @@
         sesiones.Add(primeraSesion);
 
         @*Para pruebas*@
+    if(!(editMode || failPostBack)) {
         Model.Detalles = "ESTA ES SOLO UNA DESCRIPCIOND E PRUEBA";
         Model.CantidadPersonas = 15;
+    }
+}
+
+
+VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
+{
+    modalID = "modalConflictos",
+    partialViewURL = "../Reservacion/Partial_ReservacionesConflictivas",
+    modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.INFO),
+    modalTitle = "Reservaciones que Presentan Conflicto.",
+    size = new VMConfirmModalAttributes.Size(VMConfirmModalAttributes.Size.ModalSize.LARGE),
+    callType = VMConfirmModalAttributes.CallType.PARTIAL_VIEW,
+    modelForPartial = new Reservacion.VMReservacion(new Reservacion())
+};
 
 }
 
-}
+@Html.Partial("Partial_ConfirmationModal", vmModalConflictos)
 
 <p>
     <a href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
@@ -46,7 +62,7 @@
 
 @Html.Partial("../Clientes/Partial_ClienteDetailsSummary",Model.cliente)
 
-@using (Html.BeginForm())
+@using (Html.BeginForm(null, "Reservacion", FormMethod.Post,new { id = "formReservacion"}))
 {
     @Html.AntiForgeryToken()
 
@@ -69,6 +85,11 @@
                 @Html.Hidden("listServiciosSeleccionados")
                 @Html.Hidden("listSesiones")
 
+                <div id="alertConflicto" class="alert alert-danger" style="display:none">
+                    Los horarios estan presentando conflicto con otras reservaciones ya registradas, verifique las reservaciones con conflicto haciendo
+                    click en el siguiente <a href="#" data-toggle="modal" data-target="#@(vmModalConflictos.modalID)">enlace</a>
+                </div>
+
                 @*PANEL PARA AGREGAR SESIONES DENTRO DE LA RESERVACION*@
                 <div class="row">
                     <fieldset>
@@ -90,7 +111,7 @@
                                             <div class="panel-heading">
                                                 <h3 class="panel-title">
                                                     <span>Sesión #</span><span id="spanNum">@cont</span>
-                                                    @if(editMode && cont > 1) {
+                                                    @if((editMode|| failPostBack) && cont > 1) { // Se muestra boton de eliminacion para editar registros adicioanles a la sesion por defecto
                                                         <i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>
                                                     }
                                                 </h3>
@@ -110,22 +131,22 @@
                                                 </div>
                                                 <div class="form-group col-md-4">
                                                     @Html.LabelFor(model => sesion.salonID)
-                                                    @if (!editMode)
+                                                    @if (!(editMode|| failPostBack))
                                                     {
                                                         @Html.DropDownList("salonID", null, new
-                                                       {
-                                                           @class = "form-control",
-                                                           onchange = "prepararDatosJSON($('.divSesion'))"
-                                                       })
+                                                        {
+                                                            @class = "form-control",
+                                                            onchange = "prepararDatosJSON($('.divSesion'))"
+                                                        })
                                                     }
                                                     else
                                                     {
                                                         @Html.DropDownListFor(model=>sesion.salonID,
-                                                           new SelectList(salones.Items,"salonID","nombre",sesion.salonID), new
-                                                           {
-                                                               @class = "form-control",
-                                                               onchange = "prepararDatosJSON($('.divSesion'))"
-                                                           })
+                                                            new SelectList(salones.Items,"salonID","nombre",sesion.salonID), new
+                                                            {
+                                                                @class = "form-control",
+                                                                onchange = "prepararDatosJSON($('.divSesion'))"
+                                                            })
                                                     }
                                                 </div>
                                             </div>
@@ -133,7 +154,7 @@
                                     </div>
                                     cont++;
                                 }
-                            }
+                             }
                         </div>
                     </fieldset>
                 </div>
@@ -186,8 +207,8 @@
                 </div>
                 @{
                     ViewDataDictionary vdd = new ViewDataDictionary();
-                    vdd.Add("selectMode", true);
-                    if (editMode)
+                                                    vdd.Add("selectMode", true);
+                    if (editMode || failPostBack)
                     {
                         vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
                     }
@@ -195,7 +216,7 @@
                 @Html.Partial("../Servicios/Partial_ListServicios", servicios, vdd)
                 <br />
                 <div class="form-group">
-                    <button class="btn btn-success">@(editMode ? "Guardar" : "Reservar")</button>
+                    <button id="btnReservar" class="btn btn-success">@(editMode ? "Guardar" : "Reservar")</button>
                 </div>
             </div>
 
@@ -216,6 +237,7 @@
 
     @*CONTROL DE PANEL DE SESIONES DENTRO DE LA RESERVACION*@
     var sesiones = new Array();
+    var hayConflictos = false;
     //Se introduce a los datos de sesiones al menos una sesion por defecto
     prepararDatosJSON($('.divSesion'))
 
@@ -260,20 +282,24 @@
         })
         $('#listSesiones').val(JSON.stringify(sesiones))
         console.log(sesiones)
+        checarConflictos()
     }
 
+    //Verifica y ajusta las fechas de cada sesion para ser válidas
     function ajustarFechas(inputFecha) {
+        //Se parsean las fechas introducidas dentro del panel modificado
         var divSesion = $(inputFecha).closest('.divSesion')
         var inputStartDate = divSesion.find('#sesion_periodoDeSesion_startDate');
         var inputEndDate = divSesion.find('#sesion_periodoDeSesion_endDate');
         var dtStartDate = strToDateTime(inputStartDate.val())
         var dtEndDate = strToDateTime(inputEndDate.val())
+        //Si la fecha inicial es mayor a la final
         if(dtStartDate > dtEndDate ){
-            dtEndDate = dtStartDate
+            dtEndDate = dtStartDate //Se iguala la inicial con la menor
+            dtEndDate.setHours(dtEndDate.getHours() + 1);
+            //Se modificar el datetimepicker de cada input
             strStartDate = dateTimeToDateTimePickerFormat(dtStartDate)
             strEndDate = dateTimeToDateTimePickerFormat(dtEndDate)
-            /*inputStartDate.val(strStartDate)
-            inputEndDate.val(strEndDate)*/
             inputStartDate.datetimepicker({ value: strStartDate })
             inputEndDate.datetimepicker({ value: strEndDate })
         }
@@ -290,8 +316,36 @@
         }
         return dato;
     }
+
+    initPartialConflictos()
+
+    function checarConflictos() {
+        var token = $('#formReservacion').find("input[name=__RequestVerificationToken]").val()
+        var reservacion = {
+            reservacionID:@(Model.reservacionID),
+            sesiones: sesiones,
+        };
+        $.postJSON("/Reservacion/checarConflictos", reservacion, "json",
+            function (res) {//Success
+                console.log(res);
+                $('#alertConflicto').slideDownOrUp(res.length)
+                if (res.length) {
+                    renderData(res);
+                }
+                enableAndNotify(res.length)
+            }, function (error) {//Fail
+                alert(error)
+                console.log(error)
+            }, function () {//Always
+
+            }, token)
+    }
+
+    function enableAndNotify(doDisable) {
+        $('#btnReservar').prop('disabled',doDisable)
+    }
 </script>
-@if(editMode)
+@if(editMode || failPostBack)
 {
     <script>
         selectForEdition();

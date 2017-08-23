@@ -42,16 +42,17 @@ namespace Jerry.Controllers
 
         // GET: Clientes/Create
         [Authorize]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
         public ActionResult Create()
         {
-            return View();
+            return View("Form_Cliente", new Cliente());
         }
 
         // POST: Clientes/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Cliente cliente)
         {
@@ -62,11 +63,11 @@ namespace Jerry.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(cliente);
+            return View("Form_Cliente", cliente);
         }
 
         // GET: Clientes/Edit/5
-        [Authorize]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
         public async Task<ActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,29 +79,29 @@ namespace Jerry.Controllers
             {
                 return HttpNotFound();
             }
-            return View("create",cliente);
+            return View("Form_Cliente", cliente);
         }
 
         // POST: Clientes/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN+","+ApplicationUser.UserRoles.ASISTENTE)]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Cliente cliente)
+        public ActionResult Edit([Bind(Include = BIND_FIELDS)] Cliente cliente)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(cliente).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                db.SaveChanges();
                 return RedirectToAction("Details", new { id = cliente.clienteID });
             }
-            return View(cliente);
+            return View("Form_Cliente",cliente);
         }
 
         // GET: Clientes/Delete/5
         //[Authorize]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
         public async Task<ActionResult> Delete(int? id)
         {
             if (id == null)

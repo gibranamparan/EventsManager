@@ -21,6 +21,17 @@ namespace Jerry.GeneralTools
         [DisplayName("Hasta")]
         public DateTime endDate { get; set; }
 
+        public TimeSpan totalTime
+        {
+            get
+            {
+                TimeSpan res = new TimeSpan();
+                if (startDate != null && endDate != null)
+                    res = endDate - startDate;
+                return res;
+            }
+        }
+
         public TimePeriod() { }
         public TimePeriod(DateTime startDate, DateTime endDate)
         {
@@ -35,8 +46,23 @@ namespace Jerry.GeneralTools
 
         public override string ToString()
         {
-            return string.Format("{0:MMMM/dd/yyyy} - {1:MMMM/dd/yyyy}",
+            string res = "";
+            if (startDate.Date == endDate.Date)
+            { // 12/Jun 17 12:00-15:00
+                res = string.Format("{0:dd/MMM/yy} {0:HH:mm}-{1:HH:mm}", 
+                    this.startDate, this.endDate);
+            }
+            else if (startDate.Year == startDate.Year)
+            { // 12/Jun 15:30-13/Jun 01:45 17
+                res = string.Format("{0:dd/MMM HH:mm}-{1:dd/MMM HH:mm yyyy}",
                      this.startDate, this.endDate);
+            }
+            else
+            {
+                res = string.Format("{0:dd/MMM/yy} - {1:dd/MMM/yy}",
+                     this.startDate, this.endDate);
+            }
+            return res;
         }
 
         public string ToString(string dateFormat)
@@ -44,10 +70,12 @@ namespace Jerry.GeneralTools
             return string.Format("{0:" + dateFormat + "} - {1:" + dateFormat + "}",
                      this.startDate, this.endDate);
         }
+
         public bool hasInside(DateTime date)
         {
             return date >= this.startDate && date <= this.endDate;
         }
+
         public bool hasInside(TimePeriod other)
         {
             return other.startDate >= this.startDate && other.startDate <= this.endDate

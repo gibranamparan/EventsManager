@@ -10,6 +10,8 @@ using System.Web.Mvc;
 using Jerry.Models;
 using System.Net.Mail;
 using System.IO;
+using static Jerry.Models.Correo;
+using System.Web.Routing;
 
 namespace Jerry.Controllers
 {
@@ -130,65 +132,25 @@ namespace Jerry.Controllers
             base.Dispose(disposing);
         }
 
-
-
         /// <summary>
         /// Send Mail with hotmail
         /// </summary>
         /// <param name="objModelMail">MailModel Object, keeps all properties</param>
         /// <param name="fileUploader">Selected file data, example-filename,content,content type(file type- .txt,.png etc.),length etc.</param>
         /// <returns></returns>
-        [HttpPost]
-        [Authorize]
-        public ActionResult EnviarCorreo(Jerry.Models.Correo objModelMail, HttpPostedFileBase fileUploader)
+        [HttpGet]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN+","+
+            ApplicationUser.UserRoles.ASISTENTE)]
+        public ActionResult EnviarCorreo(string emailDestino, int reservacionID = 0)
         {
-            if (ModelState.IsValid)
-            {
-                var DatosCorreo = db.Correos.First();
-                objModelMail.contrasena = DatosCorreo.contrasena;
-                objModelMail.Subject = DatosCorreo.Subject;
-                objModelMail.Body = DatosCorreo.Body;
-                objModelMail.correoAdmin = DatosCorreo.correoAdmin;
-                objModelMail.puertoCorreo = DatosCorreo.puertoCorreo;
-                objModelMail.smtpHost = DatosCorreo.smtpHost;
-                string from = objModelMail.correoAdmin; //example:- sourabh9303@gmail.com
-                using (MailMessage mail = new MailMessage(from, objModelMail.To))
-                {
-                    mail.Subject = objModelMail.Subject;
-                    mail.Body = objModelMail.Body;
-                    if (fileUploader != null)
-                    {
-                        string fileName = Path.GetFileName(fileUploader.FileName);
-                        mail.Attachments.Add(new Attachment(fileUploader.InputStream, fileName));
-                    }
-                    mail.IsBodyHtml = false;
-                    SmtpClient smtp = new SmtpClient();
-                    smtp.Host = "smtp-mail.outlook.com";
-                    //smtp.Host = objModelMail.smtpHost;
-                    smtp.EnableSsl = true;
-                    //NetworkCredential networkCredential = new NetworkCredential(from, "baltasar153");
-                    NetworkCredential networkCredential = new NetworkCredential(from, objModelMail.contrasena);
-                    smtp.UseDefaultCredentials = false;
-                    smtp.Credentials = networkCredential;
-                    smtp.Port = 587;
-                    smtp.Send(mail);
-                    ViewBag.Message = "Sent";
-                    //return View("EnviarCorreo", objModelMail);
-                    return RedirectToAction("Index", "Reservacion");
-                }
-            }
-            else
-            {
-                return View();
-            }
+            HttpPostedFileBase fileUploader = null;
+            Correo DatosCorreo = db.Correos.First();
+            ErrorEmail err = DatosCorreo.enviarCorreo(fileUploader, emailDestino);
+            RouteValueDictionary rvd = new RouteValueDictionary();
+            TempData["errorEmail"] = err;
+            rvd.Add("errorEmail", err);
+
+            return RedirectToAction("Details","Reservacion", new { id = reservacionID });
         }
-
-        public ActionResult EnviarCorreo()
-        {
-            return View();
-        }
-
-
-
     }
 }

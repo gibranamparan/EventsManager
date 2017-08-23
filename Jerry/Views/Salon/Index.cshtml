@@ -26,6 +26,9 @@
                     <th>
                         @Html.DisplayNameFor(model => model.detalles)
                     </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.capacidadMaxima)
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -40,11 +43,11 @@
                             @Html.DisplayFor(modelItem => item.detalles)
                         </td>
                         <td>
+                            @Html.DisplayFor(modelItem => item.capacidadMaxima)
+                        </td>
+                        <td>
                             <a href="@Url.Action("Edit", new { id = item.salonID })">
                                 <i class="fa fa-pencil"></i><span>Editar</span>
-                            </a> |
-                            <a href="@Url.Action("Details", new { id = item.salonID })">
-                                <i class="fa fa-list-alt"></i><span>Detalles</span>
                             </a> |
                             <a href="@Url.Action("Delete", new { id = item.salonID })">
                                 <i class="glyphicon glyphicon-remove"></i><span>Borrar</span>

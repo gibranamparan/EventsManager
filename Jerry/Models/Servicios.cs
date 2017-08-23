@@ -46,5 +46,15 @@ namespace Jerry.Models
         [DisplayName("Costo")]
         [DataType(DataType.MultilineText)]
         public string nota { get; set; }
+
+        public override string ToString()
+        {
+            string res = string.Empty;
+            string format = String.IsNullOrEmpty(this.nota) ? "{0}" : "{0}: {1}";
+
+            res = string.Format(format, this.servicio.nombre, this.nota);
+
+            return res;
+        }
     }
 }

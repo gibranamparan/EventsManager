@@ -1,5 +1,9 @@
-﻿$('table.datatable').DataTable()
+﻿//Todos los inputs de tipo DateTime o con atribute datetimepicker, se conviernte en control JQuery para datetimepickers
+$('table.datatable').DataTable()
 var datesInputs = $("input[type='datetime'], input[datetimepicker]")
+
+//La herramienta para formatos de fecha Moment en javascript se configura para español
+moment.locale('es')
 
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
@@ -66,5 +70,46 @@ function dateTimeToDateTimePickerFormat(dt) {
         + numeral(dt.getDate()).format("00") + " " + numeral(dt.getHours()).format("00") + ":"
         + numeral(dt.getMinutes()).format("00"))
 }
-    
+
+function jsonDateToJSDate(jsonDate) {
+    return new Date(parseInt(jsonDate.substr(6)));
+}
+
+Date.prototype.addDays = function (days) {
+    var dat = new Date(this.valueOf());
+    dat.setDate(dat.getDate() + days);
+    return dat;
+}
+
+Date.prototype.dateISOFormat = function (days) {
+    var dat = new Date(this.valueOf());
+    return dat.toISOString().slice(0, 10);
+}
+
+boolParse = function (myStr) {
+    return myStr.toLowerCase() == 'true';
+}
+
+//Agrega funcion a JQuery para permitir solicitudes asincronas identificandose como usuario logeado
+jQuery.postJSON = function (url, data, dataType, success, fail, always, antiForgeryToken) {
+    if (dataType === void 0) { dataType = "json"; }
+    if (typeof (data) === "object") { data = JSON.stringify(data); }
+    var ajax = {
+        url: url,
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        dataType: dataType,
+        data: data,
+        success: success,
+        fail: fail,
+        complete: always
+    };
+    if (antiForgeryToken) {
+        ajax.headers = {
+            "__RequestVerificationToken": antiForgeryToken
+        };
+    };
+
+    return jQuery.ajax(ajax);
+};
    

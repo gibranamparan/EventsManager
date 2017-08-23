@@ -15,10 +15,12 @@ namespace Jerry.Models
         [Required]
         [Display(Name ="Salón")]
         public string nombre { get; set; }
-
-        [Required]
-        [Display(Name ="Descripción")]
+        
+        [Display(Name = "Descripción")]
         public string detalles { get; set; }
+        
+        [Display(Name = "Capacidad de Invitados")]
+        public int capacidadMaxima { get; set; }
 
         //Un salon puede tener una coleccion de reservaciones, es decir, puede tener varias reservaciones
         virtual public ICollection<SesionDeReservacion> sesionesReservadas { get; set; }
