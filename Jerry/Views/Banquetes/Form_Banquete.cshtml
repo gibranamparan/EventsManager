@@ -1,0 +1,146 @@
+﻿@using Jerry.Models
+@model Jerry.Models.Banquete
+@{
+    bool failPostBack = ViewBag.failPostBack == null ? false : ViewBag.failPostBack;
+    bool editMode = Model.eventoID > 0;
+    string externalFunction = "externalFunction";
+    ViewBag.Title = (editMode ? "Editar" : "Registrar") + " Reservación de Banquete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //Y la primera sesion es mañana
+    if (!editMode) {
+        Model.fechaEventoInicial = DateTime.Today.AddDays(1);
+        Model.fechaEventoFinal = Model.fechaEventoInicial;
+    }
+
+    List<Servicio> servicios = ViewBag.servicios;
+    List<ServiciosEnReservacion> serviciosSeleccionados = new List<ServiciosEnReservacion>();
+
+    if (editMode || failPostBack)
+    {
+        serviciosSeleccionados = Model.serviciosContratados != null
+            ? Model.serviciosContratados.ToList() : serviciosSeleccionados;
+        @*costoTotalPorServicios = Model.costoTotalPorServicios;
+    costoTotal = Model.costo;*@
+    }
+}
+<p>
+    <a href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
+        <i class="fa fa-arrow-left"></i><span>Volver al historial del cliente</span>
+    </a>
+</p>
+@Html.Partial("../Clientes/Partial_ClienteDetailsSummary", Model.cliente)
+
+@using (Html.BeginForm(null, "Banquetes", FormMethod.Post, new { id = "formBanquetes" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            @ViewBag.Title
+        </div>
+        <div class="panel-body">
+            <div class="col-md-12">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @if (editMode || failPostBack)
+                {
+                    @Html.HiddenFor(model => model.eventoID)
+                    @Html.HiddenFor(model => model.fechaReservacion)
+                }
+                @Html.HiddenFor(model => model.clienteID)
+                @Html.Hidden("listServiciosSeleccionados")
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.fechaEventoInicial)
+                        <input class="form-control" id="fechaEventoInicial" name="fechaEventoInicial"
+                               value='@Model.fechaEventoInicial.ToString("yyyy/MM/dd HH:mm")'
+                               onchange="ajustarFechas(this)" datetimepicker />
+                        @Html.ValidationMessageFor(model => model.fechaEventoInicial, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.fechaEventoFinal)
+                        <input class = "form-control" id="fechaEventoFinal" name="fechaEventoFinal"
+                                value='@Model.fechaEventoFinal.ToString("yyyy/MM/dd HH:mm")' 
+                                onchange = "ajustarFechas(this);" datetimepicker />
+                        @Html.ValidationMessageFor(model => model.fechaEventoFinal, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.costo)
+                        @Html.EditorFor(model => model.costo, new { htmlAttributes = new { @class = "form-control", data_mask = "0000000000.00", data_mask_reverse = "true" } })
+                        @Html.ValidationMessageFor(model => model.costo, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.CantidadPersonas)
+                        @Html.EditorFor(model => model.CantidadPersonas, new { htmlAttributes = new { @class = "form-control"} })
+                        @Html.ValidationMessageFor(model => model.CantidadPersonas, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.TipoContrato)
+                        @Html.DropDownList("TipoContrato", Banquete.getTipoContratoSelectList(), htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.TipoContrato, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.lugar)
+                        @Html.EditorFor(model => model.lugar, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.lugar, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.Detalles, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.Detalles, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Detalles, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @{ 
+                    ViewDataDictionary vdd = new ViewDataDictionary();
+                    vdd.Add("selectMode", true);
+                    vdd.Add("externalFunction", externalFunction);
+                    if (editMode || failPostBack)
+                    {
+                        vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
+                    }
+                }
+                @Html.Partial("../Servicios/Partial_ListServicios", servicios, vdd)
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts{
+    <script>
+        inicializarSeleccionTablaServicios()
+
+        //Verifica y ajusta las fechas de cada sesion para ser válidas
+        function ajustarFechas(inputFecha) {
+            //Se parsean las fechas introducidas dentro del panel modificado
+            var inputStartDate = $('#fechaEventoInicial');
+            var inputEndDate = $('#fechaEventoFinal');
+            var dtStartDate = strToDateTime(inputStartDate.val())
+            var dtEndDate = strToDateTime(inputEndDate.val())
+            //Si la fecha inicial es mayor a la final
+            if (dtStartDate > dtEndDate) {
+                dtEndDate = new Date(dtStartDate.getTime()) //Se iguala la inicial con la menor
+                dtEndDate.setHours(dtEndDate.getHours() + 1);
+                //Se modificar el datetimepicker de cada input
+                strStartDate = dateTimeToDateTimePickerFormat(dtStartDate)
+                strEndDate = dateTimeToDateTimePickerFormat(dtEndDate)
+                inputStartDate.datetimepicker({ value: strStartDate })
+                inputEndDate.datetimepicker({ value: strEndDate })
+            }
+        }
+
+        function @(externalFunction)(elementos){ 
+            $("#listServiciosSeleccionados").val(JSON.stringify(elementos));
+        }
+    </script>
+    @if (editMode || failPostBack)
+    {
+        <script>
+            selectForEdition();
+        </script>
+    }
+}

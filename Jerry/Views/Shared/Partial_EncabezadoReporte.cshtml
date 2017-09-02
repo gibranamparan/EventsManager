@@ -1,8 +1,12 @@
-﻿<div id="panelReportInfo" class="visible-print row">
+﻿@{ 
+    bool showHiddenPrints = ViewData["showHiddenPrints"] != null ? (bool)ViewData["showHiddenPrints"] : false;
+    int c = 0;
+}
+<div id="panelReportInfo" class="@(!showHiddenPrints?"visible-print":"") row">
     <div class="col-xs-2">
-        <a id="linkLogo" class="printLogo" href="#" style="color:white">
+        <p id="linkLogo" class="printLogo">
             Jerry's Control System
-        </a>
+        </p>
     </div>
     <div class="col-xs-10">
         <span>Salón de Eventos Quintaventura</span><br />

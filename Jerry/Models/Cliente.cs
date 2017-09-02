@@ -37,6 +37,6 @@ namespace Jerry.Models
         public string telefono { get; set; }
 
         //Un cliente tiene una coleccion de reservaciones, es decir, puede tener varias reservaciones
-        virtual public ICollection<Reservacion> reservaciones { get; set; }
+        virtual public ICollection<Evento> eventos { get; set; }
     }
 }

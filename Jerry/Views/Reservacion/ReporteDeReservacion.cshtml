@@ -1,0 +1,63 @@
+﻿@using Jerry.Models
+@using Jerry.Models
+@using Jerry.GeneralTools
+@model Jerry.Models.Reservacion
+@{
+    ViewBag.Title = "ReporteDeReservacion";
+    Layout = "~/Views/Shared/BlankLayout.cshtml";
+
+    //Servicios contratados dentro de la reservacion
+    List<Servicio> serviciosContratados = Model.serviciosContratados != null && Model.serviciosContratados.Count() > 0
+? Model.serviciosContratados.Select(sc => sc.servicio).ToList() : new List<Servicio>();
+
+    Correo correo = new Correo();
+    Pago p = new Pago();
+    p.eventoID = Model.eventoID;
+    ViewDataDictionary vdd = new ViewDataDictionary();
+    vdd.Add("printMode", false);
+    vdd.Add("showHiddenPrints", true);
+
+    DateTime fechaConsulta = DateTime.Today;
+}
+
+@Html.Partial("Partial_EncabezadoReporte",null,vdd)
+
+<span class="pull-right"><strong>Fecha de Consulta: </strong><span>@fechaConsulta.ToString("dd-MMMM-yyyy")</span></span>
+
+@*Detalles generales de la reservación*@
+@Html.Partial("Partial_DetailsReservacion",Model, vdd)
+
+@*Lista de sesiones dentro de la reservación*@
+@Html.Partial("Partial_ListSesiones", Model.sesiones)
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Servicios Contratados</h3>
+    </div>
+    <div class="panel-body">
+        @{
+            ViewDataDictionary vddServicios = new ViewDataDictionary();
+            vddServicios.Add("showOptions", false);
+        }
+        @Html.Partial("../Servicios/Partial_ListServicios", serviciosContratados, vddServicios)
+    </div>
+</div>
+
+@if (Model.cantidadFaltante == 0)
+{
+    <div class="alert alert-success">Esta reservación no presenta adeudos</div>
+}
+else
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-title">
+                Historial de Pagos
+            </span>
+        </div>
+        <div class="panel-body">
+            @*Lista de pagos*@
+            @Html.Partial("../Pago/Partial_DetallesDePagos",Model, vdd)
+        </div>
+    </div>
+}

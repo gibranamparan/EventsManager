@@ -3,52 +3,56 @@
 @model Jerry.Models.Reservacion
 @{
     bool failPostBack = ViewBag.failPostBack == null ? false : ViewBag.failPostBack;
-    bool editMode = Model.reservacionID > 0;
+    bool editMode = Model.eventoID > 0;
     ViewBag.Title = (editMode ? "Editar" : "Registrar") + " Reservación";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     List<Servicio> servicios = ViewBag.servicios;
     List<SesionDeReservacion> sesiones = new List<SesionDeReservacion>();
-    List<ServiciosEnReservacion> serviciosSeleccionados = new List<ServiciosEnReservacion>();
-    decimal costoTotalPorServicios = 0;
-    decimal costoTotal = 0;
-    SelectList salones = ViewBag.salonID;
-    if (editMode || failPostBack)
+    sesiones = Model.sesiones != null ? Model.sesiones.ToList() : sesiones;
+    //Si no hay sesiones asociadas a la vista del registro, se crea una por defecto
+    //como base para la forma
+    if (sesiones == null || sesiones.Count() == 0)
     {
-        sesiones = Model.sesiones!=null?Model.sesiones.ToList():sesiones;
-        serviciosSeleccionados = Model.serviciosContratados!=null?Model.serviciosContratados.ToList():serviciosSeleccionados;
-        costoTotalPorServicios = Model.costoTotalPorServicios;
-        costoTotal = Model.costo;
-    }
-    else
-    {
-        //Por defecto la fecha de reservacion es hoy
-        Model.fechaReservacion = DateTime.Today;
         SesionDeReservacion primeraSesion = new SesionDeReservacion();
         //Y la primera sesion es mañana
         primeraSesion.periodoDeSesion.startDate = DateTime.Today.AddDays(1);
         primeraSesion.periodoDeSesion.endDate = primeraSesion.periodoDeSesion.startDate;
         //Siempre por defecto habra al menos una sesion
         sesiones.Add(primeraSesion);
-
-        @*Para pruebas*@
-    if(!(editMode || failPostBack)) {
-        Model.Detalles = "ESTA ES SOLO UNA DESCRIPCIOND E PRUEBA";
-        Model.CantidadPersonas = 15;
     }
-}
 
+    List<ServiciosEnReservacion> serviciosSeleccionados = new List<ServiciosEnReservacion>();
+    decimal costoTotalPorServicios = 0;
+    decimal costoTotal = 0;
+    SelectList salones = ViewBag.salonID;
+    if (editMode || failPostBack) //Al editar registro o al haber un error al tratar de crearlo
+    {
+        //Se toman los servicios seleccionados en el registro y se calculan los costos asociados
+        serviciosSeleccionados = Model.serviciosContratados!=null?Model.serviciosContratados.ToList():serviciosSeleccionados;
+        costoTotalPorServicios = Model.costoTotalPorServicios;
+        costoTotal = Model.costo;
+    }
+    else //Al crear un nuevo registro
+    {
+        @*Para pruebas*@
+        if(!(editMode || failPostBack)) {
+            Model.Detalles = "ESTA ES SOLO UNA DESCRIPCIOND E PRUEBA";
+            Model.CantidadPersonas = 15;
+        }
+    }
 
-VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
-{
-    modalID = "modalConflictos",
-    partialViewURL = "../Reservacion/Partial_ReservacionesConflictivas",
-    modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.INFO),
-    modalTitle = "Reservaciones que Presentan Conflicto.",
-    size = new VMConfirmModalAttributes.Size(VMConfirmModalAttributes.Size.ModalSize.LARGE),
-    callType = VMConfirmModalAttributes.CallType.PARTIAL_VIEW,
-    modelForPartial = new Reservacion.VMReservacion(new Reservacion())
-};
+    //Configuracion del modal que notifica los conflictos
+    VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
+    {
+        modalID = "modalConflictos",
+        partialViewURL = "../Reservacion/Partial_ReservacionesConflictivas",
+        modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.INFO),
+        modalTitle = "Reservaciones que Presentan Conflicto.",
+        size = new VMConfirmModalAttributes.Size(VMConfirmModalAttributes.Size.ModalSize.LARGE),
+        callType = VMConfirmModalAttributes.CallType.PARTIAL_VIEW,
+        modelForPartial = new Reservacion.VMReservacion(new Reservacion())
+    };
 
 }
 
@@ -80,7 +84,7 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 @Html.HiddenFor(model => model.clienteID)
                 @Html.HiddenFor(model => model.fechaReservacion)
-                @Html.HiddenFor(model => model.reservacionID)
+                @Html.HiddenFor(model => model.eventoID)
                 @Html.HiddenFor(model => model.costo)
                 @Html.Hidden("listServiciosSeleccionados")
                 @Html.Hidden("listSesiones")
@@ -163,9 +167,22 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
                     <fieldset>
                         <legend>Información General</legend>
                         <div class="form-group col-md-4">
-                            <label for="costoPorReservacion">Costo Por Reservacion</label>
+                            @*<label for="costoPorReservacion">Costo Por Reservacion</label>
                             <input id="costoPorReservacion" name="costoPorReservacion" onkeyup="recalcularMontoTotal()"
-                                   class="form-control" value="@(costoTotal - costoTotalPorServicios)" data-mask="###0.00" data-mask-reverse="true" />
+                                   class="form-control" value="@(costoTotal - costoTotalPorServicios)" data-mask="###0.00" data-mask-reverse="true" />*@
+
+                            @Html.LabelFor(model => model.costoPorReservacion, htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.costoPorReservacion, new
+                               {
+                                   htmlAttributes = new
+                                   {
+                                       @class = "form-control",
+                                       data_mask = "###0.00",
+                                       data_mask_reverse = "true",
+                                       onkeyup = "recalcularMontoTotal()"
+                                   }
+                               })
+
                         </div>
                         <div class="form-group col-md-4">
                             @Html.LabelFor(model => model.TipoContrato)
@@ -195,9 +212,11 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
                 </div>
                 <div class="row">
                     <div class="form-group col-md-6">
-                        <label for="totalPorServicios">Total Por Servicios</label>
-                        <input id="totalPorServicios" name="totalPorServicios" value="@costoTotalPorServicios"
-                               class="form-control" readonly />
+                        @Html.LabelFor(model => model.totalPorServicios, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.totalPorServicios, new { htmlAttributes = new {
+                       @class = "form-control",data_mask="###0.00", data_mask_reverse = "true", onkeyup= "recalcularMontoTotal()"
+                   } })
+                        @Html.ValidationMessageFor(model => model.totalPorServicios, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-6">
                         @Html.LabelFor(model => model.costo, htmlAttributes: new { @class = "control-label" })
@@ -207,7 +226,8 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
                 </div>
                 @{
                     ViewDataDictionary vdd = new ViewDataDictionary();
-                                                    vdd.Add("selectMode", true);
+                    vdd.Add("selectMode", true);
+                    vdd.Add("externalFunction", "recalcularTotales");
                     if (editMode || failPostBack)
                     {
                         vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
@@ -295,7 +315,7 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
         var dtEndDate = strToDateTime(inputEndDate.val())
         //Si la fecha inicial es mayor a la final
         if(dtStartDate > dtEndDate ){
-            dtEndDate = dtStartDate //Se iguala la inicial con la menor
+            dtEndDate = new Date(dtStartDate.getTime()) //Se iguala la inicial con la menor
             dtEndDate.setHours(dtEndDate.getHours() + 1);
             //Se modificar el datetimepicker de cada input
             strStartDate = dateTimeToDateTimePickerFormat(dtStartDate)
@@ -322,7 +342,7 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
     function checarConflictos() {
         var token = $('#formReservacion').find("input[name=__RequestVerificationToken]").val()
         var reservacion = {
-            reservacionID:@(Model.reservacionID),
+            reservacionID:@(Model.eventoID),
             sesiones: sesiones,
         };
         $.postJSON("/Reservacion/checarConflictos", reservacion, "json",
@@ -344,11 +364,39 @@ VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
     function enableAndNotify(doDisable) {
         $('#btnReservar').prop('disabled',doDisable)
     }
+
+    function recalcularTotales() {
+        var total = 0;
+        $.each(elementosSeleccionados, function (idx, item) {
+            total += item.costo * item.cantidad //Propiedad de costo es cambiable
+        })
+        calcularValoresPropiosDeImplementacion(total)
+    }
+
+    function calcularValoresPropiosDeImplementacion(total) {
+        totalPorServicios = total;
+        if (!loadingToEdit) { //No entra cuando recien carga y es edicion
+            $("#totalPorServicios").val(numeral(totalPorServicios).format("0.00")).trigger("input")
+            var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
+            var costoTotal = costoPorReservacion + totalPorServicios;
+            $("#costoTotal").val(numberToCurrency(costoTotal))
+            //$("#costo").attr('value', costoTotal)
+            //Preparacion de forma para enviar datos seleccionados
+            $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
+        }else
+            loadingToEdit = false;
+
+        //test/
+        console.log($('#listServiciosSeleccionados').val())
+    }
 </script>
-@if(editMode || failPostBack)
+@*Si la forma esta en modo edicion o la forma fue regresada por el servidor debido a un error de validacion*@
+@if(editMode || failPostBack) 
 {
     <script>
         selectForEdition();
+        $('#listSesiones').val(JSON.stringify(sesiones))
+        $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
     </script>
 }
 }

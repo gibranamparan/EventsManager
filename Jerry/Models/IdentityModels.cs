@@ -59,11 +59,12 @@ namespace Jerry.Models
         }
 
         //En esta parte defino las tablas del sistema
-        public DbSet<Cliente> clientes { get; set; }
-        public DbSet<Salon> salones { get; set; }
-        public DbSet<Reservacion> reservaciones { get; set; }
-        public DbSet<Pago> pagos { get; set; }
         public DbSet<Correo> Correos { get; set; }
+        public DbSet<Salon> salones { get; set; }
+        public DbSet<Cliente> clientes { get; set; }
+        public DbSet<Pago> pagos { get; set; }
+        public DbSet<Evento> eventos { get; set; }
+        public DbSet<Reservacion> reservaciones { get; set; }
         public DbSet<Banquete> Banquetes { get; set; }
         public DbSet<Servicio> Servicios { get; set; }
         public DbSet<ServiciosEnReservacion> ServiciosEnReservaciones { get; set; }

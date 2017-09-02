@@ -52,12 +52,12 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Salon salon)
+        public ActionResult Create([Bind(Include = BIND_FIELDS)] Salon salon)
         {
             if (ModelState.IsValid)
             {
                 db.salones.Add(salon);
-                await db.SaveChangesAsync();
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
 

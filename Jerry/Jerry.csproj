@@ -50,6 +50,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Rotativa, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rotativa.1.6.4\lib\net40\Rotativa.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -172,6 +176,7 @@
     <Compile Include="Controllers\BanquetesController.cs" />
     <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\CorreoController.cs" />
+    <Compile Include="Controllers\EventosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PagoController.cs" />
@@ -185,55 +190,40 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201706010200492_initialMigration.cs" />
-    <Compile Include="Migrations\201706010200492_initialMigration.Designer.cs">
-      <DependentUpon>201706010200492_initialMigration.cs</DependentUpon>
+    <Compile Include="Migrations\201708290117339_initial_migration.cs" />
+    <Compile Include="Migrations\201708290117339_initial_migration.Designer.cs">
+      <DependentUpon>201708290117339_initial_migration.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707180204504_AgregarTipoDeContratoReservacion.cs" />
-    <Compile Include="Migrations\201707180204504_AgregarTipoDeContratoReservacion.Designer.cs">
-      <DependentUpon>201707180204504_AgregarTipoDeContratoReservacion.cs</DependentUpon>
+    <Compile Include="Migrations\201708290304587_modificadaFechaInicia_Final_Sesiones_EnReservacion.cs" />
+    <Compile Include="Migrations\201708290304587_modificadaFechaInicia_Final_Sesiones_EnReservacion.Designer.cs">
+      <DependentUpon>201708290304587_modificadaFechaInicia_Final_Sesiones_EnReservacion.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707262158391_serviciosDeReservaciones.cs" />
-    <Compile Include="Migrations\201707262158391_serviciosDeReservaciones.Designer.cs">
-      <DependentUpon>201707262158391_serviciosDeReservaciones.cs</DependentUpon>
+    <Compile Include="Migrations\201708291749003_servicios_tipoDeEvento.cs" />
+    <Compile Include="Migrations\201708291749003_servicios_tipoDeEvento.Designer.cs">
+      <DependentUpon>201708291749003_servicios_tipoDeEvento.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707280046447_ModificacionReservacionCantidadPersonas.cs" />
-    <Compile Include="Migrations\201707280046447_ModificacionReservacionCantidadPersonas.Designer.cs">
-      <DependentUpon>201707280046447_ModificacionReservacionCantidadPersonas.cs</DependentUpon>
+    <Compile Include="Migrations\201708291943158_servicios_tipoDeEvento2.cs" />
+    <Compile Include="Migrations\201708291943158_servicios_tipoDeEvento2.Designer.cs">
+      <DependentUpon>201708291943158_servicios_tipoDeEvento2.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707280152499_CambiosBanqueteModel.cs" />
-    <Compile Include="Migrations\201707280152499_CambiosBanqueteModel.Designer.cs">
-      <DependentUpon>201707280152499_CambiosBanqueteModel.cs</DependentUpon>
+    <Compile Include="Migrations\201708312154172_eventos_addedField_totalPorServicios.cs" />
+    <Compile Include="Migrations\201708312154172_eventos_addedField_totalPorServicios.Designer.cs">
+      <DependentUpon>201708312154172_eventos_addedField_totalPorServicios.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707282130198_CambioBanqueteModelLugar.cs" />
-    <Compile Include="Migrations\201707282130198_CambioBanqueteModelLugar.Designer.cs">
-      <DependentUpon>201707282130198_CambioBanqueteModelLugar.cs</DependentUpon>
+    <Compile Include="Migrations\201709020321163_banquete_detalles_notReq.cs" />
+    <Compile Include="Migrations\201709020321163_banquete_detalles_notReq.Designer.cs">
+      <DependentUpon>201709020321163_banquete_detalles_notReq.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.cs" />
-    <Compile Include="Migrations\201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.Designer.cs">
-      <DependentUpon>201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708010226157_retirar_costo_ServiciosEnReservacion.cs" />
-    <Compile Include="Migrations\201708010226157_retirar_costo_ServiciosEnReservacion.Designer.cs">
-      <DependentUpon>201708010226157_retirar_costo_ServiciosEnReservacion.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.cs" />
-    <Compile Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.Designer.cs">
-      <DependentUpon>201708020400464_reservaciones_dividadesPor_Sesiones.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.cs" />
-    <Compile Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.Designer.cs">
-      <DependentUpon>201708022016454_changed_salon_fromReservacion_ToSesion.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708162044002_salones_CapacidadMaxima.cs" />
-    <Compile Include="Migrations\201708162044002_salones_CapacidadMaxima.Designer.cs">
-      <DependentUpon>201708162044002_salones_CapacidadMaxima.cs</DependentUpon>
+    <Compile Include="Migrations\201709020545287_changued_fields_eventos.cs" />
+    <Compile Include="Migrations\201709020545287_changued_fields_eventos.Designer.cs">
+      <DependentUpon>201709020545287_changued_fields_eventos.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
     <Compile Include="Models\Cliente.cs" />
     <Compile Include="Models\Correo.cs" />
+    <Compile Include="Models\Evento.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Pago.cs" />
@@ -245,6 +235,14 @@
     <Compile Include="ViewModels\ReservacionesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\aspnet-Jerry-20161113070706-2.mdf" />
+    <Content Include="App_Data\aspnet-Jerry-20161113070706-2_log.ldf">
+      <DependentUpon>aspnet-Jerry-20161113070706-2.mdf</DependentUpon>
+    </Content>
+    <Content Include="App_Data\aspnet-Jerry-20161113070706.mdf" />
+    <Content Include="App_Data\aspnet-Jerry-20161113070706_log.ldf">
+      <DependentUpon>aspnet-Jerry-20161113070706.mdf</DependentUpon>
+    </Content>
     <Content Include="bower_components\bootstrap-calendar\css\calendar.css" />
     <Content Include="bower_components\bootstrap-calendar\css\calendar.min.css" />
     <Content Include="bower_components\bootstrap-calendar\img\dark_wood.png" />
@@ -364,6 +362,7 @@
     <Content Include="Images\logo.png" />
     <Content Include="Images\logo2.jpg" />
     <Content Include="Images\Logo3.png" />
+    <Content Include="Rotativa\wkhtmltopdf.exe" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="font-awesome\fonts\fontawesome-webfont.eot" />
@@ -389,6 +388,12 @@
     <Content Include="bower_components\bootstrap-calendar\less\theme.less" />
     <Content Include="bower_components\bootstrap-calendar\less\variables.less" />
     <Content Include="bower_components\bootstrap-calendar\less\week.less" />
+    <Content Include="App_Browsers\qt.browser" />
+    <Content Include="App_Data\ContratoEnBlanco.docx" />
+    <Content Include="App_Data\CONTRATO_MODIFICADO.docx" />
+    <Content Include="App_Data\CONTRATO_VENTURAKIDS.docx" />
+    <Content Include="App_Data\ReporteReservacion.pdf" />
+    <Content Include="App_Data\CONTRATO_SERVICIOS.docx" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\custom.js" />
@@ -479,23 +484,18 @@
     <Content Include="Views\Salon\Delete.cshtml" />
     <Content Include="Views\Salon\Details.cshtml" />
     <Content Include="Views\Salon\Index.cshtml" />
-    <Content Include="Views\Reservacion\Delete.cshtml" />
-    <Content Include="Views\Reservacion\Details.cshtml" />
+    <Content Include="Views\Eventos\Delete.cshtml" />
+    <Content Include="Views\Eventos\Details.cshtml" />
     <Content Include="Views\Reservacion\Index.cshtml" />
-    <Content Include="Views\Pago\Create.cshtml" />
     <Content Include="Views\Pago\Partial_DeletePagoConfirm.cshtml" />
-    <Content Include="Views\Pago\Details.cshtml" />
-    <Content Include="Views\Pago\Edit.cshtml" />
-    <Content Include="Views\Pago\Index.cshtml" />
     <Content Include="Views\Pago\Partial_DetallesDePagos.cshtml" />
-    <Content Include="Views\Reservacion\Partial_Reservaciones.cshtml" />
+    <Content Include="Views\Eventos\Partial_ListEventos.cshtml" />
     <Content Include="Views\Correo\Form_Correo.cshtml" />
     <Content Include="Views\Correo\Details.cshtml" />
     <Content Include="Views\Pago\Partial_IngresarPago.cshtml" />
-    <Content Include="Views\Banquetes\Create.cshtml" />
+    <Content Include="Views\Banquetes\Form_Banquete.cshtml" />
     <Content Include="Views\Banquetes\Delete.cshtml" />
     <Content Include="Views\Banquetes\Details.cshtml" />
-    <Content Include="Views\Banquetes\Edit.cshtml" />
     <Content Include="Views\Banquetes\Index.cshtml" />
     <Content Include="Views\Account\ListUsers.cshtml" />
     <Content Include="Views\Servicios\Partial_ListServicios.cshtml" />
@@ -503,14 +503,15 @@
     <Content Include="Views\Reservacion\Form_Reservacion.cshtml" />
     <Content Include="Views\Clientes\Partial_ClienteDetailsSummary.cshtml" />
     <Content Include="Views\Reservacion\Partial_ListSesiones.cshtml" />
-    <Content Include="Views\Reservacion\Partial_DetailsReservacion.cshtml" />
+    <Content Include="Views\Eventos\Partial_DetailsEvento.cshtml" />
     <Content Include="Views\Shared\Partial_ConfirmationModal.cshtml" />
     <Content Include="Views\Reservacion\Partial_ReservacionesConflictivas.cshtml" />
     <Content Include="Views\Reservacion\Partial_Schedule.cshtml" />
     <Content Include="Views\Shared\Partial_EncabezadoReporte.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
+    <Content Include="Views\Shared\BlankLayout.cshtml" />
+    <Content Include="Views\Reservacion\ReporteDeReservacion.cshtml" />
+    <Content Include="Views\Reservacion\Partial_DetailsReservacion.cshtml" />
+    <Content Include="Views\Banquetes\Partial_DetailsBanquete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -520,43 +521,32 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201706010200492_initialMigration.resx">
-      <DependentUpon>201706010200492_initialMigration.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707180204504_AgregarTipoDeContratoReservacion.resx">
-      <DependentUpon>201707180204504_AgregarTipoDeContratoReservacion.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707262158391_serviciosDeReservaciones.resx">
-      <DependentUpon>201707262158391_serviciosDeReservaciones.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707280046447_ModificacionReservacionCantidadPersonas.resx">
-      <DependentUpon>201707280046447_ModificacionReservacionCantidadPersonas.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707280152499_CambiosBanqueteModel.resx">
-      <DependentUpon>201707280152499_CambiosBanqueteModel.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707282130198_CambioBanqueteModelLugar.resx">
-      <DependentUpon>201707282130198_CambioBanqueteModelLugar.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.resx">
-      <DependentUpon>201707302352248_nonRequieres_servicioID_in_RerservacionServicioTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708010226157_retirar_costo_ServiciosEnReservacion.resx">
-      <DependentUpon>201708010226157_retirar_costo_ServiciosEnReservacion.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708020400464_reservaciones_dividadesPor_Sesiones.resx">
-      <DependentUpon>201708020400464_reservaciones_dividadesPor_Sesiones.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708022016454_changed_salon_fromReservacion_ToSesion.resx">
-      <DependentUpon>201708022016454_changed_salon_fromReservacion_ToSesion.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708162044002_salones_CapacidadMaxima.resx">
-      <DependentUpon>201708162044002_salones_CapacidadMaxima.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201708290117339_initial_migration.resx">
+      <DependentUpon>201708290117339_initial_migration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708290304587_modificadaFechaInicia_Final_Sesiones_EnReservacion.resx">
+      <DependentUpon>201708290304587_modificadaFechaInicia_Final_Sesiones_EnReservacion.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708291749003_servicios_tipoDeEvento.resx">
+      <DependentUpon>201708291749003_servicios_tipoDeEvento.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708291943158_servicios_tipoDeEvento2.resx">
+      <DependentUpon>201708291943158_servicios_tipoDeEvento2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708312154172_eventos_addedField_totalPorServicios.resx">
+      <DependentUpon>201708312154172_eventos_addedField_totalPorServicios.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709020321163_banquete_detalles_notReq.resx">
+      <DependentUpon>201709020321163_banquete_detalles_notReq.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709020545287_changued_fields_eventos.resx">
+      <DependentUpon>201709020545287_changued_fields_eventos.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

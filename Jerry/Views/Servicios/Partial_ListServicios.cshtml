@@ -4,16 +4,18 @@
 @{
     bool selectMode = ViewData["selectMode"] != null ? (bool)ViewData["selectMode"] : false;
     bool showOptions = ViewData["showOptions"] != null ? (bool)ViewData["showOptions"] : true;
+    bool detailsMode = ViewData["detailsMode"] != null ? (bool)ViewData["detailsMode"] : false;
+    string externalFunction = ViewData["externalFunction"] != null ? (string)ViewData["externalFunction"] : string.Empty;
     @*Variables para editar la lista de productos comprados*@
-    bool editMode = false;
-    bool found = false;
-    List<ServiciosEnReservacion> servicios = null;
-    ServiciosEnReservacion itemIndex = null;
-    if (ViewData["serviciosSeleccionados"] != null)
-    {
-        servicios = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
-        editMode = servicios != null && servicios.Count() > 0;
-    }
+bool editMode = false;
+bool found = false;
+List<ServiciosEnReservacion> servicios = null;
+ServiciosEnReservacion itemIndex = null;
+if (ViewData["serviciosSeleccionados"] != null)
+{
+    servicios = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
+    editMode = servicios != null && servicios.Count() > 0;
+}
 }
 @if (Model != null && Model.Count() > 0)
 {
@@ -22,13 +24,14 @@
         <tr>
             @if (selectMode)
             {
-                <th>
+                <th></th>
+            }
 
+            @if (selectMode || detailsMode)
+            {
+                <th width="1em">
+                    Cantidad
                 </th>
-                @*
-                    <th width="1em">
-                        Cantidad
-                    </th>*@
             }
             <th class="hidden">
                 @Html.DisplayNameFor(model => model.serviciosID)
@@ -61,13 +64,17 @@
                     @if (selectMode)
                     {
                         <td></td>
-                        @*
-                            <td width="1em">
-                                <input type="number" productoID="@(item.serviciosID)"
-                                        id="producto@(item.serviciosID)" min="0"
-                                        oninput="editarElemento(this)"
-                                        value="@(editMode && found?compraIndex.cantidadMaterial:0)" />
-                            </td>*@
+                    }
+                    @if (selectMode || detailsMode)
+                    {
+                        <td width="1em">
+                            <input type="number" item_id="@(item.serviciosID)"
+                                   id="producto@(item.serviciosID)" min="0"
+                                   oninput="editarElemento(this)" class="form-control"
+                                   value="@(editMode && found?itemIndex.cantidad:0)" 
+                                   @(detailsMode?"disabled":"")
+                                   />
+                        </td>
                     }
                     <td class="hidden">
                         @Html.DisplayFor(modelItem => item.serviciosID)
@@ -104,19 +111,8 @@ else
 <script>
     /*Funciones y varialbes propias de la implementacion*/
     var totalPorServicios = 0;
-
-    function calcularValoresPropiosDeImplementacion(total) {
-        totalPorServicios = total;
-        $("#totalPorServicios").val(numberToCurrency(totalPorServicios))
-        var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
-        var costoTotal = costoPorReservacion + totalPorServicios;
-        $("#costoTotal").val(numberToCurrency(costoTotal))
-        $("#costo").attr('value', costoTotal)
-        //Preparacion de forma para enviar datos seleccionados
-        $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
-        //test/
-        console.log($('#listServiciosSeleccionados').val())
-    }
+    var editMode = @(editMode?"true":"false");
+    var loadingToEdit = editMode;
 
     function selectForEdition() {
         $("#tblServicios").DataTable().table().rows('[default-selected]').select();
@@ -124,10 +120,11 @@ else
 
     /*Funciones y variables de seleccion de elementos*/
     var table;
-    var COLS_ENUM = Object.freeze({ ID: 1, COSTO: 3})
+    var COLS_ENUM = Object.freeze({ CANTIDAD:1, ID: 2, COSTO: 4})
     var elementosSeleccionados = new Array();
     function inicializarSeleccionTablaServicios(){
         table = $("#tblServicios").DataTable({
+            paging:false,
             columnDefs: [{
                 orderable: false,
                 className: 'select-checkbox',
@@ -143,29 +140,32 @@ else
         table.on('select', function (e, dt, type, indexes) {
             var selRow = dt.data()
             agregarSeleccion(selRow)
-            recalcularTotales();
+            @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
         }).on('deselect', function (e, dt, type, indexes) {
             var unSelRows = dt.data();
             removerSeleccion(unSelRows);
-            recalcularTotales();
+            @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
         });
     }
 
-    //Metodo que agrega del estado de compras los elementos desseleccionados
+    //Metodo que agrega al estado de elementos seleccionados un nuevo elemento
     function agregarSeleccion(rows) {
         var renglones = new Array();
         if (!rows.rows) { //Si es un solo elemento
-            introducirNuevoDato(rows);
+            var inputCantidad = $('input[item_id=' + rows[COLS_ENUM.ID] + ']');
+            introducirNuevaCantidad(inputCantidad[0]);
         } else { //Si son varios
             renglones = rows;
             //selectedIngresosIDs = new Array();
             $.each(renglones, function (idx, row) {
-                introducirNuevoDato(row);
+                var inputCantidad = $('input[item_id=' + row[COLS_ENUM.ID] + ']');
+                introducirNuevaCantidad(inputCantidad[0]);
             })
         }
     }
 
-    //Metodo que elimina del estado de compras los elementos desseleccionados
+    //Metodo que elimina del estado de elementos seleccionados un elemento determinado
+    //dentro de los argumentos
     function removerSeleccion(rows) {
         var renglonesAEliminar = new Array();
         if (!rows.rows) {
@@ -180,15 +180,47 @@ else
         })
     }
 
-    function introducirNuevoDato(dato){
-        elementosSeleccionados.push({ serviciosID: dato[COLS_ENUM.ID], costo: currencyToNumber(dato[COLS_ENUM.COSTO]) })
+    //Inserta en el arreglo global de elementos seleccionados un nuevo elemento dado el dato seleccionado
+    function introducirNuevoDato(dato, inputCantidad) {
+        var cantidad = inputCantidad ? inputCantidad.valueAsNumber : Number($(dato[COLS_ENUM.CANTIDAD]).val());
+        elementosSeleccionados.push({
+            serviciosID: dato[COLS_ENUM.ID],
+            costo: currencyToNumber(dato[COLS_ENUM.COSTO]),
+            cantidad: cantidad,
+        })
     }
 
-    function recalcularTotales() {
-        var total = 0;
-        $.each(elementosSeleccionados, function (idx, item) {
-            total += item.costo //Propiedad de costo es cambiable
-        })
-        calcularValoresPropiosDeImplementacion(total)
+    function introducirNuevaCantidad(inputCantidad) {
+        var selRow = buscarRenglonSeleccionado(inputCantidad)
+        //Se el input editado se encontraba seleccionado
+        if (selRow)
+            introducirNuevoDato(selRow, inputCantidad)
+    }
+
+    //Dado el DOM de un input, Arroja un renglon del datatable que le corresponde.
+    function buscarRenglonSeleccionado(input) {
+        //Se toman los datos de los renglones seleccionados
+        var selectedRows = table.rows({ selected: true });
+        var data = selectedRows.data()
+
+        //Se busca si el input editado se encuentra seleccionado
+        var selRow = $.grep(data, function (item, idx) {
+            return item[COLS_ENUM.ID] == $(input).attr('item_id');
+        })[0];
+
+        return selRow;
+    }
+
+    function editarElemento(inputEditado) {
+        var selRow = buscarRenglonSeleccionado(inputEditado);
+        if (selRow) {
+            var itemIDX
+            $.each(elementosSeleccionados, function (idx, item) {
+                if (selRow[COLS_ENUM.ID] == item.serviciosID)
+                    itemIDX = idx;
+            })
+            elementosSeleccionados[itemIDX].cantidad = inputEditado.valueAsNumber;
+        }
+        @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
     }
 </script>

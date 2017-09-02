@@ -1,0 +1,25 @@
+﻿@model Jerry.Models.Reservacion
+
+@{
+    ViewBag.Title = "Borrar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<nav>
+    <a href="@Url.Action("Details","Clientes", new { id = Model.clienteID})">
+        <i class="fa fa-arrow-left"></i><span>Volver a Reservaciones del Cliente</span>
+    </a>
+</nav>
+
+<h3>¿Confirma que desea elimiar esta reservación de evento?</h3>
+
+@Html.Partial("Partial_DetailsEvento")
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-actions no-color">
+        <input type="submit" value="Borrar" class="btn btn-danger" />
+    </div>
+}

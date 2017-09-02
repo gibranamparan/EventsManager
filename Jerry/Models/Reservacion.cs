@@ -11,109 +11,54 @@ using System.Web.Mvc;
 
 namespace Jerry.Models
 {
-    public class Reservacion
-    {
-        public TimeSpan TiempoTotal { get {
-                TimeSpan res = new TimeSpan();
-                if(this.sesiones!=null && this.sesiones.Count() > 0)
-                    foreach(var ses in this.sesiones)
-                        res += ses.periodoDeSesion.totalTime;
-                return res;
-            } }
-
-        [Key]
-        public int reservacionID { get; set; }
-
-        [Required]
-        [Display(Name = "Fecha de Reservación")]
-        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd HH:mm}",
-            ApplyFormatInEditMode = true)]
-        [DataType(DataType.Date)]
-        public DateTime fechaReservacion { get; set; }
-
-        [Required]
+    public class Reservacion:Evento
+    {        
+        /// <summary>
+        /// Sesiones en las que se divide la reservación. Contiene un setter que establece automaticamente la fecha
+        /// de inicio y fin del evento segun el horario de la sesion inicial y final.
+        /// </summary>
         [Display(Name = "Inicio del evento")]
         [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd HH:mm}",
             ApplyFormatInEditMode = true)]
-        public DateTime fechaEventoInicial { get {
-                DateTime res = new DateTime();
-                //Si hay sesiones en la reservacion, se toma la fecha inicial de la 1ra sesion
-                if(this.sesiones!=null && this.sesiones.Count() > 0)
-                {
-                    var sesiones = this.sesiones.OrderBy(ses => ses.periodoDeSesion.startDate);
-                    res = sesiones.FirstOrDefault().periodoDeSesion.startDate;
-                }
+        public virtual ICollection<SesionDeReservacion> sesiones { get; set; }
 
-                return res;
+        public void ajustarFechaInicialFinal()
+        {
+            if (this.sesiones!=null && this.sesiones.Count() > 0)
+            {
+                this.fechaEventoInicial = this.sesiones.First().periodoDeSesion.startDate;
+                this.fechaEventoFinal = this.sesiones.Last().periodoDeSesion.endDate;
             }
         }
 
-        [Required]
-        [Display(Name = "Fin del evento")]
-        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd HH:mm}",
-            ApplyFormatInEditMode = true)]
-        public DateTime fechaEventoFinal {
+        /// <summary>
+        /// Obtiene una cadena de caracteres que representa el directorio del archivo plantilla del contrato
+        /// correspondiente a la presente instancia de evento.
+        /// </summary>
+        public string ContratoPath{ get { return Evento.getContratoPath(this.TipoContrato); } }
+
+        /// <summary>
+        /// Arroja una lista lineal de los salones reservados en cada una de las sesiones
+        /// para la presente instancia de la reservacion.
+        /// </summary>
+        [DisplayName("Salón")]
+        public string salon
+        {
             get
             {
-                DateTime res = new DateTime();
-                //Si hay sesiones en la reservacion, se toma la fecha inicial de la 1ra sesion
-                if (this.sesiones != null && this.sesiones.Count() > 0)
-                {
-                    var sesiones = this.sesiones.OrderByDescending(ses => ses.periodoDeSesion.endDate);
-                    res = sesiones.FirstOrDefault().periodoDeSesion.endDate;
-                }
-                return res;
-            }
-        }
-
-        [Required]
-        [Display(Name ="Costo Total")]
-        [DisplayFormat(DataFormatString = "{0:C}",
-            ApplyFormatInEditMode = true)]
-        public decimal costo { get; set; }
-
-        [Required]
-        [DataType(DataType.MultilineText)]
-        [Display(Name ="Descripción")]
-        public string Detalles { get; set; }
-
-        [Required]
-        [Display(Name = "Tipo de Contrato")]
-        public string TipoContrato { get; set; }
-
-        [DisplayName("Salón")]
-        public string salon { get {
                 string res = "";
 
-                if(this.sesiones!=null && this.sesiones.Count() > 0)
+                if (this.sesiones != null && this.sesiones.Count() > 0)
                 {
                     var sesiones = this.sesiones.Select(ses => ses.salon.nombre).Distinct();
-                    sesiones.ToList().ForEach(nam => res += nam+", ");
+                    sesiones.ToList().ForEach(nam => res += nam + ", ");
                     res = res.Trim(' ').Trim(',');
                 }
 
                 return res;
-            } }
+            }
+        }
 
-        [Required]
-        [Display(Name = "Cantidad de Personas")]
-        public int CantidadPersonas { get; set; }
-        
-        [Required]
-        [Display(Name ="Cliente")]
-        public int clienteID { get; set; }
-
-        //Una reservacion pertenece unicamente a un cliente
-        virtual public Cliente cliente { get; set; }
-
-        //Una reservacion puede tener muchos pagos asociados a ella.
-        virtual public ICollection<Pago> pagos { get; set; }
-
-        //Servicios seleccionados para esta reservacion
-        public virtual ICollection<ServiciosEnReservacion> serviciosContratados { get; set; }
-        //Sesiones en las que se divide la reservación
-        public virtual ICollection<SesionDeReservacion> sesiones { get; set; }
-        
         /// <summary>
         /// Genera una lista de informacion donde se muesta el la hora y la fecha de inicio de cada una de las sesiones
         /// asociadas a esta reservacion.
@@ -121,40 +66,21 @@ namespace Jerry.Models
         public string sesionesString { get {
                 string res = string.Empty;
 
-                foreach(var ses in this.sesiones)
-                    res += ses.stringParaContrato + ", ";
+                //foreach(var ses in this.sesiones) { 
+                for(int c = 1;c<=this.sesiones.Count();c++)
+                {
+                    var ses = this.sesiones.ElementAt(c-1);
+                    res += ses.stringParaContrato + (c==this.sesiones.Count()-1?" y ":", ");
+                }
                 res = res.Trim().TrimEnd(',');
 
                 return res;
             } }
 
-        [Display(Name = "Faltante")]
-        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
-        public decimal cantidadFaltante { get {
-                decimal cantidadFaltante = this.costo - this.cantidadPagada;
-                return cantidadFaltante;
-            } }
-
-        /// <summary>
-        /// Calcula el total del monto pagado para la reservacion.
-        /// </summary>
-        [Display(Name = "Pagado")]
-        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
-        public decimal cantidadPagada
-        {
-            get
-            {
-                decimal pagado = 0;
-                if(this.pagos!=null && this.pagos.Count() > 0) { 
-                    pagado = this.pagos.Select(c => c.cantidad).Sum();
-                }
-                return pagado;
-            }
-        }
-
         /// <summary>
         /// Determian el total del costo de los servicios seleccionados para esta reservacion.
         /// </summary>
+        [Display(Name = "Costo Total por Servicios")]
         public decimal costoTotalPorServicios
         {
             get
@@ -169,6 +95,54 @@ namespace Jerry.Models
         }
 
         /// <summary>
+        /// Muestra el costo por reservacion, que es el costo total menos el costo de los servicios.
+        /// </summary>
+        [Display(Name = "Costo Sólo por Reservacion")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
+        public decimal costoPorReservacion
+        {
+            get
+            {
+                return this.costo - this.totalPorServicios;
+            }
+        }
+
+        [Display(Name = "Total por Servicios")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
+        public decimal totalPorServicios { get; set; }
+
+        /// <summary>
+        /// Arroja una lista de seleccion de los diferentes tipos de contrato para arrendamiento de salones
+        /// </summary>
+        /// <returns></returns>
+        public static List<object> getTipoContratoItemArray()
+        {
+            List<object> array = new List<object>();
+            array.Add(new { Text = Evento.getNombreContrato(TipoDeContrato.ARRENDAMIENTO), Value = TipoDeContrato.ARRENDAMIENTO });
+            array.Add(new { Text = Evento.getNombreContrato(TipoDeContrato.KIDS), Value = TipoDeContrato.KIDS});
+
+            return array;
+        }
+
+        /// <summary>
+        /// Determina el tiempo total que durá la reservacion considerando
+        /// todas las sesiones registradas.
+        /// </summary>
+        public new TimeSpan TiempoTotal
+        {
+            get
+            {
+                TimeSpan res = new TimeSpan();
+                if (this.sesiones != null && this.sesiones.Count() > 0)
+                    foreach (var ses in this.sesiones)
+                        res += ses.periodoDeSesion.totalTime;
+                return res;
+            }
+        }
+
+        /// <summary>
         /// Verifica si existen reservaciones cuyas sesiones colisionan con las sesiones
         /// de la instancia que se encuentra siendo registrada.
         /// </summary>
@@ -178,7 +152,7 @@ namespace Jerry.Models
         {
             //Se filtran todas las sesiones que estan dentro del rango de tiempo total de la reservacion validada
             var sesionesFiltradas = db.sesionesEnReservaciones.
-                Where(ses => ses.reservacionID!=this.reservacionID && (ses.periodoDeSesion.startDate >= this.fechaEventoInicial && ses.periodoDeSesion.startDate <= this.fechaEventoFinal
+                Where(ses => ses.reservacionID!=this.eventoID && (ses.periodoDeSesion.startDate >= this.fechaEventoInicial && ses.periodoDeSesion.startDate <= this.fechaEventoFinal
                 || ses.periodoDeSesion.endDate >= this.fechaEventoInicial && ses.periodoDeSesion.endDate <= this.fechaEventoFinal)).ToList();
 
             IEnumerable<SesionDeReservacion> res = new List<SesionDeReservacion>();
@@ -194,35 +168,10 @@ namespace Jerry.Models
             return res.ToList();
         }
 
-        public static bool ObtenerReservaciones(object fechaI, object fechaF, out IEnumerable<Jerry.Models.Reservacion> resultado)
-        {
-            ApplicationDbContext db = new ApplicationDbContext();
-
-    
-            if (fechaI==null || fechaF==null)
-            {
-                List<Jerry.Models.Reservacion> query = new List<Reservacion>();
-                resultado = query;
-                return false;
-            }
-            else
-            {
-                List<Jerry.Models.Reservacion> query = db.reservaciones.Where(res => res.fechaEventoInicial <= (DateTime)fechaI && res.fechaEventoFinal >= (DateTime)fechaI || res.fechaEventoInicial <= (DateTime)fechaF && res.fechaEventoFinal >= (DateTime)fechaF).ToList();
-                resultado = query;
-                return true;
-            }
-
-        }
-
-        [Display(Name = "Periodo")]
-        public TimePeriod timePeriod
-        {
-            get
-            {
-                return new TimePeriod(this.fechaEventoInicial, this.fechaEventoFinal);
-            }
-        }
-
+        /// <summary>
+        /// Genera una cadena de caracteres en la que se muestran todos los servicios
+        /// registrados para esta reservación.
+        /// </summary>
         public string enlistarServiciosParaContrato
         {
             get
@@ -237,32 +186,16 @@ namespace Jerry.Models
                 return res;
             }
         }
-        
-        public static List<object> getTipoContratoItemArray()
-        {
-            List<object> array = new List<object>();
-            //array.Add(new { Text = "Contrato Prestación de Servicios", Value = Reservacion.TiposContrato.SERVICIO });
-            array.Add(new { Text = "Contrato Por Arrendamiento de Evento", Value = Reservacion.TiposContrato.EVENTO });
-            array.Add(new { Text = "Contrato Ventura Kids", Value = Reservacion.TiposContrato.KIDS });
 
-            return array;
-        }
-
-        /// <summary>
-        /// Genera una lista de seleccion de tipos de contrato para ser utilizando en vistas con formas.
-        /// </summary>
-        /// <param name="selVal">Optional, valor seleccionado por defecto.</param>
-        /// <returns>Select list listo para ser usado en la vista rellenado</returns>
-        public static SelectList getTipoContratoSelectList(object selVal = null)
-        {
-            return new SelectList(Reservacion.getTipoContratoItemArray(), "Value", "Text", selVal);
-        }
-        
         public override string ToString()
         {
             return String.Format("{0} - {1}", this.timePeriod.ToString("dd/MMM hh:mm"), this.salon);
         }
 
+        public string ToString(DateTime fechaConsulta)
+        {
+            return String.Format("Estado de Cuenta {2} - {0} - {1}", this.timePeriod.ToString("dd-MMM"), this.salon, fechaConsulta.ToString("dd-MM-yyyy"));
+        }
 
         /// <summary>
         /// Procedimiento para llenar la plantilla del tipo de contrato B.
@@ -270,7 +203,7 @@ namespace Jerry.Models
         /// <param name="res">Registro de reservacion</param>
         /// <param name="data">Datos para rellenar el contrato.</param>
         /// <param name="doc">Instancia de documento word para rellenar.</param>
-        public void fillContratoB(VMDataContract data, ref DocX doc)
+        public void fillContratoB(VMDataContractReservacion data, ref DocX doc) //CONTRATO MODIFICADO
         {
             //Contrato Modificado
             doc.ReplaceText("<CLIENTE>", data.nombreCliente);
@@ -304,7 +237,7 @@ namespace Jerry.Models
         /// <param name="res">Registro de reservacion</param>
         /// <param name="data">Datos para rellenar el contrato.</param>
         /// <param name="doc">Instancia de documento word para rellenar.</param>
-        public void fillContratoA(VMDataContract data, ref Novacode.DocX doc)
+        public void fillContratoA(VMDataContractReservacion data, ref Novacode.DocX doc) //VENTURA KIDS
         {
             doc.ReplaceText("<FECHA>", data.fechaReservacion);
             doc.ReplaceText("<CLIENTE>", data.nombreCliente);
@@ -313,23 +246,33 @@ namespace Jerry.Models
             doc.ReplaceText("<DIA>", data.diaEvento);
             doc.ReplaceText("<MES>", data.mesEvento);
             doc.ReplaceText("<AÑO>", data.yearEvento);
+            string strConcluye = string.Empty;
+            if (this.fechaEventoInicial.Equals(this.fechaEventoFinal))
+                strConcluye = "mismo día";
+            else
+                strConcluye = this.fechaEventoFinal.Day +
+                    " DE " + DatesTools.DatesToText.ConvertToMonth(this.fechaEventoFinal, "es")
+                    .ToUpperInvariant() + " DEL " + this.fechaEventoFinal.Year;
+
+            doc.ReplaceText("<CONCLUYE>", strConcluye);
             doc.ReplaceText("<HORA_INICIO>", data.horaInicioEvento);
             doc.ReplaceText("<HORA_FIN>", data.horaFinEvento);
+            /*doc.ReplaceText("<DURACION>", this.TiempoTotal.Minutes==0?this.TiempoTotal.ToString("hh")
+                : this.TiempoTotal.ToString("hh 'con' mm 'minutos'"));*/
 
-            if (this.fechaEventoInicial.Equals(this.fechaEventoFinal))
-                doc.ReplaceText("<CONCLUYE>", "mismo día");
-            else
-                doc.ReplaceText("<CONCLUYE>", this.fechaEventoFinal.Day +
-                    " DE " + DatesTools.DatesToText.ConvertToMonth(this.fechaEventoFinal, "es")
-                    .ToUpperInvariant() + " DEL " + this.fechaEventoFinal.Year);
-
+            doc.ReplaceText("<LAPSO>", this.sesionesString);
             doc.ReplaceText("<COSTO>", data.costo);
             doc.ReplaceText("<LETRA_TOTAL>", data.costoLetra);
+
             doc.ReplaceText("<ANTICIPO>", data.anticipo);
             doc.ReplaceText("<DEBE>", data.adeudo);
             doc.ReplaceText("<LETRA_DEUDA>", data.adeudoLetra);
         }
 
+        /// <summary>
+        /// Almacena para su vista la informacion de una reservacion, encapsulando el nombre completo del cliente
+        /// y una lista de las sesiones que componen la reservacion.
+        /// </summary>
         public class VMReservacion{
             [DisplayName("Cliente")]
             public string nombreCliente { get; set; }
@@ -344,45 +287,17 @@ namespace Jerry.Models
             }
         }
 
-        public class VMFiltroReservaciones
-        {
-            private TimePeriod _timePeriod { get; set; }
-            public TimePeriod TimePeriod
-            {
-                get
-                {
-                    if(_timePeriod == null)
-                    {
-                        //Por defecto un periodo de tiempo se establece desde el dia de hoy hasta 1 mes con la totalidad del dia final
-                        _timePeriod = new TimePeriod(DateTime.Today, DateTime.Today.AddMonths(1).AddDays(1).AddMilliseconds(-1));
-                    }
-                    return _timePeriod;
-                }
-                set
-                {
-                    _timePeriod = value;
-                }
-            }
-        }
-        
-        public static class TiposContrato
-        {
-            public const string SERVICIO = "Prestación de Sevicios";
-            public const string KIDS = "Ventura Kids";
-            public const string EVENTO = "Arrendamiento por Evento";
-        }
-
         /// <summary>
         /// Clase para rellenar los contratos basado en la informacion de la reservación y el cliente.
         /// </summary>
-        public class VMDataContract
+        public class VMDataContractReservacion
         {
             public string descripcionServicios, telefono, correo, fechaReservacion, cantidadPersonas,
             diaEvento, mesEvento, yearEvento, horaInicioEvento, horaFinEvento, costo, costoLetra,
                 anticipo, adeudo, adeudoLetra, asociadoCliente, nombreCliente, fechaInicioEvento,
                 fechaFinEvento, duracionEvento;
 
-            public VMDataContract(Reservacion resContrato)
+            public VMDataContractReservacion(Reservacion resContrato)
             {
                 fechaInicioEvento = resContrato.fechaEventoInicial.ToShortDateString();
                 fechaFinEvento = resContrato.fechaEventoFinal.ToShortDateString();
@@ -399,14 +314,19 @@ namespace Jerry.Models
                 horaFinEvento = resContrato.fechaEventoFinal.Hour.ToString();
                 costo = resContrato.costo.ToString();
                 costoLetra = NumbersTools.NumberToText.Convert(resContrato.costo, "pesos");
-                anticipo = resContrato.cantidadPagada.ToString();
-                adeudo = resContrato.cantidadFaltante.ToString();
+                decimal primerPago = resContrato.primerPago!=null?resContrato.primerPago.cantidad:0;
+                anticipo = primerPago.ToString();
+                adeudo = (resContrato.cantidadFaltante - primerPago).ToString();
                 adeudoLetra = NumbersTools.NumberToText.Convert(resContrato.cantidadFaltante, "pesos");
                 asociadoCliente = resContrato.cliente.clienteID.ToString();
                 nombreCliente = resContrato.cliente.nombreCompleto.ToUpperInvariant();
             }
         }
 
+        /// <summary>
+        /// Clase que agrupa los atributos necesarios para mostrar las sesiones que conforman una reservacion en 
+        /// elementos graficos sobre un calendario en JavaScript (bootstrap-calendar.js)
+        /// </summary>
         public class ReservacionInScheduleJS
         {
             public int id { get; set; }
@@ -428,6 +348,12 @@ namespace Jerry.Models
                 this.end = s1.periodoDeSesion.endDate.ToUniversalTime().Subtract(JS_DATE_REF).TotalMilliseconds;
             }
 
+            /// <summary>
+            /// Agrega las sesiones que componen una reservacion en en una lista para ser mostrada 
+            /// en bootstrap-calendar.js
+            /// </summary>
+            /// <param name="res">Reservacion que contiene las sesiones que se desean agregar.</param>
+            /// <param name="lista">Argumento por referencia que apunta a la lista donde se desean almacenar las sesiones.</param>
             public static void ReservacionInSesionesForScheduleJS(Reservacion res, ref List<ReservacionInScheduleJS> lista)
             {
                 List<ReservacionInScheduleJS> tempList = new List<ReservacionInScheduleJS>();
@@ -440,19 +366,34 @@ namespace Jerry.Models
         }
     }
 
+    /// <summary>
+    /// Representa una sesion que compone una reservación.
+    /// </summary>
     public class SesionDeReservacion
     {
+        /// <summary>
+        /// Llave primaria de la relacion entre reservacion y sesion
+        /// </summary>
         [Key]
         public int SesionDeReservacionID { get; set; }
 
+        /// <summary>
+        /// Periodo de tiempo asociado al salón
+        /// </summary>
         [DisplayName("Sesion")]
         public TimePeriod periodoDeSesion { get; set; }
 
         [Required]
         [Display(Name = "Salón")]
+        /// <summary>
+        /// ID del salón asociado
+        /// </summary>
         public int salonID { get; set; }
-        //Una reservacion es unicamente a un salon
-        virtual public Salon salon { get; set; }
+
+        /// <summary>
+        /// Una sesion corresponde unicamente a un salón
+        /// </summary>
+        public virtual Salon salon { get; set; }
 
         /// <summary>
         /// Muestra la informacion de la sesion en el formato "{duracionSesion} horas comenzando el día 
@@ -467,20 +408,22 @@ namespace Jerry.Models
                     this.periodoDeSesion.startDate.Year);
                 return res;
             } }
-
-        //Una sesion esta relacionada con una reservacion
+        
+        /// <summary>
+        /// Reservacion asociada a la sesión
+        /// </summary>
         [ForeignKey("reservacion")]
         public int reservacionID { get; set; }
         public virtual Reservacion reservacion { get; set; }
-
-        //Por defecto, una sesion tiene un periodo de tiempo
+        
         public SesionDeReservacion()
         {
+            //Por defecto, una sesion tiene un periodo de tiempo
             periodoDeSesion = new TimePeriod();
         }
 
         /// <summary>
-        /// Muestra informacion de la sesion en el formato "{nombreSalon} - {periodoDeSesion}"
+        /// Muestra información de la sesion en el formato "{nombreSalon} - {periodoDeSesion}"
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -488,6 +431,10 @@ namespace Jerry.Models
             return String.Format("{0} - {1}", this.salon.nombre, this.periodoDeSesion.ToString());
         }
 
+        /// <summary>
+        /// Clase para representar los datos que se verán en vista correpondiente a la clase de sesión
+        /// que conforma una reservación.
+        /// </summary>
         public class VMSesion
         {
             public TimePeriod periodoDeTiempo { get; set; }

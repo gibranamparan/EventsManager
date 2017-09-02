@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Web;
+using System.Web.Mvc;
 
 namespace Jerry.Models
 {
@@ -13,9 +14,6 @@ namespace Jerry.Models
     {
         [Key]
         public int correoID { get; set; }
-        
-        public string To { get; set; }
-
         [Display(Name ="Asunto")]
         public string Subject { get; set; }
         [Display(Name = "Contenido")]
@@ -28,26 +26,40 @@ namespace Jerry.Models
         public string smtpHost { get; set; }
         [Display(Name = "Puerto")]
         public int puertoCorreo { get; set; }
+        [Display(Name = "SSL Enabled")]
+        public bool sslEnabled { get; set; }
 
-        public ErrorEmail enviarCorreo(HttpPostedFileBase fileUploader, string emailDestino)
+        public ErrorEmail enviarCorreo(string emailDestino, Rotativa.ViewAsPdf rotativaFile,
+            ControllerContext controllerContext)
+        {
+            var fileBytes = rotativaFile.BuildPdf(controllerContext);
+            Stream stream = new MemoryStream(fileBytes);
+
+            String fileName = rotativaFile.FileName;
+            if (string.IsNullOrEmpty(fileName))
+                fileName = "tempPDF.pdf";
+
+            return enviarCorreo(emailDestino, stream, fileName);
+        }
+
+        //public ErrorEmail enviarCorreo(HttpPostedFileBase fileUploader, string emailDestino)
+        public ErrorEmail enviarCorreo(string emailDestino, Stream fileStream, string fileName)
         {
             ErrorEmail err = new ErrorEmail();
             try { 
                 MailMessage mail = new MailMessage(this.correoAdmin, emailDestino);
-                if (fileUploader != null)
+                if (fileStream != null)
                 {
-                    string fileName = Path.GetFileName(fileUploader.FileName);
-                    mail.Attachments.Add(new Attachment(fileUploader.InputStream, fileName));
+                    //mail.Attachments.Add(new Attachment(fileUploader.InputStream, fileName));
+                    mail.Attachments.Add(new Attachment(fileStream, fileName));
                 }
 
                 mail.Subject = this.Subject;
                 mail.Body = this.Body;
                 mail.IsBodyHtml = false;
                 SmtpClient smtp = new SmtpClient();
-                //smtp.Host = "smtp-mail.outlook.com";
                 smtp.Host = this.smtpHost;
-                //smtp.Host = objModelMail.smtpHost;
-                smtp.EnableSsl = true;
+                smtp.EnableSsl = this.sslEnabled;
                 NetworkCredential networkCredential = new NetworkCredential(this.correoAdmin, this.contrasena);
                 smtp.UseDefaultCredentials = false;
                 smtp.Credentials = networkCredential;

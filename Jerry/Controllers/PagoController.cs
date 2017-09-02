@@ -13,13 +13,15 @@ namespace Jerry.Controllers
 {
     public class PagoController : Controller
     {
+        public const string BIND_FIELDS = "pagoID,eventoID,cantidad,fechaPago";
+
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Pago
         [Authorize]
         public async Task<ActionResult> Index()
         {
-            var pagos = db.pagos.Include(p => p.reservacion);
+            var pagos = db.pagos.Include(p => p.evento);
             return View(await pagos.ToListAsync());
         }
 
@@ -53,17 +55,16 @@ namespace Jerry.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "reservacionID,cantidad,fechaPago")] Pago pago)
+        public async Task<ActionResult> Create([Bind(Include = BIND_FIELDS)] Pago pago)
         {
             if (ModelState.IsValid)
             {
                 db.pagos.Add(pago);
                 await db.SaveChangesAsync();
-                return RedirectToAction("Details", "Reservacion", new { id = pago.reservacionID });
+                return RedirectToAction("Details", "Eventos", new { id = pago.eventoID });
             }
 
-            ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.reservacionID);
-            return RedirectToAction("Details", "Reservacion", new { id = pago.reservacionID, errorPagoMsg = "Verifique la información introducida"});
+            return RedirectToAction("Details", "Eventos", new { id = pago.eventoID, errorPagoMsg = "Verifique la información introducida"});
         }
 
         // GET: Pago/Edit/5
@@ -79,7 +80,7 @@ namespace Jerry.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.reservacionID);
+            ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.eventoID);
             return View(pago);
         }
 
@@ -89,7 +90,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "pagoID,reservacionID,cantidad,fechaPago")] Pago pago)
+        public async Task<ActionResult> Edit([Bind(Include = BIND_FIELDS)] Pago pago)
         {
             if (ModelState.IsValid)
             {
@@ -97,26 +98,9 @@ namespace Jerry.Controllers
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.reservacionID);
+            ViewBag.reservacionID = new SelectList(db.reservaciones, "reservacionID", "Detalles", pago.eventoID);
             return View(pago);
         }
-
-        // GET: Pago/Delete/5
-        /*
-        [Authorize]
-        public async Task<ActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Pago pago = await db.pagos.FindAsync(id);
-            if (pago == null)
-            {
-                return HttpNotFound();
-            }
-            return View(pago);
-        }*/
 
         // POST: Pago/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -126,7 +110,7 @@ namespace Jerry.Controllers
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
             Pago pago = await db.pagos.FindAsync(id);
-            int reservacionID = pago.reservacionID.Value;
+            int reservacionID = pago.eventoID;
             db.pagos.Remove(pago);
             await db.SaveChangesAsync();
             return RedirectToAction("Details","Reservacion",new { id = reservacionID });

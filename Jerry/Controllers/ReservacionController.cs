@@ -13,19 +13,23 @@ using System.Web.Mvc;
 using Novacode;
 using System.Globalization;
 using System.Web.Script.Serialization;
+using Rotativa.Options;
 using static Jerry.Models.Correo;
+using System.Web.Routing;
+using System.IO;
+using static Jerry.Models.Evento;
 
 namespace Jerry.Controllers
 {
     public class ReservacionController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        private const string BIND_FIELDS = "reservacionID,fechaReservacion,fechaEventoInicial," +
+        private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,totalPorServicios," +
             "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato,CantidadPersonas";
 
         // GET: Reservacion}
         [Authorize]
-        public ActionResult Index(Reservacion.VMFiltroReservaciones filtroReservaciones, bool listMode=false)
+        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode=false)
         {
             var reservaciones = filterReservaciones(filtroReservaciones);
             ViewBag.result = reservaciones;
@@ -38,7 +42,7 @@ namespace Jerry.Controllers
         public JsonResult apiReservacionesFilter(string from, string to)
         {
             //Se prepara el filtro para buscar las reservaciones
-            Reservacion.VMFiltroReservaciones filtroReservaciones = new Reservacion.VMFiltroReservaciones();
+            Reservacion.VMFiltroEventos filtroReservaciones = new Reservacion.VMFiltroEventos();
             if (!string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(to)) { 
                 DateTime dtRef = Reservacion.ReservacionInScheduleJS.JS_DATE_REF;
                 //El cliente esta enviando hora con GMT -7, se corrige
@@ -61,7 +65,7 @@ namespace Jerry.Controllers
         /// </summary>
         /// <param name="filtroReservaciones">Objeto que representa el rango de tiempo de busqueda.</param>
         /// <returns></returns>
-        private IEnumerable<Reservacion> filterReservaciones(Reservacion.VMFiltroReservaciones filtroReservaciones)
+        private IEnumerable<Reservacion> filterReservaciones(Reservacion.VMFiltroEventos filtroReservaciones)
         {
             TimePeriod periodo = filtroReservaciones.TimePeriod;
             List<Reservacion> reservaciones = new List<Reservacion>();
@@ -79,22 +83,32 @@ namespace Jerry.Controllers
 
         // GET: Reservacion/Details/5
         [Authorize]
-        public async Task<ActionResult> Details(int? id, string errorPagoMsg)
+        public ActionResult Details(int? id, string errorPagoMsg)
         {
             if (id == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            ErrorEmail errorEmail = TempData["errorEmail"] != null
-                ? (ErrorEmail)TempData["errorEmail"] : new ErrorEmail();
-
-            Reservacion reservacion = await db.reservaciones.FindAsync(id);
+            Reservacion reservacion = prepareDetailsView(id, errorPagoMsg);
 
             if (reservacion == null)
                 return HttpNotFound();
 
+            ViewBag.emailConfigured = db.Correos.FirstOrDefault() != null;
+
+            return View(reservacion);
+        }
+
+        private Reservacion prepareDetailsView(int? id, string errorPagoMsg)
+        {
+            ErrorEmail errorEmail = TempData["errorEmail"] != null
+                ? (ErrorEmail)TempData["errorEmail"] : new ErrorEmail();
+
+            Reservacion reservacion = db.reservaciones.Find(id);
+
             ViewBag.errorMail = errorEmail;
             ViewBag.errorPagoMsg = errorPagoMsg;
-            return View(reservacion);
+
+            return reservacion;
         }
 
         // GET: Reservacion/Create
@@ -117,7 +131,7 @@ namespace Jerry.Controllers
             newReservacion.clienteID = clienteID;
             newReservacion.cliente = cliente;
             ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre");
-            ViewBag.servicios = db.Servicios.ToList();
+            ViewBag.servicios = db.Servicios.Where(s=>s.tipoDeEvento == TipoEvento.RESERVACION).ToList();
             return newReservacion;
         }
 
@@ -127,7 +141,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Create([Bind(Include = BIND_FIELDS)]
+        public ActionResult Create([Bind(Exclude = "fechaEventoInicial, fechaEventoFinal",Include = BIND_FIELDS)]
         Reservacion reservacion, string listServiciosSeleccionados, string listSesiones)
         {
             //Se deserializa la lista de compras en un objeto
@@ -152,7 +166,8 @@ namespace Jerry.Controllers
                 //Si no hay colisiones
                 if(colisiones.Count() == 0)
                 { //Si no hay colisiones se registra
-                    
+                    reservacion.fechaReservacion = DateTime.Now;
+                    reservacion.ajustarFechaInicialFinal(); //Se establece como fecha inicial y final las fechas de las sesiones.
                     //Guardar registro
                     db.reservaciones.Add(reservacion);
                     numRegs = db.SaveChanges();
@@ -231,7 +246,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = BIND_FIELDS)]
+        public ActionResult Edit([Bind(Exclude = "fechaEventoInicial, fechaEventoFinal", Include = BIND_FIELDS)]
         Reservacion reservacion, string listServiciosSeleccionados, string listSesiones)
         {
             int numRegs = 0;
@@ -241,12 +256,12 @@ namespace Jerry.Controllers
 
                 //Se eliminan la seleccion de servicios hecha anteriormente
                 var serviciosEliminar = db.ServiciosEnReservaciones
-                    .Where(ser => ser.reservacionID == reservacion.reservacionID);
+                    .Where(ser => ser.eventoID == reservacion.eventoID);
                 db.ServiciosEnReservaciones.RemoveRange(serviciosEliminar);
 
                 //Se eliminan la sesiones en las que se divide la reservacion
                 var sesionesEliminar = db.sesionesEnReservaciones
-                    .Where(ser => ser.reservacionID == reservacion.reservacionID);
+                    .Where(ser => ser.reservacionID == reservacion.eventoID);
                 db.sesionesEnReservaciones.RemoveRange(sesionesEliminar);
 
                 numRegs = db.SaveChanges(); //Se guardan cambios
@@ -257,20 +272,21 @@ namespace Jerry.Controllers
 
                 //Se asocia nuevamente los servicios y sesiones con la reservacion
                 serviciosSeleccionados.ForEach(ser => {
-                    ser.reservacionID = reservacion.reservacionID;
+                    ser.eventoID = reservacion.eventoID;
                     db.Entry(ser).State = EntityState.Added;
                 });
                 sesionesDeReservacion.ForEach(ses=> {
-                    ses.reservacionID = reservacion.reservacionID;
+                    ses.reservacionID = reservacion.eventoID;
                     db.Entry(ses).State = EntityState.Added;
                 });
-
+                reservacion.sesiones = sesionesDeReservacion;
+                reservacion.ajustarFechaInicialFinal();
                 //Se guardan cambios
                 db.Entry(reservacion).State = EntityState.Modified;
                 numRegs = db.SaveChanges();
 
                 if(numRegs>0) //Si la operacion fue satisfactoria, se redirecciona al historial del cliente
-                    return RedirectToAction("Details","Clientes", new { id = reservacion.clienteID });
+                    return RedirectToAction("Details","Eventos", new { id = reservacion.eventoID});
             }
 
             //Si llega aqui, es que hubo un error, se muestra nuevamente la forma
@@ -279,50 +295,22 @@ namespace Jerry.Controllers
             return View("Form_Reservacion",reservacion);
         }
 
-        // GET: Reservacion/Delete/5
-        [Authorize]
-        public async Task<ActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Reservacion reservacion = await db.reservaciones.FindAsync(id);
-            if (reservacion == null)
-            {
-                return HttpNotFound();
-            }
-            return View(reservacion);
-        }
-
-        // POST: Reservacion/Delete/5
-        [Authorize]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(int id)
-        {
-            Reservacion reservacion = await db.reservaciones.FindAsync(id);
-            db.reservaciones.Remove(reservacion);
-            await db.SaveChangesAsync();
-            return RedirectToAction("Index");
-        }
-
-        public FileResult GenerarContrato(int? id, string tipoContrato)
+        public FileResult descargarContrato(int? id, TipoDeContrato tipoContrato)
         {
             Reservacion resContrato = db.reservaciones.Find(id);
-            String rutaContrato = getContratoPath(resContrato.TipoContrato);
+            String rutaContrato = resContrato.ContratoPath;
 
             //Se hace una copia una instancia de contrato para ser modificada basada en una plantilla
             String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
             byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
             System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
 
-            Reservacion.VMDataContract dataContracts = new Reservacion.VMDataContract(resContrato);
+            Reservacion.VMDataContractReservacion dataContracts = new Reservacion.VMDataContractReservacion(resContrato);
 
             var doc = DocX.Load(nuevoContrato);
-            if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))//CONTRATO VENTURA KIDS
+            if (tipoContrato == TipoDeContrato.KIDS)//CONTRATO VENTURA KIDS
                 resContrato.fillContratoA(dataContracts, ref doc);
-            else if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))//CONTRATO MODIFICADO
+            else if(tipoContrato == TipoDeContrato.ARRENDAMIENTO)//CONTRATO MODIFICADO
                 resContrato.fillContratoB(dataContracts, ref doc);
 
             doc.Save(); //Guardar documento en servidor
@@ -333,21 +321,51 @@ namespace Jerry.Controllers
             return File(fileBytesNuevoContrato,System.Net.Mime.MediaTypeNames.Application.Octet,nombreArchivoDescargado);
         }
 
-        /// <summary>
-        /// Se determina el directorio de la plantilla correspondiente al tipo de contrato
-        /// </summary>
-        /// <param name="tipoContrato">Nombre de tipo de contrato, los cuales son constantes definidos en Reservacion.TiposContrato.</param>
-        /// <returns>Cadena de caracteres con la ubicacion de la plantilla.</returns>
-        private string getContratoPath(string tipoContrato)
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
+        public ActionResult descargarReporte(int? id, string errorPagoMsg)
         {
-            string res = string.Empty;
+            if (id == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            if (tipoContrato.Equals(Reservacion.TiposContrato.EVENTO))
-                res = "~/App_Data/CONTRATO-MODIFICADO.docx";
-            else if (tipoContrato.Equals(Reservacion.TiposContrato.KIDS))
-                res = "~/App_Data/CONTRATO.VENTURA.KIDs.NEW.docx";
+            Reservacion reservacion = prepareDetailsView(id, errorPagoMsg);
 
-            return res;
+            if (reservacion == null)
+                return HttpNotFound();
+
+            var fileView = new Rotativa.ViewAsPdf("ReporteDeReservacion", "BlankLayout", reservacion)
+                { FileName = reservacion + ".pdf" };
+
+            //Code to get content
+            return fileView;
+        }
+
+        /// <summary>
+        /// Send Mail with hotmail
+        /// </summary>
+        /// <param name="objModelMail">MailModel Object, keeps all properties</param>
+        /// <param name="fileUploader">Selected file data, example-filename,content,content type(file type- .txt,.png etc.),length etc.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
+        public ActionResult EnviarCorreo(string emailDestino, int reservacionID = 0)
+        {
+            Correo DatosCorreo = db.Correos.FirstOrDefault();
+            if (DatosCorreo != null) { 
+                Reservacion reservacion = db.reservaciones.Find(reservacionID);
+
+                var fileView = new Rotativa.ViewAsPdf("ReporteDeReservacion", "BlankLayout", reservacion)
+                { FileName = reservacion.ToString(DateTime.Today) + ".pdf" };
+
+                ErrorEmail err = DatosCorreo.enviarCorreo(emailDestino, fileView, this.ControllerContext);
+                RouteValueDictionary rvd = new RouteValueDictionary();
+                TempData["errorEmail"] = err;
+                rvd.Add("errorEmail", err);
+
+                return RedirectToAction("Details", "Reservacion", new { id = reservacionID });
+            }else
+            {
+                return RedirectToAction("Details", "Correo");
+            }
         }
 
         protected override void Dispose(bool disposing)

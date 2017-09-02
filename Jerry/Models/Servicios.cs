@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
+using static Jerry.Models.Evento;
 
 namespace Jerry.Models
 {
@@ -26,6 +29,12 @@ namespace Jerry.Models
         public string descripcion { get; set; }
 
         public ICollection<ServiciosEnReservacion> reservaciones { get; set; }
+
+        [DisplayName("Tipo de Evento")]
+        public TipoEvento tipoDeEvento { get; set; }
+
+        //TODO: Enlistar solamente servicios para contratos de arrendamiento en la seccion correspondiente
+        //TODO: Al igual en banquetes
     }
 
     public class ServiciosEnReservacion
@@ -33,27 +42,31 @@ namespace Jerry.Models
         [Key]
         public int id { get; set; }
 
-        [ForeignKey("reservacion")]
-        [DisplayName("Reservacion")]
-        public int reservacionID { get; set; }
-        public virtual Reservacion reservacion { get; set; }
+        [ForeignKey("evento")]
+        [DisplayName("Evento")]
+        [Required]
+        public int eventoID { get; set; }
+        public virtual Evento evento { get; set; }
 
         [ForeignKey("servicio")]
         [DisplayName("Servicio")]
-        public int? serviciosID { get; set; }
+        [Required]
+        public int serviciosID { get; set; }
         public virtual Servicio servicio { get; set; }
 
-        [DisplayName("Costo")]
+        [DisplayName("Nota")]
         [DataType(DataType.MultilineText)]
         public string nota { get; set; }
+
+        [DisplayName("Cantidad")]
+        public int cantidad { get; set; }
 
         public override string ToString()
         {
             string res = string.Empty;
-            string format = String.IsNullOrEmpty(this.nota) ? "{0}" : "{0}: {1}";
+            string format = (cantidad > 0 ? "{2} " : "") + (String.IsNullOrEmpty(this.nota) ? "{0}" : "{0}: {1}");
 
-            res = string.Format(format, this.servicio.nombre, this.nota);
-
+            res = string.Format(format, this.servicio.nombre, this.nota, this.cantidad);
             return res;
         }
     }

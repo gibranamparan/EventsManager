@@ -1,4 +1,4 @@
-﻿@model Jerry.Models.Reservacion.VMFiltroReservaciones
+﻿@model Jerry.Models.Reservacion.VMFiltroEventos
 @using Jerry.Models
 @using Jerry.GeneralTools
 
@@ -114,16 +114,16 @@
                                     <i class="glyphicon glyphicon-option-horizontal"></i>
                                 </button>
                                 <div id="myDropdown" class="dropdown-content">
-                                    <a href="@Url.Action("Details", new { id = item.reservacionID })">
+                                    <a href="@Url.Action("Details", new { id = item.eventoID })">
                                         <i class="fa fa-list-alt"></i> Detalle
                                     </a>
-                                    <a href="@Url.Action("Edit", new { id = item.reservacionID })">
+                                    <a href="@Url.Action("Edit", new { id = item.eventoID })">
                                         <i class="fa fa-pencil-square-o"></i> Editar
                                     </a>
-                                    <a href="@Url.Action("Delete", new { id = item.reservacionID })">
+                                    <a href="@Url.Action("Delete", new { id = item.eventoID })">
                                         <i class="glyphicon glyphicon-remove"></i> Borrar
                                     </a>
-                                    <a href="@Url.Action("GenerarContrato",new { id = item.reservacionID, tipoContrato = item.TipoContrato })">
+                                    <a href="@Url.Action("GenerarContrato",new { id = item.eventoID, tipoContrato = item.TipoContrato })">
                                         <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
                                     </a>
                                 </div>

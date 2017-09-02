@@ -17,7 +17,7 @@ namespace Jerry.Controllers
 {
     public class CorreoController : Controller
     {
-        public const string BIND_FIELDS = "correoID,To,Subject,Body,correoAdmin,contrasena,smtpHost,puertoCorreo";
+        public const string BIND_FIELDS = "correoID,To,Subject,Body,correoAdmin,contrasena,smtpHost,puertoCorreo,sslEnabled";
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Correo
@@ -130,27 +130,6 @@ namespace Jerry.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        /// <summary>
-        /// Send Mail with hotmail
-        /// </summary>
-        /// <param name="objModelMail">MailModel Object, keeps all properties</param>
-        /// <param name="fileUploader">Selected file data, example-filename,content,content type(file type- .txt,.png etc.),length etc.</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN+","+
-            ApplicationUser.UserRoles.ASISTENTE)]
-        public ActionResult EnviarCorreo(string emailDestino, int reservacionID = 0)
-        {
-            HttpPostedFileBase fileUploader = null;
-            Correo DatosCorreo = db.Correos.First();
-            ErrorEmail err = DatosCorreo.enviarCorreo(fileUploader, emailDestino);
-            RouteValueDictionary rvd = new RouteValueDictionary();
-            TempData["errorEmail"] = err;
-            rvd.Add("errorEmail", err);
-
-            return RedirectToAction("Details","Reservacion", new { id = reservacionID });
         }
     }
 }

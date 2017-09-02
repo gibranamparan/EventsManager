@@ -5,6 +5,9 @@
     ViewBag.Title = "Configuración";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<Servicio> servicios = ViewBag.servicios;
+    var serviciosArrendamiento = servicios.Where(s => s.tipoDeEvento == Evento.TipoEvento.RESERVACION);
+    var serviciosBanquetes = servicios.Where(s => s.tipoDeEvento == Evento.TipoEvento.BANQUETE);
+    var serviciosTodos = servicios.Where(s => s.tipoDeEvento == Evento.TipoEvento.CUALQUIERA);
 }
 
 <h2>@ViewBag.Title</h2>
@@ -15,58 +18,59 @@
     </div>
     <!--Detalles de correo del administrador-->
     <div class="panel-body">
-        @if (Model != null) { 
-        <dl class="dl-horizontal">
+        @if (Model != null)
+        {
+            <dl class="dl-horizontal">
 
-            <dt>
-                @Html.DisplayNameFor(model => model.Subject)
-            </dt>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Subject)
+                </dt>
 
-            <dd>
-                @Html.DisplayFor(model => model.Subject)
-            </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.Subject)
+                </dd>
 
-            <dt>
-                @Html.DisplayNameFor(model => model.Body)
-            </dt>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Body)
+                </dt>
 
-            <dd>
-                @Html.DisplayFor(model => model.Body)
-            </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.Body)
+                </dd>
 
-            <dt>
-                @Html.DisplayNameFor(model => model.correoAdmin)
-            </dt>
+                <dt>
+                    @Html.DisplayNameFor(model => model.correoAdmin)
+                </dt>
 
-            <dd>
-                @Html.DisplayFor(model => model.correoAdmin)
-            </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.correoAdmin)
+                </dd>
 
-            <dt>
-                @Html.DisplayNameFor(model => model.smtpHost)
-            </dt>
+                <dt>
+                    @Html.DisplayNameFor(model => model.smtpHost)
+                </dt>
 
-            <dd>
-                @Html.DisplayFor(model => model.smtpHost)
-            </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.smtpHost)
+                </dd>
 
-            <dt>
-                @Html.DisplayNameFor(model => model.puertoCorreo)
-            </dt>
+                <dt>
+                    @Html.DisplayNameFor(model => model.puertoCorreo)
+                </dt>
 
-            <dd>
-                @Html.DisplayFor(model => model.puertoCorreo)
-            </dd>
+                <dd>
+                    @Html.DisplayFor(model => model.puertoCorreo)
+                </dd>
 
-        </dl>
-        <a href="@Url.Action("Edit", new { id = Model.correoID})">
-            <i class="fa fa-pencil"></i>Editar
-        </a>
+            </dl>
+            <a href="@Url.Action("Edit", new { id = Model.correoID})">
+                <i class="fa fa-pencil"></i>Editar
+            </a>
         }
         else
         {
             <div class="alert alert-warning">
-                <strong>No ha sido configurado su correo electrónico</strong> como administrador, favor de hacer la configuracion en el siguiente 
+                <strong>No ha sido configurado su correo electrónico</strong> como administrador, favor de hacer la configuracion en el siguiente
                 <a href="@Url.Action("Create")">enlace</a>.
             </div>
         }
@@ -81,5 +85,20 @@
     </a>
 </p>
 
-@Html.Partial("../Servicios/Partial_CreateServicio", new Servicio())
-@Html.Partial("../Servicios/Partial_ListServicios", servicios)
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Servicios para Eventos</h3>
+    </div>
+    <div class="panel-body">
+        @Html.Partial("../Servicios/Partial_CreateServicio", new Servicio())
+        <br /><br />
+        <h3>Servicios para arrendamientos de salón</h3>
+        @Html.Partial("../Servicios/Partial_ListServicios", serviciosArrendamiento)
+        <h3>Servicios para banquetes</h3>
+        @Html.Partial("../Servicios/Partial_ListServicios", serviciosBanquetes)
+        <h3>Servicios aplicables a todo evento</h3>
+        @Html.Partial("../Servicios/Partial_ListServicios", serviciosTodos)
+    </div>
+</div>
+

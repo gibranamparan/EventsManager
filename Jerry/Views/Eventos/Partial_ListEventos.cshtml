@@ -1,0 +1,92 @@
+﻿@using Jerry.Models
+@model IEnumerable<Jerry.Models.Evento>
+<table class="table table-hover table-striped datatable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.tipoDeEvento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipoContrato)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fechaReservacion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fechaEventoInicial)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.fechaEventoFinal)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.costo)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.cantidadFaltante)
+            </th>
+            @*
+            <th style="max-width: 20em">
+                @Html.DisplayNameFor(model => model.salon)
+            </th>*@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderBy(res => res.fechaEventoInicial))
+        {
+            <tr>
+                <td>
+                    @item.nombreTipoEvento
+                </td>
+                <td>
+                    @item.nombreTipoContrato
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.fechaReservacion)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.fechaEventoInicial)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.fechaEventoFinal)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(model => item.costo)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(model => item.cantidadFaltante)
+                </td>
+                @*
+                <td style="max-width: 20em">
+                    @Html.DisplayFor(modelItem => item.salon)
+                </td>*@
+                <td>
+                    <div class="dropdown_actions">
+                        <button onclick="openActionsDropDown(this)"
+                                class="dropbtn btn btn-default">
+                            <i class="glyphicon glyphicon-option-horizontal"></i>
+                        </button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <a href="@Url.Action("Details","Eventos", new { id = item.eventoID })">
+                                <i class="fa fa-credit-card"></i> Pagos
+                            </a>
+                            <a href="@Url.Action("Edit",item.controllerName, new { id = item.eventoID })">
+                                <i class="fa fa-pencil"></i> Editar
+                            </a>
+                            <a href="@Url.Action("Delete","Eventos", new { id = item.eventoID })">
+                                <i class="fa fa-remove"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

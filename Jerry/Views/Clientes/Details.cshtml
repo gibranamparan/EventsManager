@@ -11,21 +11,24 @@
 <p>
     <a href="@Url.Action("Index")">
         <i class="glyphicon glyphicon-arrow-left"></i><span>Regresar a Lista de Clientes</span>
-    </a>
+    </a> 
 </p>
 
 @Html.Partial("../Clientes/Partial_ClienteDetailsSummary", Model)
 
 <p>
     <a href="@Url.Action("Create","Reservacion", new {id = Model.clienteID })">
-        <i class="fa fa-plus"></i><span>Registrar nueva reservación</span>
+        <i class="fa fa-calendar-plus-o"></i><span>Registrar nueva reservación</span>
+    </a><span>|</span>
+    <a href="@Url.Action("Create","Banquetes", new {id = Model.clienteID })">
+        <i class="fa fa-cutlery"></i><span>Registrar nuevo banquete</span>
     </a>
 </p>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">Historial de Reservaciones</h3>
+        <h3 class="panel-title">Historial de Eventos</h3>
     </div>
     <div class="panel-body">
-        @Html.Partial("../Reservacion/Partial_Reservaciones", Model.reservaciones)
+        @Html.Partial("../Eventos/Partial_ListEventos", Model.eventos)
     </div>
 </div>

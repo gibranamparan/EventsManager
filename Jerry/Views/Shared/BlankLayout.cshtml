@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    @Styles.Render("~/Content/template")
+    @Styles.Render("~/Content/icons")
+    @Styles.Render("~/Content/jqueryui")
+    @Styles.Render("~/bower_componentes/calendar")
+</head>
+<body>
+    @RenderBody()
+</body>
+@Scripts.Render("~/bundles/moment")
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/template")
+@Scripts.Render("~/bundles/modernizr")
+@Scripts.Render("~/bundles/bootstrap")
+@Scripts.Render("~/bundles/bower")
+@RenderSection("scripts", required: false)
+</html>

@@ -1,6 +1,6 @@
 ﻿@using Jerry.Models
 @using Jerry.GeneralTools
-@model Jerry.Models.Reservacion
+@model Jerry.Models.Evento
 @{ 
     VMConfirmModalAttributes vmModalOpts = new VMConfirmModalAttributes
     {
@@ -13,6 +13,8 @@
         partialViewURL = "../Pago/Partial_DeletePagoConfirm",
         modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.DANGER)
     };
+
+    bool printMode = ViewData["printMode"] != null ? (bool)ViewData["printMode"] : true;
 }
 
 @Html.Partial("Partial_ConfirmationModal", vmModalOpts)
@@ -31,7 +33,9 @@
                 <th>
                     @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().fechaPago)
                 </th>
+                @if (printMode) {
                 <th></th>
+                }
             </tr>
         </thead>
         <tbody>
@@ -47,6 +51,8 @@
                     <td>
                         @item.fechaPago.ToString("dd/MMM/yy")
                     </td>
+                    @if (printMode)
+                    {
                     <td class="hidden-print">
                         <a pago_id ='@item.pagoID' pago_monto ="@item.cantidad.ToString("C")" 
                            pago_fecha="@item.fechaPago.ToString("dd/MMM/yyyy")"
@@ -54,6 +60,7 @@
                             <i class="glyphicon glyphicon-remove"></i> Borrar
                         </a>
                     </td>
+                    }
                 </tr>
             }
         </tbody>

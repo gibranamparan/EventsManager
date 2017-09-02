@@ -9,13 +9,15 @@ using System.Web.Mvc;
 using Jerry.Models;
 using Jerry.GeneralTools;
 using Novacode;
+using System.Web.Script.Serialization;
 
 namespace Jerry.Controllers
 {
     public class BanquetesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        private const string BIND_FIELDS = "banqueteID,fechaBanquete,email,telefono,lugar,descripcionServicio,cantidadPersonas,costo,tipoContrato,clienteID";
+        private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,fechaEventoFinal," +
+            "costo,lugar,tipoContrato,clienteID,Detalles,listServiciosSeleccionados,CantidadPersonas";
         // GET: Banquetes
         public ActionResult Index()
         {
@@ -39,10 +41,26 @@ namespace Jerry.Controllers
         }
 
         // GET: Banquetes/Create
-        public ActionResult Create()
+        public ActionResult Create(int? id)
         {
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre");
-            return View();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            Banquete ban = prepararVista(id.Value);
+
+            return View("Form_Banquete", ban);
+        }
+
+        private Banquete prepararVista(int clienteID = 0)
+        {
+            Banquete newReservacion = new Banquete();
+            Cliente cliente = db.clientes.Find(clienteID);
+            newReservacion.clienteID = clienteID;
+            newReservacion.cliente = cliente;
+            ViewBag.servicios = db.Servicios.Where(s => s.tipoDeEvento == Evento.TipoEvento.BANQUETE).ToList();
+            return newReservacion;
         }
 
         // POST: Banquetes/Create
@@ -50,17 +68,27 @@ namespace Jerry.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = BIND_FIELDS)] Banquete banquete)
+        public ActionResult Create([Bind(Include = BIND_FIELDS)] Banquete banquete, string listServiciosSeleccionados)
         {
+            //Se deserializa la lista de compras en un objeto
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
+            //Se registran los servicios relacionados si existen
+            if (serviciosSeleccionados != null && serviciosSeleccionados.Count > 0)
+                banquete.serviciosContratados = serviciosSeleccionados;
             if (ModelState.IsValid)
             {
+                banquete.fechaReservacion = DateTime.Now;
                 db.Banquetes.Add(banquete);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Clientes", new { id = banquete.clienteID });
             }
 
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", banquete.clienteID);
-            return View(banquete);
+            //Si llega hasta aca, hubo un problema y se muestra la forma de nuevo
+            Banquete newRes = prepararVista(banquete.clienteID);
+            banquete.cliente = newRes.cliente;
+            ViewBag.failPostBack = true;
+            return View("Form_Banquete", banquete);
         }
 
         // GET: Banquetes/Edit/5
@@ -75,8 +103,8 @@ namespace Jerry.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", banquete.clienteID);
-            return View(banquete);
+            prepararVista();
+            return View("Form_Banquete", banquete);
         }
 
         // POST: Banquetes/Edit/5
@@ -84,16 +112,37 @@ namespace Jerry.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = BIND_FIELDS)] Banquete banquete)
+        public ActionResult Edit([Bind(Include = BIND_FIELDS)] Banquete banquete, string listServiciosSeleccionados)
         {
+            int numRegs = 0;
             if (ModelState.IsValid)
             {
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                //Se eliminan la seleccion de servicios hecha anteriormente
+                var serviciosEliminar = db.ServiciosEnReservaciones
+                    .Where(ser => ser.eventoID == banquete.eventoID);
+                db.ServiciosEnReservaciones.RemoveRange(serviciosEliminar);
+
+                numRegs = db.SaveChanges(); //Se guardan cambios
+                //Se deserializa la lista de servicios seleccionados y sesiones modificadas
+                List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
+
+                //Se asocia nuevamente los servicios con el evento
+                serviciosSeleccionados.ForEach(ser => {
+                    ser.eventoID = banquete.eventoID;
+                    db.Entry(ser).State = EntityState.Added;
+                });
+
                 db.Entry(banquete).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                numRegs = db.SaveChanges();
+
+                if (numRegs > 0) //Si la operacion fue satisfactoria, a los detalles del eventos
+                    return RedirectToAction("Details","Eventos", new { id = banquete.eventoID });
             }
-            ViewBag.clienteID = new SelectList(db.clientes, "clienteID", "nombre", banquete.clienteID);
-            return View(banquete);
+            //Si llega aqui, es que hubo un error, se muestra nuevamente la forma
+            Banquete newRes = prepararVista(banquete.clienteID);
+            banquete.cliente = newRes.cliente;
+            return View("Form_Banquete", banquete);
         }
 
         // GET: Banquetes/Delete/5
@@ -127,18 +176,18 @@ namespace Jerry.Controllers
             Banquete resContrato = db.Banquetes.Find(id);
             Cliente cliente = resContrato.cliente;
             String rutaContrato = "";
-            String fechaInicioEvento = resContrato.fechaBanquete.ToLongDateString();
-            String horaEvento = resContrato.fechaBanquete.Hour.ToString();
+            String fechaInicioEvento = resContrato.fechaEventoFinal.ToLongDateString();
+            String horaEvento = resContrato.fechaEventoFinal.Hour.ToString();
             String lugar = resContrato.lugar;
-            if (tipoContrato.Equals(Reservacion.TiposContrato.SERVICIO))
+            if (tipoContrato.Equals(Reservacion.TiposContratoNombres.SERVICIO))
             {
                 rutaContrato = "~/App_Data/CONTRATO-de-Prestacion-de-Servicios.docx";
             }
             String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
             byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
             System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
-            String descripcionServicios = resContrato.descripcionServicio;
-            String cantidadPersonas = resContrato.cantidadPersonas.ToString();
+            String descripcionServicios = resContrato.Detalles;
+            String cantidadPersonas = resContrato.CantidadPersonas.ToString();
             String costo = resContrato.costo.ToString();
             String anticipo = resContrato.cantidadPagada.ToString();
             String adeudo = resContrato.cantidadFaltante.ToString();

@@ -1,0 +1,143 @@
+﻿@using Jerry.Models
+@using Jerry.Models
+@using Jerry.GeneralTools
+@model Jerry.Models.Evento
+@{
+    ViewBag.Title = String.Format("Cliente: {0}, Res: {1}",Model.cliente.nombreCompleto, Model.ToString());
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //Servicios contratados dentro de la reservacion
+    List<Servicio> serviciosContratados = Model.serviciosContratados != null && Model.serviciosContratados.Count() > 0
+? Model.serviciosContratados.Select(sc => sc.servicio).ToList() : new List<Servicio>();
+
+    Pago p = new Pago();
+    p.eventoID = Model.eventoID;
+    bool emailConfigured = ViewBag.emailConfigured;
+
+    ViewDataDictionary vdd = new ViewDataDictionary();
+    if (ViewBag.errorPagoMsg != null)
+    {
+        vdd.Add("errorMsg", ViewBag.errorPagoMsg);
+    }
+    vdd.Add("faltante", Model.cantidadFaltante);
+
+    Correo.ErrorEmail errorMail = ViewBag.errorMail;
+
+    VMConfirmModalAttributes vmModalOptsEnviarCorreo = new VMConfirmModalAttributes
+    {
+        modalTitle = "Confirmar Envío de Estado de Cuenta",
+        callType = VMConfirmModalAttributes.CallType.POSTBACK,
+        action = "EnviarCorreo",
+        controller = "Reservacion",
+        routeVals = new { reservacionID = Model.eventoID, emailDestino = Model.cliente.email },
+        primaryMessage = "Si confirma, se enviará el estado de cuenta actual al cliente <strong>" + Model.cliente.nombreCompleto + "</strong>."
+        + "al correo electronico <strong>" + Model.cliente.email+ "</strong>",
+        modalID = "modalConfirmEnvioCorreo",
+        modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.INFO)
+    };
+
+    //Configuraccion de notifiacacion de correo electronico
+    VMConfirmModalAttributes vmModalOptsRespuestaCorreo = new VMConfirmModalAttributes
+    {
+        callType = VMConfirmModalAttributes.CallType.NONE,
+        modalID = "modalConfirmRespuestaCorreo",
+    };
+
+    if(errorMail.code == Correo.ErrorEmail.ErrorEmailCode.FAIL) //Si fallo el correo electronico
+    {
+        vmModalOptsRespuestaCorreo.primaryMessage = "Ocurrió un error al intentar enviar al cliente "+
+            "<strong>" +Model.cliente.nombreCompleto + "</strong> su estado de cuenta al correo electrónico <strong>"+Model.cliente.email+"</strong>. "+
+            "Puede intentar enviar el archivo manualmente o verificar el correo electrónico del cliente o sus datos de correo electrónico como administrador "+
+            "en la seccion de configuración. Contacte al administador del sistema y hágale saber el siguiente mensaje: <strong>"+errorMail.msg+"</strong>";
+        vmModalOptsRespuestaCorreo.modalTitle = "Error al Enviar Estado de Cuenta";
+        vmModalOptsRespuestaCorreo.modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.DANGER);
+    }
+    else if(errorMail.code == Correo.ErrorEmail.ErrorEmailCode.SENT) //Si tuvo exito el correo electronico
+    {
+        vmModalOptsRespuestaCorreo.modalTitle = "Estado de Cuenta Enviado";
+        vmModalOptsRespuestaCorreo.primaryMessage = "El estado de cuenta fue enviado satisfactoriamente al cliente "+
+            "<strong>"+ Model.cliente.nombreCompleto + "</strong> al correo electronico <strong>" + Model.cliente.email+ "</strong>";
+        vmModalOptsRespuestaCorreo.modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.SUCCESS);
+    }
+}
+
+<nav class="hidden-print">
+    <a class="hidden-print" href="@Url.Action("Details", "Clientes", new { id = Model.clienteID })">
+        <i class="glyphicon glyphicon-arrow-left"></i> Historial de Reservaciones del Cliente
+    </a> | 
+    @*<a href="#" onClick="window.print()">*@
+    <a href="@Url.Action("descargarReporte", new { id = Model.eventoID })">
+        <i class="fa fa-print"></i>
+        <span>Imprimir Detalles</span>
+    </a> | 
+    @if (emailConfigured) { 
+    <a data-toggle="modal" data-target="#@vmModalOptsEnviarCorreo.modalID">
+        <i class="fa fa-envelope-o"></i> <span>Enviar Estado de Cuenta</span>
+    </a>
+    }
+    else
+    {
+        <span style="color:grey" title="Correo no configurado. Ingresa a la seccion de configuración.">
+            <i class="fa fa-envelope-o"></i> <span>Enviar Estado de Cuenta</span>
+        </span>
+    }
+</nav>
+
+@Html.Partial("Partial_ConfirmationModal", vmModalOptsEnviarCorreo) @*Modal de confirmacion de envio de correo*@
+@Html.Partial("Partial_ConfirmationModal", vmModalOptsRespuestaCorreo) @*Modal de repsuesta de envio de correo*@
+
+@Html.Partial("Partial_EncabezadoReporte")
+
+@*Detalles generales de la reservación*@
+@Html.Partial("../Eventos/Partial_DetailsEvento")
+
+@if(Model.tipoDeEvento == Evento.TipoEvento.RESERVACION) { 
+    @Html.Partial("../Reservacion/Partial_ListSesiones", ((Reservacion)Model).sesiones)
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Servicios Contratados</h3>
+    </div>
+    <div class="panel-body">
+        @{ 
+            ViewDataDictionary vddServicios = new ViewDataDictionary();
+            vddServicios.Add("showOptions", false);
+            vddServicios.Add("detailsMode", true);
+            vddServicios.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
+        }
+        @Html.Partial("../Servicios/Partial_ListServicios", serviciosContratados, vddServicios)
+    </div>
+</div>
+
+@if (Model.cantidadFaltante == 0)
+{
+    <div class="alert alert-success">Esta reservación no presenta adeudos</div>
+}
+else
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-title">
+                Historial de Pagos
+            </span>
+        </div>
+        <div class="panel-body">
+            @*Formulario de nuevo pago*@
+            <div class="hidden-print">
+                @Html.Partial("../Pago/Partial_IngresarPago", p, vdd)
+            </div>
+
+            @*Lista de pagos*@
+            @Html.Partial("../Pago/Partial_DetallesDePagos")
+        </div>
+    </div>
+}
+
+@section Scripts{
+    <script>
+        var showRespuestaModal = boolParse('@(errorMail.code!=Correo.ErrorEmail.ErrorEmailCode.NONE)');
+        if (showRespuestaModal)
+            $('#@(vmModalOptsRespuestaCorreo.modalID)').modal();
+    </script>
+}

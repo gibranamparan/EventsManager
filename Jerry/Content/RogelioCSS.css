@@ -127,6 +127,24 @@ footer p{
     color: red;
 }
 
+#linkLogo{
+    font-size: 1.5em;
+    padding: 0;
+}
+a#linkLogo{
+    font-size: 1em;
+}
+
+.panel-body .table:not(.datatable){
+    border: 1px solid black;
+    box-shadow: 5px 5px grey
+}
+
+.panel-body .table:not(.datatable) th{
+    background-color: #8fcbff;
+    color: black;
+}
+
 @media print {
 
     body, html, #page-wrapper {
@@ -140,7 +158,7 @@ footer p{
         font-size: 1em;
         margin-bottom: 1em;
     }
-    a#linkLogo{
+    #linkLogo{
         font-size: 1.5em;
     }
 }

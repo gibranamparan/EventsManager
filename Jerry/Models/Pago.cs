@@ -13,12 +13,16 @@ namespace Jerry.Models
         [DisplayName("No. Pago")]
         public int pagoID { get; set; }
 
-        public int? reservacionID { get; set; }
+        /// <summary>
+        /// Llave foranea de evento asociado
+        /// </summary>
+        [DisplayName("Evento")]
+        public int eventoID { get; set; }
         //A un pago le pertenece solo a una reservacion
-        virtual public Reservacion reservacion { get; set; }
-
-        public int? banqueteID { get; set; }
-        virtual public Banquete banquete { get; set; }
+        /// <summary>
+        /// Evento asociado al pago
+        /// </summary>
+        virtual public Evento evento { get; set; }
 
         [Required]
         [Display(Name ="Cantidad")]
