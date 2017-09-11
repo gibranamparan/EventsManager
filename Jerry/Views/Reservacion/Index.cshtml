@@ -59,6 +59,9 @@
             <thead>
                 <tr>
                     <th>
+                        @Html.DisplayNameFor(model => resultado.FirstOrDefault().eventoID)
+                    </th>
+                    <th>
                         @Html.DisplayNameFor(model => resultado.FirstOrDefault().cliente.nombre)
                     </th>
                     <th>
@@ -86,6 +89,9 @@
                 @foreach (var item in resultado)
         {
                     <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.eventoID)
+                        </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.cliente.nombreCompleto)
                         </td>
@@ -138,7 +144,9 @@
 }
 else
 {
-    @Html.Partial("Partial_Schedule")
+    ViewDataDictionary vdd = new ViewDataDictionary();
+    vdd.Add("tipoEvento", Evento.TipoEvento.RESERVACION);
+    @Html.Partial("../Eventos/Partial_Schedule", null, vdd)
 
     @section Scripts{
         <script>

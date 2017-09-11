@@ -27,6 +27,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.cantidadFaltante)
             </th>
+            <th>
+                Salón
+            </th>
             @*
             <th style="max-width: 20em">
                 @Html.DisplayNameFor(model => model.salon)
@@ -63,6 +66,16 @@
                 <td>
                     @Html.DisplayFor(model => item.cantidadFaltante)
                 </td>
+                <td>
+                    @if (item.tipoDeEvento == Evento.TipoEvento.RESERVACION)
+                    {
+                        <span>@(((Reservacion)item).salon)</span>
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+                </td>
                 @*
                 <td style="max-width: 20em">
                     @Html.DisplayFor(modelItem => item.salon)
@@ -75,7 +88,7 @@
                         </button>
                         <div id="myDropdown" class="dropdown-content">
                             <a href="@Url.Action("Details","Eventos", new { id = item.eventoID })">
-                                <i class="fa fa-credit-card"></i> Pagos
+                                <i class="fa fa-credit-card"></i> Información y Pagos
                             </a>
                             <a href="@Url.Action("Edit",item.controllerName, new { id = item.eventoID })">
                                 <i class="fa fa-pencil"></i> Editar

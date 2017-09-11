@@ -11,8 +11,8 @@ using System.Web.Mvc;
 
 namespace Jerry.Models
 {
-    public class Reservacion:Evento
-    {        
+    public class Reservacion : Evento
+    {
         /// <summary>
         /// Sesiones en las que se divide la reservación. Contiene un setter que establece automaticamente la fecha
         /// de inicio y fin del evento segun el horario de la sesion inicial y final.
@@ -24,18 +24,12 @@ namespace Jerry.Models
 
         public void ajustarFechaInicialFinal()
         {
-            if (this.sesiones!=null && this.sesiones.Count() > 0)
+            if (this.sesiones != null && this.sesiones.Count() > 0)
             {
                 this.fechaEventoInicial = this.sesiones.First().periodoDeSesion.startDate;
                 this.fechaEventoFinal = this.sesiones.Last().periodoDeSesion.endDate;
             }
         }
-
-        /// <summary>
-        /// Obtiene una cadena de caracteres que representa el directorio del archivo plantilla del contrato
-        /// correspondiente a la presente instancia de evento.
-        /// </summary>
-        public string ContratoPath{ get { return Evento.getContratoPath(this.TipoContrato); } }
 
         /// <summary>
         /// Arroja una lista lineal de los salones reservados en cada una de las sesiones
@@ -67,10 +61,10 @@ namespace Jerry.Models
                 string res = string.Empty;
 
                 //foreach(var ses in this.sesiones) { 
-                for(int c = 1;c<=this.sesiones.Count();c++)
+                for (int c = 1; c <= this.sesiones.Count(); c++)
                 {
-                    var ses = this.sesiones.ElementAt(c-1);
-                    res += ses.stringParaContrato + (c==this.sesiones.Count()-1?" y ":", ");
+                    var ses = this.sesiones.ElementAt(c - 1);
+                    res += ses.stringParaContrato + (c == this.sesiones.Count() - 1 ? " y " : ", ");
                 }
                 res = res.Trim().TrimEnd(',');
 
@@ -87,7 +81,7 @@ namespace Jerry.Models
             {
                 decimal res = 0;
 
-                if(this.serviciosContratados!=null && this.serviciosContratados.Count()>0)
+                if (this.serviciosContratados != null && this.serviciosContratados.Count() > 0)
                     res = this.serviciosContratados.Sum(ser => ser.servicio.costo);
 
                 return res;
@@ -121,7 +115,7 @@ namespace Jerry.Models
         {
             List<object> array = new List<object>();
             array.Add(new { Text = Evento.getNombreContrato(TipoDeContrato.ARRENDAMIENTO), Value = TipoDeContrato.ARRENDAMIENTO });
-            array.Add(new { Text = Evento.getNombreContrato(TipoDeContrato.KIDS), Value = TipoDeContrato.KIDS});
+            array.Add(new { Text = Evento.getNombreContrato(TipoDeContrato.KIDS), Value = TipoDeContrato.KIDS });
 
             return array;
         }
@@ -152,7 +146,7 @@ namespace Jerry.Models
         {
             //Se filtran todas las sesiones que estan dentro del rango de tiempo total de la reservacion validada
             var sesionesFiltradas = db.sesionesEnReservaciones.
-                Where(ses => ses.reservacionID!=this.eventoID && (ses.periodoDeSesion.startDate >= this.fechaEventoInicial && ses.periodoDeSesion.startDate <= this.fechaEventoFinal
+                Where(ses => ses.reservacionID != this.eventoID && (ses.periodoDeSesion.startDate >= this.fechaEventoInicial && ses.periodoDeSesion.startDate <= this.fechaEventoFinal
                 || ses.periodoDeSesion.endDate >= this.fechaEventoInicial && ses.periodoDeSesion.endDate <= this.fechaEventoFinal)).ToList();
 
             IEnumerable<SesionDeReservacion> res = new List<SesionDeReservacion>();
@@ -168,33 +162,9 @@ namespace Jerry.Models
             return res.ToList();
         }
 
-        /// <summary>
-        /// Genera una cadena de caracteres en la que se muestran todos los servicios
-        /// registrados para esta reservación.
-        /// </summary>
-        public string enlistarServiciosParaContrato
-        {
-            get
-            { 
-                string res = string.Empty;
-                foreach(var ser in this.serviciosContratados)
-                {
-                    res += ser.ToString()+", ";
-                }
-                res = res.TrimEnd().TrimEnd(',');
-
-                return res;
-            }
-        }
-
         public override string ToString()
         {
-            return String.Format("{0} - {1}", this.timePeriod.ToString("dd/MMM hh:mm"), this.salon);
-        }
-
-        public string ToString(DateTime fechaConsulta)
-        {
-            return String.Format("Estado de Cuenta {2} - {0} - {1}", this.timePeriod.ToString("dd-MMM"), this.salon, fechaConsulta.ToString("dd-MM-yyyy"));
+            return String.Format("{0} - {1}", base.ToString(), this.salon);
         }
 
         /// <summary>
@@ -342,10 +312,18 @@ namespace Jerry.Models
             public ReservacionInScheduleJS(SesionDeReservacion s1)
             {
                 this.id = s1.SesionDeReservacionID;
-                this.title = s1.ToString()+", Cliente: "+s1.reservacion.cliente.nombreCompleto;
-                this.url = "/Reservacion/Details/" + s1.reservacionID;
+                this.title = string.Format("#Reservacion: {0}, {1}, Cliente: {2}", s1.reservacion.eventoID, s1, s1.reservacion.cliente.nombreCompleto);
+                this.url = "/Eventos/Details/" + s1.reservacionID;
                 this.start = s1.periodoDeSesion.startDate.ToUniversalTime().Subtract(JS_DATE_REF).TotalMilliseconds;
                 this.end = s1.periodoDeSesion.endDate.ToUniversalTime().Subtract(JS_DATE_REF).TotalMilliseconds;
+            }
+            public ReservacionInScheduleJS(Evento evento)
+            {
+                this.id = evento.eventoID;
+                this.title = string.Format("#Reservacion: {0}, {1}, Cliente: {2}", evento.eventoID, evento, evento.cliente.nombreCompleto);
+                this.url = "/Eventos/Details/" + evento.eventoID;
+                this.start = evento.fechaEventoInicial.ToUniversalTime().Subtract(JS_DATE_REF).TotalMilliseconds;
+                this.end = evento.fechaEventoFinal.ToUniversalTime().Subtract(JS_DATE_REF).TotalMilliseconds;
             }
 
             /// <summary>

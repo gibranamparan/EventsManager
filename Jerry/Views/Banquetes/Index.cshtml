@@ -1,42 +1,85 @@
-﻿@model IEnumerable<Jerry.Models.Banquete>
+﻿@using Jerry.Models
+@model Jerry.Models.Reservacion.VMFiltroEventos
 
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    //bool listMode = ViewBag.listMode == null ? false : ViewBag.listMode;
+    bool listMode = ViewBag.listMode == null ? true : ViewBag.listMode;
+    List<Jerry.Models.Banquete> resultado = ViewBag.result;
 }
 
 <p>
-    <a href="@Url.Action("Create")">
-        <i class="glyphicon glyphicon-plus-sign"></i> Nuevo Banquete
+    <a href="@Url.Action("Index",new { listMode = !listMode })">
+        @if (!listMode)
+        {
+            <i class="fa fa-list"></i>
+        }
+        else
+        {
+            <i class="fa fa-calendar"></i>
+        }
+        <span>Ver reservaciones en @(!listMode ? "lista" : "calendario")</span>
     </a>
 </p>
 
+@if (listMode){ //Se muestra la forma de vista
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Banquetes</h3>
     </div>
     
     <div class="panel-body">
+        @using (Html.BeginForm("Index", "Banquetes", FormMethod.Get, null))
+        {
+            @Html.Hidden("listMode", false)
+            <div>
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => Model.TimePeriod.startDate)
+                        @Html.EditorFor(model => Model.TimePeriod.startDate,
+           new { htmlAttributes = new { @class = "form-control", } })
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => Model.TimePeriod.endDate)
+                        @Html.EditorFor(model => Model.TimePeriod.endDate,
+           new { htmlAttributes = new { @class = "form-control", } })
+                    </div>
+                    <div class="form-group col-md-2">
+                        <br />
+                        <button id="btnSearch" name="searchVisits" class="btn btn-primary">
+                            <i class="fa fa-search"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
         <table class="table table-hover table-striped datatable">
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.cliente.nombre)
+                    @Html.DisplayNameFor(model => resultado.FirstOrDefault().eventoID)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.fechaEventoInicial)
+                    @Html.DisplayNameFor(model => resultado.FirstOrDefault().cliente.nombre)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Detalles)
+                    @Html.DisplayNameFor(model => resultado.FirstOrDefault().fechaEventoInicial)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => resultado.FirstOrDefault().Detalles)
                 </th>
                 <th></th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var item in resultado)
             {
                 <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.eventoID)
+                    </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.cliente.nombre)
                     </td>
@@ -47,22 +90,42 @@
                         @Html.DisplayFor(modelItem => item.Detalles)
                     </td>
                     <td>
-                        <a href="@Url.Action("Details", new { id = item.eventoID })">
-                            <i class="fa fa-list-alt"></i> Detalle
-                        </a> <br />
-                        <a href="@Url.Action("Edit", new { id = item.eventoID })">
-                            <i class="fa fa-pencil-square-o"></i> Editar
-                        </a> <br />
-                        <a href="@Url.Action("Delete", new { id = item.eventoID })">
-                            <i class="glyphicon glyphicon-remove"></i> Borrar
-                        </a> <br/>
-                        <a href="@Url.Action("GenerarContrato",new { id = item.eventoID, tipoContrato = item.TipoContrato })">
-                            <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
-                        </a>
+                        <div class="dropdown_actions">
+                            <button onclick="openActionsDropDown(this)"
+                                    class="dropbtn btn btn-default">
+                                <i class="glyphicon glyphicon-option-horizontal"></i>
+                            </button>
+                            <div id="myDropdown" class="dropdown-content">
+                                <a href="@Url.Action("Details","Eventos", new { id = item.eventoID })">
+                                    <i class="fa fa-list-alt"></i> Detalle
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = item.eventoID })">
+                                    <i class="fa fa-pencil-square-o"></i> Editar
+                                </a>
+                                <a href="@Url.Action("Delete","Eventos", new { id = item.eventoID })">
+                                    <i class="glyphicon glyphicon-remove"></i> Cancelar
+                                </a>
+                                <a href="@Url.Action("descargarContrato","Eventos",new { id = item.eventoID, tipoContrato = item.TipoContrato })">
+                                    <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
+                                </a>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             }
         </tbody>
         </table>
     </div>
-</div>
+</div>}
+else
+{
+    ViewDataDictionary vdd = new ViewDataDictionary();
+    vdd.Add("tipoEvento", Evento.TipoEvento.BANQUETE);
+    @Html.Partial("../Eventos/Partial_Schedule", null,vdd)
+
+    @section Scripts{
+        <script>
+        initSchedule()
+        </script>
+    }
+}

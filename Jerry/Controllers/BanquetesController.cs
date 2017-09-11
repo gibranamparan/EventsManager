@@ -10,6 +10,7 @@ using Jerry.Models;
 using Jerry.GeneralTools;
 using Novacode;
 using System.Web.Script.Serialization;
+using static Jerry.Models.Reservacion;
 
 namespace Jerry.Controllers
 {
@@ -17,27 +18,48 @@ namespace Jerry.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,fechaEventoFinal," +
-            "costo,lugar,tipoContrato,clienteID,Detalles,listServiciosSeleccionados,CantidadPersonas";
+            "costo,lugar,tipoContrato,clienteID,Detalles,listServiciosSeleccionados,numTiemposPlatillo,"+
+            "platillo,CantidadPersonas";
         // GET: Banquetes
-        public ActionResult Index()
+        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = true)
         {
-            var banquetes = db.Banquetes.Include(b => b.cliente);
-            return View(banquetes.ToList());
+            List<Banquete> reservaciones = filterReservaciones(filtroReservaciones);
+            ViewBag.result = reservaciones;
+            ViewBag.listMode = listMode;
+            return View(filtroReservaciones);
         }
 
-        // GET: Banquetes/Details/5
-        public ActionResult Details(int? id)
+        private List<Banquete> filterReservaciones(Evento.VMFiltroEventos filtroReservaciones)
         {
-            if (id == null)
+            //Filtra los eventos cuyo inicio estan dentro del filtro 
+            TimePeriod periodo = filtroReservaciones.TimePeriod;
+            var res = db.Banquetes.ToList()
+                .Where(s => periodo.hasInside(s.timePeriod.startDate) || periodo.hasInside(s.timePeriod.endDate)).ToList();
+            return res;
+        }
+
+        [AllowAnonymous]
+        public JsonResult apiReservacionesFilter(string from, string to)
+        {
+            //Se prepara el filtro para buscar las reservaciones
+            Reservacion.VMFiltroEventos filtroReservaciones = new Reservacion.VMFiltroEventos();
+            if (!string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(to))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                DateTime dtRef = Reservacion.ReservacionInScheduleJS.JS_DATE_REF;
+                //El cliente esta enviando hora con GMT -7, se corrige
+                //TODO: ¿De que manera es posible indicarle al calendario que la fecha debe enviarse en formato universal
+                DateTime startDate = dtRef.AddMilliseconds(double.Parse(from)).AddHours(-7);
+                DateTime endDate = dtRef.AddMilliseconds(double.Parse(to)).AddHours(-7);
+                filtroReservaciones.TimePeriod = new TimePeriod(startDate, endDate);
             }
-            Banquete banquete = db.Banquetes.Find(id);
-            if (banquete == null)
-            {
-                return HttpNotFound();
-            }
-            return View(banquete);
+
+            var reservaciones = filterReservaciones(filtroReservaciones);
+            List<Reservacion.ReservacionInScheduleJS> itemsForSchedule = new List<Reservacion.ReservacionInScheduleJS>();
+            reservaciones.ToList().ForEach(res =>
+            {itemsForSchedule.Add(new ReservacionInScheduleJS(res));});
+
+            return Json(new { success = 1, result = itemsForSchedule }, JsonRequestBehavior.AllowGet);
+
         }
 
         // GET: Banquetes/Create
@@ -89,6 +111,22 @@ namespace Jerry.Controllers
             banquete.cliente = newRes.cliente;
             ViewBag.failPostBack = true;
             return View("Form_Banquete", banquete);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public JsonResult checarConflictos(Banquete banquete)
+        {
+            //Se encuentran las reservaciones en conflicto
+            List<Banquete> resFiltradas = banquete.reservacionesQueColisionan(db).ToList();
+
+            //Se prepara la informacion para ser respondida como vista en JSON
+            var resultado = (from res in resFiltradas
+                             select new Banquete.VMBanquete(res)).ToList();
+
+            var vmReservacionComprobada = new Banquete.VMBanquete(banquete);            
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
         // GET: Banquetes/Edit/5
@@ -143,75 +181,6 @@ namespace Jerry.Controllers
             Banquete newRes = prepararVista(banquete.clienteID);
             banquete.cliente = newRes.cliente;
             return View("Form_Banquete", banquete);
-        }
-
-        // GET: Banquetes/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Banquete banquete = db.Banquetes.Find(id);
-            if (banquete == null)
-            {
-                return HttpNotFound();
-            }
-            return View(banquete);
-        }
-
-        // POST: Banquetes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Banquete banquete = db.Banquetes.Find(id);
-            db.Banquetes.Remove(banquete);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
-        public FileResult GenerarContrato(int? id, string tipoContrato)
-        {
-            Banquete resContrato = db.Banquetes.Find(id);
-            Cliente cliente = resContrato.cliente;
-            String rutaContrato = "";
-            String fechaInicioEvento = resContrato.fechaEventoFinal.ToLongDateString();
-            String horaEvento = resContrato.fechaEventoFinal.Hour.ToString();
-            String lugar = resContrato.lugar;
-            if (tipoContrato.Equals(Reservacion.TiposContratoNombres.SERVICIO))
-            {
-                rutaContrato = "~/App_Data/CONTRATO-de-Prestacion-de-Servicios.docx";
-            }
-            String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
-            byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
-            System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
-            String descripcionServicios = resContrato.Detalles;
-            String cantidadPersonas = resContrato.CantidadPersonas.ToString();
-            String costo = resContrato.costo.ToString();
-            String anticipo = resContrato.cantidadPagada.ToString();
-            String adeudo = resContrato.cantidadFaltante.ToString();
-            String asociadoCliente = cliente.clienteID.ToString();
-            String nombreCliente = cliente.nombreCompleto.ToUpperInvariant();
-
-            var doc = DocX.Load(nuevoContrato);
-            doc.ReplaceText("<FECHA>", DateTime.Today.ToLongDateString());
-            doc.ReplaceText("<CLIENTE>", nombreCliente);
-            doc.ReplaceText("<FECHA_EVENTO>", fechaInicioEvento);            
-            doc.ReplaceText("<HORA>", horaEvento);
-            doc.ReplaceText("<INVITADOS>", cantidadPersonas);
-            doc.ReplaceText("<LUGAR>", lugar);
-            doc.ReplaceText("<COSTO>", costo);
-            //TODO cambiar anticipo por un valor que indique la cantidad de anticipo
-            doc.ReplaceText("<ANTICIPO>", anticipo);
-            doc.ReplaceText("<ABONOS>", anticipo);
-            doc.ReplaceText("<DESCRIPCION>", descripcionServicios);
-
-            doc.Save();
-
-            byte[] fileBytesNuevoContrato = System.IO.File.ReadAllBytes(nuevoContrato);
-            string nombreArchivoDescargado = tipoContrato + "_" + nombreCliente.ToUpperInvariant() + ".docx";
-            return File(fileBytesNuevoContrato, System.Net.Mime.MediaTypeNames.Application.Octet, nombreArchivoDescargado);
         }
 
         protected override void Dispose(bool disposing)

@@ -218,6 +218,10 @@
     <Compile Include="Migrations\201709020545287_changued_fields_eventos.Designer.cs">
       <DependentUpon>201709020545287_changued_fields_eventos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.cs" />
+    <Compile Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.Designer.cs">
+      <DependentUpon>201709040057009_baquetes_addedFiedls_Platillos.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -286,15 +290,6 @@
     <Content Include="bower_components\bootstrap-calendar\js\language\tr-TR.js" />
     <Content Include="bower_components\bootstrap-calendar\js\language\zh-CN.js" />
     <Content Include="bower_components\bootstrap-calendar\js\language\zh-TW.js" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\day.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\events-list.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\modal.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\month-day.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\month.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\week-days.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\week.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\year-month.html" />
-    <Content Include="bower_components\bootstrap-calendar\tmpls\year.html" />
     <Content Include="bower_components\underscore\underscore-min.js" />
     <Content Include="bower_components\underscore\underscore.js" />
     <Content Include="Content\bootstrap.css" />
@@ -362,6 +357,8 @@
     <Content Include="Images\logo.png" />
     <Content Include="Images\logo2.jpg" />
     <Content Include="Images\Logo3.png" />
+    <Content Include="Rotativa\msvcp120.dll" />
+    <Content Include="Rotativa\msvcr120.dll" />
     <Content Include="Rotativa\wkhtmltopdf.exe" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -394,7 +391,7 @@
     <Content Include="App_Data\CONTRATO_VENTURAKIDS.docx" />
     <Content Include="App_Data\ReporteReservacion.pdf" />
     <Content Include="App_Data\CONTRATO_SERVICIOS.docx" />
-    <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
+    <None Include="Properties\PublishProfiles\Produccion.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\custom.js" />
     <Content Include="Scripts\dataTables.select.min.js" />
@@ -506,12 +503,13 @@
     <Content Include="Views\Eventos\Partial_DetailsEvento.cshtml" />
     <Content Include="Views\Shared\Partial_ConfirmationModal.cshtml" />
     <Content Include="Views\Reservacion\Partial_ReservacionesConflictivas.cshtml" />
-    <Content Include="Views\Reservacion\Partial_Schedule.cshtml" />
+    <Content Include="Views\Eventos\Partial_Schedule.cshtml" />
     <Content Include="Views\Shared\Partial_EncabezadoReporte.cshtml" />
     <Content Include="Views\Shared\BlankLayout.cshtml" />
-    <Content Include="Views\Reservacion\ReporteDeReservacion.cshtml" />
+    <Content Include="Views\Eventos\ReporteDeEvento.cshtml" />
     <Content Include="Views\Reservacion\Partial_DetailsReservacion.cshtml" />
     <Content Include="Views\Banquetes\Partial_DetailsBanquete.cshtml" />
+    <Content Include="Views\Banquetes\Partial_EventosConflictivos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -545,8 +543,13 @@
     <EmbeddedResource Include="Migrations\201709020545287_changued_fields_eventos.resx">
       <DependentUpon>201709020545287_changued_fields_eventos.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.resx">
+      <DependentUpon>201709040057009_baquetes_addedFiedls_Platillos.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="bower_components\bootstrap-calendar\tmpls\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -14,7 +14,7 @@
         modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.DANGER)
     };
 
-    bool printMode = ViewData["printMode"] != null ? (bool)ViewData["printMode"] : true;
+    bool printMode = ViewData["printMode"] != null ? (bool)ViewData["printMode"] : false;
 }
 
 @Html.Partial("Partial_ConfirmationModal", vmModalOpts)
@@ -33,7 +33,7 @@
                 <th>
                     @Html.DisplayNameFor(model => model.pagos.FirstOrDefault().fechaPago)
                 </th>
-                @if (printMode) {
+                @if (!printMode) {
                 <th></th>
                 }
             </tr>
@@ -51,7 +51,7 @@
                     <td>
                         @item.fechaPago.ToString("dd/MMM/yy")
                     </td>
-                    @if (printMode)
+                    @if (!printMode)
                     {
                     <td class="hidden-print">
                         <a pago_id ='@item.pagoID' pago_monto ="@item.cantidad.ToString("C")" 

@@ -1,5 +1,9 @@
 ﻿@model Jerry.Models.Banquete
 
+<div class="col-xs-3 col-md-3 form-group">
+    @Html.LabelFor(model => model.platillosInfo)
+    <p class="form-control-static">@Html.DisplayFor(model => model.platillosInfo)</p>
+</div>
 <div class="col-xs-12 col-md-12 form-group">
     @Html.LabelFor(model => model.lugar)
     <p class="form-control-static">@Html.DisplayFor(model => model.lugar)</p>

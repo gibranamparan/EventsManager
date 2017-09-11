@@ -61,6 +61,9 @@
 <p>
     <a href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
         <i class="fa fa-arrow-left"></i><span>Volver al historial del cliente</span>
+    </a><span>|</span>
+    <a href="@Url.Action("Details","Eventos",new { id = Model.eventoID })">
+        <i class="fa fa-credit-card"></i><span>Informacion de Reservación</span>
     </a>
 </p>
 
@@ -271,8 +274,10 @@
             $(item).datetimepicker({ lang: 'es', mask: true, value: item.value });
         })
 
-        var btnRemover = $('<i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>')
-        newDivSesion.find('.panel-title').append(btnRemover)
+        if(!newDivSesion.find('i.btnRemover').length){ //Solo se agrega si no hay boton para cerrar en panel base
+            var btnRemover = $('<i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>')
+            newDivSesion.find('.panel-title').append(btnRemover)
+        }
         //Se agrega la nueva sesion al panel
         $('#divSesiones').append(newDivSesion)
 

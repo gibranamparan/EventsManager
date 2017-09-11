@@ -30,7 +30,7 @@ namespace Jerry.Models
         public bool sslEnabled { get; set; }
 
         public ErrorEmail enviarCorreo(string emailDestino, Rotativa.ViewAsPdf rotativaFile,
-            ControllerContext controllerContext)
+            ControllerContext controllerContext, string aditionalBody)
         {
             var fileBytes = rotativaFile.BuildPdf(controllerContext);
             Stream stream = new MemoryStream(fileBytes);
@@ -39,11 +39,11 @@ namespace Jerry.Models
             if (string.IsNullOrEmpty(fileName))
                 fileName = "tempPDF.pdf";
 
-            return enviarCorreo(emailDestino, stream, fileName);
+            return enviarCorreo(emailDestino, stream, fileName, aditionalBody);
         }
 
         //public ErrorEmail enviarCorreo(HttpPostedFileBase fileUploader, string emailDestino)
-        public ErrorEmail enviarCorreo(string emailDestino, Stream fileStream, string fileName)
+        public ErrorEmail enviarCorreo(string emailDestino, Stream fileStream, string fileName, string aditionalBody)
         {
             ErrorEmail err = new ErrorEmail();
             try { 
@@ -56,6 +56,7 @@ namespace Jerry.Models
 
                 mail.Subject = this.Subject;
                 mail.Body = this.Body;
+                mail.Body += aditionalBody != null ? aditionalBody : string.Empty;
                 mail.IsBodyHtml = false;
                 SmtpClient smtp = new SmtpClient();
                 smtp.Host = this.smtpHost;

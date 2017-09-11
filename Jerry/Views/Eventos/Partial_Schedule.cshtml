@@ -1,4 +1,10 @@
-﻿
+﻿@using Jerry.Models
+@{ 
+    Evento.TipoEvento tipo = ViewData["tipoEvento"] == null ? Evento.TipoEvento.RESERVACION : (Evento.TipoEvento)ViewData["tipoEvento"];
+}
+<h2>
+    Calendario de @(Evento.getNombreTipoEvento(tipo))
+</h2>
 <div id="pnlScheduleControls" class="row">
     <h3 class="pull-left"></h3>
     <div class="pull-right form-inline">
@@ -19,8 +25,13 @@
 @Html.AntiForgeryToken()
 
 <script type="text/javascript">
+    var tipoEvento = '@(tipo)'
     function initSchedule() {
-        var data = getData();
+        if (tipoEvento == '@(Evento.TipoEvento.RESERVACION)') {
+            apiURL = "/Reservacion/apiReservacionesFilter"
+        } else if (tipoEvento == '@(Evento.TipoEvento.BANQUETE)') {
+            apiURL = "/Banquetes/apiReservacionesFilter"
+        }
         var calendar = $("#calendar").calendar(
 			{
 			    day: '@(DateTime.Today.ToString("yyyy-MM-dd"))',
@@ -29,20 +40,12 @@
 			    language: 'es-MX',
 			    tmpl_path: "/tmpls/",
 			    //events_source: data.result,
-			    events_source: "/Reservacion/apiReservacionesFilter",
+			    events_source: apiURL,
 			    //events_source: data,
 			    onAfterEventsLoad: function (events) {
 			        if (!events) {
 			            return;
-			        }/*
-				    var list = $('#eventlist');
-				    list.html('');
-
-				    $.each(events, function (key, val) {
-				        $(document.createElement('li'))
-                            .html('<a href="' + val.url + '">' + val.title + '</a>')
-                            .appendTo(list);
-				    });*/
+			        }
 			    },
 			    onAfterViewLoad: function (view) {
 			        $('#pnlScheduleControls h3').text(this.getTitle());
@@ -62,26 +65,5 @@
             });
         });
 
-    }
-
-    function getData() {
-        return [
-            {
-                "id": 2007,
-                "title": "Grande - 08/ago. 11:00 - 08/ago. 02:00",
-                "url": "/Reservacion/Details/2008",
-                "class": null,
-                "start": 1502190000000,
-                "end": 1502200800000
-            },
-            {
-                "id": 2008,
-                "title": "Chico - 10/ago. 09:00 - 10/ago. 11:00",
-                "url": "/Reservacion/Details/2008",
-                "class": null,
-                "start": 1502398800000,
-                "end": 1502406000000
-            }
-        ];
     }
 </script>

@@ -1,0 +1,103 @@
+﻿@model IEnumerable<Jerry.Models.Banquete.VMBanquete>
+<div id="divSesionesConflictivas">
+    <div class="panel panel-primary panelReservacionConflicto">
+        <div class="panel-heading">
+            <h3 class="panel-title">Conflictos</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table tblSesiones">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.eventoID)</th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.nombreCliente)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.fechaInicial)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.fechaFinal)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in Model.OrderBy(ses => ses.fechaFinal))
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(model => item.eventoID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.nombreCliente)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.fechaInicial)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.fechaFinal)
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    var selPanelesConflicto
+    var panelConflictoModelo
+    function initPartialConflictos() {
+        //Selector de paneles de reservaciones en conflicto
+        selPanelesConflicto = '#divSesionesConflictivas .panelReservacionConflicto'
+        panelConflictoModelo = $(selPanelesConflicto).first().clone();
+    }
+
+    function renderData(res) {
+        limparPanelConflictos();
+        $.each(res, function (idx, reservacion) {
+            if (idx == 0) {
+                panel = $('.panelReservacionConflicto').last()
+                panel = renderReservacionConflictiva(reservacion, panel)
+            }
+            else {
+                panel = panelConflictoModelo.clone()
+                panel = renderReservacionConflictiva(reservacion, panel)
+                $('#divSesionesConflictivas').append(panel);
+            }
+        })
+    }
+
+    function renderReservacionConflictiva(item, panel) {
+        //panel.find('#spanNombreCliente').html(item.nombreCliente)
+        var tblSesiones = panel.find('.tblSesiones')
+        //Se muestran las sesiones
+        var startDate = moment(jsonDateToJSDate(item.fechaInicial)).format('LLL')
+        var endDate = moment(jsonDateToJSDate(item.fechaFinal)).format('LLL')
+
+        var row = $('<tr>');
+        row.append($('<td>').html(item.eventoID))
+        row.append($('<td>').html(item.nombreCliente))
+        row.append($('<td>').html(startDate))
+        row.append($('<td>').html(endDate))
+        tblSesiones.find('tbody').append(row);
+        return panel;
+    }
+
+    function limparPanelConflictos() {
+        var paneles = $(selPanelesConflicto);
+        if (paneles.length > 1) { //Si hay paneles adicionales al modelo
+            //Se toma el 1er elemento como modelo y se vacian sus datos
+            var panelNuevo = panelConflictoModelo.clone();
+
+            //Se elimina todo el conteido de panel de errores y se introduce el elemento modelo
+            $('#divSesionesConflictivas').empty();
+            $('#divSesionesConflictivas').append(panelNuevo);
+        } else {
+            var panel = paneles.first();
+            panel.find("table tbody").empty();
+        }
+    }
+</script>

@@ -81,36 +81,6 @@ namespace Jerry.Controllers
             return reservaciones;
         }
 
-        // GET: Reservacion/Details/5
-        [Authorize]
-        public ActionResult Details(int? id, string errorPagoMsg)
-        {
-            if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-            Reservacion reservacion = prepareDetailsView(id, errorPagoMsg);
-
-            if (reservacion == null)
-                return HttpNotFound();
-
-            ViewBag.emailConfigured = db.Correos.FirstOrDefault() != null;
-
-            return View(reservacion);
-        }
-
-        private Reservacion prepareDetailsView(int? id, string errorPagoMsg)
-        {
-            ErrorEmail errorEmail = TempData["errorEmail"] != null
-                ? (ErrorEmail)TempData["errorEmail"] : new ErrorEmail();
-
-            Reservacion reservacion = db.reservaciones.Find(id);
-
-            ViewBag.errorMail = errorEmail;
-            ViewBag.errorPagoMsg = errorPagoMsg;
-
-            return reservacion;
-        }
-
         // GET: Reservacion/Create
         [Authorize]
         public ActionResult Create(int id=0)
@@ -216,6 +186,8 @@ namespace Jerry.Controllers
         [HttpPost]
         public JsonResult checarConflictos(Reservacion reservacion)
         {
+            //Se ajustan las fechas iniciales y finales del total de la reservacion a la sesion inicial y final
+            reservacion.ajustarFechaInicialFinal();
             //Se encuentran las reservaciones y sesiones en conflicto
             var sesionesConConflictos = reservacion.reservacionesQueColisionan(db).ToList();
             var reservacionesConflictos = sesionesConConflictos.Select(ses => ses.reservacion).Distinct().ToList();
@@ -226,6 +198,7 @@ namespace Jerry.Controllers
             var vmReservacionComprobada = new Reservacion.VMReservacion(reservacion);
             //Dentro del resultado, se marca cada una de las sesiones que estan causando conflicto
 
+            //Se marcan los conflictos en cada una de las sesiones
             vmReservacionComprobada.sesiones.ForEach(s2 => //Sesiones consultadas
             {
                 resultado.ForEach(
@@ -293,79 +266,6 @@ namespace Jerry.Controllers
             Reservacion newRes = prepararVista(reservacion.clienteID);
             reservacion.cliente = newRes.cliente;
             return View("Form_Reservacion",reservacion);
-        }
-
-        public FileResult descargarContrato(int? id, TipoDeContrato tipoContrato)
-        {
-            Reservacion resContrato = db.reservaciones.Find(id);
-            String rutaContrato = resContrato.ContratoPath;
-
-            //Se hace una copia una instancia de contrato para ser modificada basada en una plantilla
-            String nuevoContrato = Server.MapPath("~/App_Data/ContratoEnBlanco.docx");
-            byte[] fileBytesContrato = System.IO.File.ReadAllBytes(Server.MapPath(rutaContrato));
-            System.IO.File.WriteAllBytes(nuevoContrato, fileBytesContrato);
-
-            Reservacion.VMDataContractReservacion dataContracts = new Reservacion.VMDataContractReservacion(resContrato);
-
-            var doc = DocX.Load(nuevoContrato);
-            if (tipoContrato == TipoDeContrato.KIDS)//CONTRATO VENTURA KIDS
-                resContrato.fillContratoA(dataContracts, ref doc);
-            else if(tipoContrato == TipoDeContrato.ARRENDAMIENTO)//CONTRATO MODIFICADO
-                resContrato.fillContratoB(dataContracts, ref doc);
-
-            doc.Save(); //Guardar documento en servidor
-
-            //Descargar documento
-            byte[] fileBytesNuevoContrato = System.IO.File.ReadAllBytes(nuevoContrato);
-            string nombreArchivoDescargado = tipoContrato+"_"+resContrato.cliente.nombreCompleto.ToUpperInvariant()+".docx";
-            return File(fileBytesNuevoContrato,System.Net.Mime.MediaTypeNames.Application.Octet,nombreArchivoDescargado);
-        }
-
-        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
-        public ActionResult descargarReporte(int? id, string errorPagoMsg)
-        {
-            if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-            Reservacion reservacion = prepareDetailsView(id, errorPagoMsg);
-
-            if (reservacion == null)
-                return HttpNotFound();
-
-            var fileView = new Rotativa.ViewAsPdf("ReporteDeReservacion", "BlankLayout", reservacion)
-                { FileName = reservacion + ".pdf" };
-
-            //Code to get content
-            return fileView;
-        }
-
-        /// <summary>
-        /// Send Mail with hotmail
-        /// </summary>
-        /// <param name="objModelMail">MailModel Object, keeps all properties</param>
-        /// <param name="fileUploader">Selected file data, example-filename,content,content type(file type- .txt,.png etc.),length etc.</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
-        public ActionResult EnviarCorreo(string emailDestino, int reservacionID = 0)
-        {
-            Correo DatosCorreo = db.Correos.FirstOrDefault();
-            if (DatosCorreo != null) { 
-                Reservacion reservacion = db.reservaciones.Find(reservacionID);
-
-                var fileView = new Rotativa.ViewAsPdf("ReporteDeReservacion", "BlankLayout", reservacion)
-                { FileName = reservacion.ToString(DateTime.Today) + ".pdf" };
-
-                ErrorEmail err = DatosCorreo.enviarCorreo(emailDestino, fileView, this.ControllerContext);
-                RouteValueDictionary rvd = new RouteValueDictionary();
-                TempData["errorEmail"] = err;
-                rvd.Add("errorEmail", err);
-
-                return RedirectToAction("Details", "Reservacion", new { id = reservacionID });
-            }else
-            {
-                return RedirectToAction("Details", "Correo");
-            }
         }
 
         protected override void Dispose(bool disposing)

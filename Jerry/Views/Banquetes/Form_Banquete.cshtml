@@ -1,4 +1,6 @@
 ﻿@using Jerry.Models
+@using Jerry.Models
+@using Jerry.GeneralTools
 @model Jerry.Models.Banquete
 @{
     bool failPostBack = ViewBag.failPostBack == null ? false : ViewBag.failPostBack;
@@ -20,15 +22,35 @@
     {
         serviciosSeleccionados = Model.serviciosContratados != null
             ? Model.serviciosContratados.ToList() : serviciosSeleccionados;
-        @*costoTotalPorServicios = Model.costoTotalPorServicios;
-    costoTotal = Model.costo;*@
     }
+
+    //Configuracion del modal que notifica los conflictos
+    VMConfirmModalAttributes vmModalConflictos = new VMConfirmModalAttributes
+    {
+        modalID = "modalConflictos",
+        partialViewURL = "../Banquetes/Partial_EventosConflictivos",
+        modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.INFO),
+        modalTitle = "Reservaciones que Presentan Conflicto.",
+        size = new VMConfirmModalAttributes.Size(VMConfirmModalAttributes.Size.ModalSize.LARGE),
+        callType = VMConfirmModalAttributes.CallType.PARTIAL_VIEW,
+        modelForPartial = new List<Banquete.VMBanquete>()
+    };
 }
-<p>
+
+@*Modal para mostrar conflictos*@
+@Html.Partial("Partial_ConfirmationModal", vmModalConflictos)
+
+@*Navegacino para salir de la pantalla actual*@
+<nav>
     <a href="@Url.Action("Details","Clientes",new { id = Model.clienteID })">
         <i class="fa fa-arrow-left"></i><span>Volver al historial del cliente</span>
+    </a><span>|</span>
+    <a href="@Url.Action("Details","Eventos",new { id = Model.eventoID })">
+        <i class="fa fa-credit-card"></i><span>Informacion y Pagos de Reservación</span>
     </a>
-</p>
+</nav>
+
+@*Panel de detalles del cliente seleccionado*@
 @Html.Partial("../Clientes/Partial_ClienteDetailsSummary", Model.cliente)
 
 @using (Html.BeginForm(null, "Banquetes", FormMethod.Post, new { id = "formBanquetes" }))
@@ -49,19 +71,23 @@
                 @Html.HiddenFor(model => model.clienteID)
                 @Html.Hidden("listServiciosSeleccionados")
 
+                <div id="alertConflicto" class="alert alert-danger" style="display:none">
+                    Los horarios estan presentando conflicto con otras reservaciones ya registradas, verifique las reservaciones con conflicto haciendo
+                    click en el siguiente <a href="#" data-toggle="modal" data-target="#@(vmModalConflictos.modalID)">enlace</a>
+                </div>
                 <div class="row">
                     <div class="form-group col-md-6">
                         @Html.LabelFor(model => model.fechaEventoInicial)
                         <input class="form-control" id="fechaEventoInicial" name="fechaEventoInicial"
                                value='@Model.fechaEventoInicial.ToString("yyyy/MM/dd HH:mm")'
-                               onchange="ajustarFechas(this)" datetimepicker />
+                               onchange="ajustarFechas(this);prepararDatosJSON();" datetimepicker />
                         @Html.ValidationMessageFor(model => model.fechaEventoInicial, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-6">
                         @Html.LabelFor(model => model.fechaEventoFinal)
                         <input class = "form-control" id="fechaEventoFinal" name="fechaEventoFinal"
                                 value='@Model.fechaEventoFinal.ToString("yyyy/MM/dd HH:mm")' 
-                                onchange = "ajustarFechas(this);" datetimepicker />
+                                onchange = "ajustarFechas(this);prepararDatosJSON();" datetimepicker />
                         @Html.ValidationMessageFor(model => model.fechaEventoFinal, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-4">
@@ -78,6 +104,16 @@
                         @Html.LabelFor(model => model.TipoContrato)
                         @Html.DropDownList("TipoContrato", Banquete.getTipoContratoSelectList(), htmlAttributes: new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.TipoContrato, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-8">
+                        @Html.LabelFor(model => model.platillo)
+                        @Html.EditorFor(model => model.platillo, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.platillo, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.numTiemposPlatillo)
+                        @Html.EditorFor(model => model.numTiemposPlatillo, new { htmlAttributes = new { @class = "form-control", max=3, min = 1 } })
+                        @Html.ValidationMessageFor(model => model.numTiemposPlatillo, "", new { @class = "text-danger" })
                     </div>
                 </div>
                 <div class="row">
@@ -102,8 +138,9 @@
                     }
                 }
                 @Html.Partial("../Servicios/Partial_ListServicios", servicios, vdd)
+                <br />
                 <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-success" />
+                    <button id="btnReservar" class="btn btn-success">@(editMode?"Guardar":"Registrar")</button>
                 </div>
             </div>
         </div>
@@ -113,6 +150,7 @@
 @section Scripts{
     <script>
         inicializarSeleccionTablaServicios()
+        initPartialConflictos()
 
         //Verifica y ajusta las fechas de cada sesion para ser válidas
         function ajustarFechas(inputFecha) {
@@ -135,6 +173,37 @@
 
         function @(externalFunction)(elementos){ 
             $("#listServiciosSeleccionados").val(JSON.stringify(elementos));
+        }
+        
+        var reservacion = {
+            eventoID:@(Model.eventoID),
+            fechaEventoInicial:'',
+            fechaEventoFinal:''
+        };
+        function prepararDatosJSON(){
+            reservacion.fechaEventoInicial = $('#fechaEventoInicial').val();
+            reservacion.fechaEventoFinal = $('#fechaEventoFinal').val();
+            checarConflictos()
+        }
+        function enableAndNotify(doDisable) {
+            $('#btnReservar').prop('disabled',doDisable)
+        }
+        function checarConflictos() {
+            var token = $('#formReservacion').find("input[name=__RequestVerificationToken]").val()
+            $.postJSON("/Banquetes/checarConflictos", reservacion, "json",
+                function (res) {//Success
+                    console.log("Conflictos",res);
+                    $('#alertConflicto').slideDownOrUp(res.length)
+                    if (res.length) {
+                        renderData(res);
+                    }
+                    enableAndNotify(res.length)
+                }, function (error) {//Fail
+                    alert(error)
+                    console.log(error)
+                }, function () {//Always
+
+                }, token)
         }
     </script>
     @if (editMode || failPostBack)

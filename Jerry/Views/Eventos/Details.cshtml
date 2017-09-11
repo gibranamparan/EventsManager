@@ -10,8 +10,11 @@
     List<Servicio> serviciosContratados = Model.serviciosContratados != null && Model.serviciosContratados.Count() > 0
 ? Model.serviciosContratados.Select(sc => sc.servicio).ToList() : new List<Servicio>();
 
+    //Instancia por defecto de pago para forma de registro
     Pago p = new Pago();
     p.eventoID = Model.eventoID;
+
+    //Bandera que indica si las configuracionles generales de email han sido registradas
     bool emailConfigured = ViewBag.emailConfigured;
 
     ViewDataDictionary vdd = new ViewDataDictionary();
@@ -22,16 +25,18 @@
     vdd.Add("faltante", Model.cantidadFaltante);
 
     Correo.ErrorEmail errorMail = ViewBag.errorMail;
+    //Correo correoSettings = ViewBag.correoSettings;
 
+    //Configuracion de modal para confirmar envio de correo
     VMConfirmModalAttributes vmModalOptsEnviarCorreo = new VMConfirmModalAttributes
     {
         modalTitle = "Confirmar Envío de Estado de Cuenta",
         callType = VMConfirmModalAttributes.CallType.POSTBACK,
         action = "EnviarCorreo",
-        controller = "Reservacion",
+        controller = "Eventos",
         routeVals = new { reservacionID = Model.eventoID, emailDestino = Model.cliente.email },
         primaryMessage = "Si confirma, se enviará el estado de cuenta actual al cliente <strong>" + Model.cliente.nombreCompleto + "</strong>."
-        + "al correo electronico <strong>" + Model.cliente.email+ "</strong>",
++ "al correo electronico <strong>" + Model.cliente.email+ "</strong>",
         modalID = "modalConfirmEnvioCorreo",
         modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.INFO)
     };
@@ -43,7 +48,8 @@
         modalID = "modalConfirmRespuestaCorreo",
     };
 
-    if(errorMail.code == Correo.ErrorEmail.ErrorEmailCode.FAIL) //Si fallo el correo electronico
+    //Si fallo el envio correo electronico
+    if (errorMail.code == Correo.ErrorEmail.ErrorEmailCode.FAIL)
     {
         vmModalOptsRespuestaCorreo.primaryMessage = "Ocurrió un error al intentar enviar al cliente "+
             "<strong>" +Model.cliente.nombreCompleto + "</strong> su estado de cuenta al correo electrónico <strong>"+Model.cliente.email+"</strong>. "+
@@ -52,7 +58,8 @@
         vmModalOptsRespuestaCorreo.modalTitle = "Error al Enviar Estado de Cuenta";
         vmModalOptsRespuestaCorreo.modalStyle = new VMConfirmModalAttributes.Style(VMConfirmModalAttributes.Style.StyleTypes.DANGER);
     }
-    else if(errorMail.code == Correo.ErrorEmail.ErrorEmailCode.SENT) //Si tuvo exito el correo electronico
+    //Si tuvo exito el correo electronico
+    else if (errorMail.code == Correo.ErrorEmail.ErrorEmailCode.SENT)
     {
         vmModalOptsRespuestaCorreo.modalTitle = "Estado de Cuenta Enviado";
         vmModalOptsRespuestaCorreo.primaryMessage = "El estado de cuenta fue enviado satisfactoriamente al cliente "+
@@ -66,7 +73,7 @@
         <i class="glyphicon glyphicon-arrow-left"></i> Historial de Reservaciones del Cliente
     </a> | 
     @*<a href="#" onClick="window.print()">*@
-    <a href="@Url.Action("descargarReporte", new { id = Model.eventoID })">
+    <a href="@Url.Action("descargarReporte","Eventos", new { id = Model.eventoID })">
         <i class="fa fa-print"></i>
         <span>Imprimir Detalles</span>
     </a> | 
@@ -83,14 +90,19 @@
     }
 </nav>
 
-@Html.Partial("Partial_ConfirmationModal", vmModalOptsEnviarCorreo) @*Modal de confirmacion de envio de correo*@
-@Html.Partial("Partial_ConfirmationModal", vmModalOptsRespuestaCorreo) @*Modal de repsuesta de envio de correo*@
+@*Modal de confirmacion de envio de correo*@
+@Html.Partial("Partial_ConfirmationModal", vmModalOptsEnviarCorreo)
 
+@*Modal de repsuesta de envio de correo*@
+@Html.Partial("Partial_ConfirmationModal", vmModalOptsRespuestaCorreo)
+
+@*Encabezado de reporte*@
 @Html.Partial("Partial_EncabezadoReporte")
 
 @*Detalles generales de la reservación*@
 @Html.Partial("../Eventos/Partial_DetailsEvento")
 
+@*Lista de las sesiones que componen una reservacion de arrendamiento*@
 @if(Model.tipoDeEvento == Evento.TipoEvento.RESERVACION) { 
     @Html.Partial("../Reservacion/Partial_ListSesiones", ((Reservacion)Model).sesiones)
 }

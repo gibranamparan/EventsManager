@@ -2,7 +2,7 @@
 @model Jerry.Models.Cliente
 
 @{
-    ViewBag.Title = "Detalles";
+    ViewBag.Title = "Cliente: "+Model.nombreCompleto;
     Layout = "~/Views/Shared/_Layout.cshtml";
     Reservacion newRes = new Reservacion();
     newRes.clienteID = Model.clienteID;

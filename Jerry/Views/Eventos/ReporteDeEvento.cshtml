@@ -1,7 +1,7 @@
 ﻿@using Jerry.Models
 @using Jerry.Models
 @using Jerry.GeneralTools
-@model Jerry.Models.Reservacion
+@model Jerry.Models.Evento
 @{
     ViewBag.Title = "ReporteDeReservacion";
     Layout = "~/Views/Shared/BlankLayout.cshtml";
@@ -13,8 +13,9 @@
     Correo correo = new Correo();
     Pago p = new Pago();
     p.eventoID = Model.eventoID;
+
     ViewDataDictionary vdd = new ViewDataDictionary();
-    vdd.Add("printMode", false);
+    vdd.Add("printMode", true);
     vdd.Add("showHiddenPrints", true);
 
     DateTime fechaConsulta = DateTime.Today;
@@ -22,13 +23,19 @@
 
 @Html.Partial("Partial_EncabezadoReporte",null,vdd)
 
-<span class="pull-right"><strong>Fecha de Consulta: </strong><span>@fechaConsulta.ToString("dd-MMMM-yyyy")</span></span>
+<div class="row">
+    <div class="col-xs-12">
+        <span class="pull-right"><strong>Fecha de Consulta: </strong><span>@fechaConsulta.ToString("dd-MMMM-yyyy")</span></span>
+    </div>
+</div>
 
 @*Detalles generales de la reservación*@
-@Html.Partial("Partial_DetailsReservacion",Model, vdd)
+@Html.Partial("../Eventos/Partial_DetailsEvento",Model, vdd)
 
-@*Lista de sesiones dentro de la reservación*@
-@Html.Partial("Partial_ListSesiones", Model.sesiones)
+@if (Model.tipoDeEvento == Evento.TipoEvento.RESERVACION)
+{
+    @Html.Partial("../Reservacion/Partial_ListSesiones", ((Reservacion)Model).sesiones)
+}
 
 <div class="panel panel-primary">
     <div class="panel-heading">

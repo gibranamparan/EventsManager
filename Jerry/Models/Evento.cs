@@ -15,6 +15,7 @@ namespace Jerry.Models
     public class Evento
     {
         [Key]
+        [DisplayName("Num. Reservacion")]
         public int eventoID { get; set; }
 
         /// <summary>
@@ -82,7 +83,36 @@ namespace Jerry.Models
         [Required]
         [Display(Name = "Tipo de Contrato")]
         public TipoDeContrato TipoContrato { get; set; }
-        
+
+        /// <summary>
+        /// Genera una cadena de caracteres en la que se muestran todos los servicios
+        /// registrados para esta reservación.
+        /// </summary>
+        public string enlistarServiciosParaContrato
+        {
+            get
+            {
+                string res = string.Empty;
+                foreach (var ser in this.serviciosContratados)
+                {
+                    res += ser.ToString() + ", ";
+                }
+                res = res.TrimEnd().TrimEnd(',');
+
+                return res;
+            }
+        }
+
+        public string descripcionDetallada { get {
+                string res = " "+this.ToString()+". ";
+                res += "Se contratan los servicios de " + this.enlistarServiciosParaContrato+".";
+
+                if (this.tipoDeEvento == TipoEvento.RESERVACION)
+                    res += " El evento realizara " + ((Reservacion)this).sesionesString;
+
+                return res;
+            } }
+
         /// <summary>
         /// Pagos abonados a la totalidad del costo del evento.
         /// </summary>
@@ -223,10 +253,12 @@ namespace Jerry.Models
         {
             get
             {
-                Pago res = null;
+                Pago res = new Pago();
 
-                if (this.pagos != null && this.pagos.Count() > 0)
+                if (this.pagos != null && this.pagos.Count() > 0) { 
                     res = this.pagos.OrderBy(p => p.fechaPago).FirstOrDefault();
+                    res = res == null ? new Pago() : res;
+                }
 
                 return res;
             }
@@ -247,8 +279,8 @@ namespace Jerry.Models
         /// </summary>
         public static class TiposEventoNombres
         {
-            public const string BAQUETES = "Servicio de Banquetes";
-            public const string RESERVACION= "Evento en Salon Rentado";
+            public const string BAQUETES = "Servicios de Banquetes";
+            public const string RESERVACION= "Eventos en Salon";
             public const string CUALQUIERA = "Cualquier Evento";
         }
 
@@ -270,6 +302,12 @@ namespace Jerry.Models
 
             return res;
         }
+
+        /// <summary>
+        /// Obtiene una cadena de caracteres que representa el directorio del archivo plantilla del contrato
+        /// correspondiente a la presente instancia de evento.
+        /// </summary>
+        public string ContratoPath { get { return Evento.getContratoPath(this.TipoContrato); } }
 
         /// <summary>
         /// Arroja el nombre para vista segun el tipo de contrato ingreso como argumento
@@ -361,6 +399,12 @@ namespace Jerry.Models
                         return string.Empty;
                 }
             }
+        }
+
+        
+        public override string ToString()
+        {
+            return String.Format("{0} - {1}",this.nombreTipoEvento, this.timePeriod.ToString("dd/MMM hh:mm"));
         }
 
         /// <summary>

@@ -5,77 +5,22 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<nav>
+    <a href="@Url.Action("Index")">
+        <i class="glyphicon glyphicon-arrow-left"></i> Regresar a lista de Clientes
+    </a>
+</nav>
+
 <h2>Borrar</h2>
 
 <h3>¿Seguro que deseas eliminar al cliente?</h3>
-<div>
+@Html.Partial("Partial_ClienteDetailsSummary")
 
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Información del Cliente
-            </span>
-        </div>
-        <div class="panel-body">
-            <div>
-                <hr />
-                <dl class="dl-horizontal col-md-4">
-                    <dt>
-                        @Html.DisplayNameFor(model => model.nombre)
-                    </dt>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
 
-                    <dd>
-                        @Html.DisplayFor(model => model.nombre)
-                    </dd>
-                </dl>
-                <dl class="dl-horizontal col-md-4">
-                    <dt>
-                        @Html.DisplayNameFor(model => model.apellidoP)
-                    </dt>
-
-                    <dd>
-                        @Html.DisplayFor(model => model.apellidoP)
-                    </dd>
-                </dl>
-                <dl class="dl-horizontal col-md-4">
-                    <dt>
-                        @Html.DisplayNameFor(model => model.apellidoM)
-                    </dt>
-
-                    <dd>
-                        @Html.DisplayFor(model => model.apellidoM)
-                    </dd>
-                </dl>
-                <dl class="dl-horizontal col-md-4">
-                    <dt>
-                        @Html.DisplayNameFor(model => model.email)
-                    </dt>
-
-                    <dd>
-                        @Html.DisplayFor(model => model.email)
-                    </dd>
-                </dl>
-                <dl class="dl-horizontal col-md-4">
-                    <dt>
-                        @Html.DisplayNameFor(model => model.telefono)
-                    </dt>
-
-                    <dd>
-                        @Html.DisplayFor(model => model.telefono)
-                    </dd>
-                </dl>
-            </div>
-        </div>
+    <div class="form-actions no-color">
+        <input type="submit" value="Borrar" class="btn btn-danger" />
     </div>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Borrar" class="btn btn-danger" /> |
-            <a href="@Url.Action("Index")">
-                <i class="glyphicon glyphicon-arrow-left"></i> Regresar/Lista de Clientes
-            </a>
-        </div>
-    }
-</div>
+}
