@@ -51,11 +51,14 @@
                     @Html.LabelFor(model => model.CantidadPersonas)
                     <p class="form-control-static">@Html.DisplayFor(model => model.CantidadPersonas)</p>
                 </div>
-
-                @*Detalles de reservacion de salon*@
-                @if(Model.tipoDeEvento == Jerry.Models.Evento.TipoEvento.RESERVACION) { 
-                    @Html.Partial("../Reservacion/Partial_DetailsReservacion")
-                }
+                <div class="col-xs-3 form-group">
+                    @Html.LabelFor(model => model.costoPorReservacion)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.costoPorReservacion)</p>
+                </div>
+                <div class="col-xs-3 form-group">
+                    @Html.LabelFor(model => model.totalPorServicios)
+                    <p class="form-control-static">@Html.DisplayFor(model => model.totalPorServicios)</p>
+                </div>
 
                 @*Detalles de banquete*@
                 @if (Model.tipoDeEvento == Jerry.Models.Evento.TipoEvento.BANQUETE)

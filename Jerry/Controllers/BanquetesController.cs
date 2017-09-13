@@ -19,7 +19,7 @@ namespace Jerry.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
         private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,fechaEventoFinal," +
             "costo,lugar,tipoContrato,clienteID,Detalles,listServiciosSeleccionados,numTiemposPlatillo,"+
-            "platillo,CantidadPersonas";
+            "platillo,CantidadPersonas,totalPorServicios";
         // GET: Banquetes
         public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = true)
         {

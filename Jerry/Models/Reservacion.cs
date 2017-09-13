@@ -69,43 +69,8 @@ namespace Jerry.Models
                 res = res.Trim().TrimEnd(',');
 
                 return res;
-            } }
-
-        /// <summary>
-        /// Determian el total del costo de los servicios seleccionados para esta reservacion.
-        /// </summary>
-        [Display(Name = "Costo Total por Servicios")]
-        public decimal costoTotalPorServicios
-        {
-            get
-            {
-                decimal res = 0;
-
-                if (this.serviciosContratados != null && this.serviciosContratados.Count() > 0)
-                    res = this.serviciosContratados.Sum(ser => ser.servicio.costo);
-
-                return res;
             }
         }
-
-        /// <summary>
-        /// Muestra el costo por reservacion, que es el costo total menos el costo de los servicios.
-        /// </summary>
-        [Display(Name = "Costo Sólo por Reservacion")]
-        [DisplayFormat(DataFormatString = "{0:C}",
-            ApplyFormatInEditMode = true)]
-        public decimal costoPorReservacion
-        {
-            get
-            {
-                return this.costo - this.totalPorServicios;
-            }
-        }
-
-        [Display(Name = "Total por Servicios")]
-        [DisplayFormat(DataFormatString = "{0:C}",
-            ApplyFormatInEditMode = true)]
-        public decimal totalPorServicios { get; set; }
 
         /// <summary>
         /// Arroja una lista de seleccion de los diferentes tipos de contrato para arrendamiento de salones

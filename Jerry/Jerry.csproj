@@ -222,6 +222,10 @@
     <Compile Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.Designer.cs">
       <DependentUpon>201709040057009_baquetes_addedFiedls_Platillos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.cs" />
+    <Compile Include="Migrations\201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.Designer.cs">
+      <DependentUpon>201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -491,8 +495,6 @@
     <Content Include="Views\Correo\Details.cshtml" />
     <Content Include="Views\Pago\Partial_IngresarPago.cshtml" />
     <Content Include="Views\Banquetes\Form_Banquete.cshtml" />
-    <Content Include="Views\Banquetes\Delete.cshtml" />
-    <Content Include="Views\Banquetes\Details.cshtml" />
     <Content Include="Views\Banquetes\Index.cshtml" />
     <Content Include="Views\Account\ListUsers.cshtml" />
     <Content Include="Views\Servicios\Partial_ListServicios.cshtml" />
@@ -545,6 +547,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.resx">
       <DependentUpon>201709040057009_baquetes_addedFiedls_Platillos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.resx">
+      <DependentUpon>201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

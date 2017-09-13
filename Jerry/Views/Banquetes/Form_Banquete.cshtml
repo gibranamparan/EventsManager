@@ -17,11 +17,14 @@
 
     List<Servicio> servicios = ViewBag.servicios;
     List<ServiciosEnReservacion> serviciosSeleccionados = new List<ServiciosEnReservacion>();
-
+    decimal costoTotalPorServicios = 0;
+    decimal costoTotal = 0;
     if (editMode || failPostBack)
     {
         serviciosSeleccionados = Model.serviciosContratados != null
             ? Model.serviciosContratados.ToList() : serviciosSeleccionados;
+        costoTotalPorServicios = Model.costoTotalPorServicios;
+        costoTotal = Model.costo;
     }
 
     //Configuracion del modal que notifica los conflictos
@@ -68,6 +71,7 @@
                     @Html.HiddenFor(model => model.eventoID)
                     @Html.HiddenFor(model => model.fechaReservacion)
                 }
+                @Html.HiddenFor(model => model.costo)
                 @Html.HiddenFor(model => model.clienteID)
                 @Html.Hidden("listServiciosSeleccionados")
 
@@ -91,19 +95,26 @@
                         @Html.ValidationMessageFor(model => model.fechaEventoFinal, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-4">
-                        @Html.LabelFor(model => model.costo)
-                        @Html.EditorFor(model => model.costo, new { htmlAttributes = new { @class = "form-control", data_mask = "0000000000.00", data_mask_reverse = "true" } })
-                        @Html.ValidationMessageFor(model => model.costo, "", new { @class = "text-danger" })
-                    </div>
-                    <div class="form-group col-md-4">
-                        @Html.LabelFor(model => model.CantidadPersonas)
-                        @Html.EditorFor(model => model.CantidadPersonas, new { htmlAttributes = new { @class = "form-control"} })
-                        @Html.ValidationMessageFor(model => model.CantidadPersonas, "", new { @class = "text-danger" })
+                        @Html.LabelFor(model => model.costoPorReservacion)
+                        @Html.EditorFor(model => model.costoPorReservacion, new {
+                           htmlAttributes = new {
+                               @class = "form-control",
+                               data_mask = "0000000000.00",
+                               data_mask_reverse = "true",
+                               onkeyup = "recalcularMontoTotal()"
+                           }
+                   })
+                        @Html.ValidationMessageFor(model => model.costoPorReservacion, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-4">
                         @Html.LabelFor(model => model.TipoContrato)
                         @Html.DropDownList("TipoContrato", Banquete.getTipoContratoSelectList(), htmlAttributes: new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.TipoContrato, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.CantidadPersonas)
+                        @Html.EditorFor(model => model.CantidadPersonas, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.CantidadPersonas, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-8">
                         @Html.LabelFor(model => model.platillo)
@@ -114,6 +125,27 @@
                         @Html.LabelFor(model => model.numTiemposPlatillo)
                         @Html.EditorFor(model => model.numTiemposPlatillo, new { htmlAttributes = new { @class = "form-control", max=3, min = 1 } })
                         @Html.ValidationMessageFor(model => model.numTiemposPlatillo, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.totalPorServicios, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.totalPorServicios, new
+                   {
+                       htmlAttributes = new
+                       {
+                           @class = "form-control",
+                           data_mask = "###0.00",
+                           data_mask_reverse = "true",
+                           onkeyup = "recalcularMontoTotal()"
+                       }
+                   })
+                        @Html.ValidationMessageFor(model => model.totalPorServicios, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.costo, htmlAttributes: new { @class = "control-label" })
+                        <input id="costoTotal" name="costoTotal" class="form-control"
+                               value="@(costoTotal)" readonly />
                     </div>
                 </div>
                 <div class="row">
@@ -151,6 +183,14 @@
     <script>
         inicializarSeleccionTablaServicios()
         initPartialConflictos()
+
+        function recalcularMontoTotal() {
+            var totalPorServicios = currencyToNumber($("#totalPorServicios").val())
+            var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
+            var costoTotal = costoPorReservacion + totalPorServicios;
+            $("#costoTotal").val(numberToCurrency(costoTotal))
+            $("#costo").attr('value', costoTotal)
+        }
 
         //Verifica y ajusta las fechas de cada sesion para ser válidas
         function ajustarFechas(inputFecha) {

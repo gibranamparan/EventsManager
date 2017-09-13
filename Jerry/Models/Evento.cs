@@ -65,15 +65,6 @@ namespace Jerry.Models
         public DateTime fechaEventoFinal { get; set; }
 
         /// <summary>
-        /// Costo total del evento.
-        /// </summary>
-        [Required]
-        [Display(Name = "Costo Total")]
-        [DisplayFormat(DataFormatString = "{0:C}",
-            ApplyFormatInEditMode = true)]
-        public decimal costo { get; set; }
-
-        /// <summary>
         /// Descripción general del evento.
         /// </summary>
         [DataType(DataType.MultilineText)]
@@ -83,6 +74,52 @@ namespace Jerry.Models
         [Required]
         [Display(Name = "Tipo de Contrato")]
         public TipoDeContrato TipoContrato { get; set; }
+
+        /// <summary>
+        /// Costo total del evento.
+        /// </summary>
+        [Required]
+        [Display(Name = "Costo Total")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
+        public decimal costo { get; set; }
+
+        [Display(Name = "Total por Servicios")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
+        public decimal totalPorServicios { get; set; }
+
+        /// <summary>
+        /// Determian el total del costo de los servicios seleccionados para esta reservacion, 
+        /// basa en la lista de servicios seleccionados.
+        /// </summary>
+        [Display(Name = "Costo Total por Servicios")]
+        public decimal costoTotalPorServicios
+        {
+            get
+            {
+                decimal res = 0;
+
+                if (this.serviciosContratados != null && this.serviciosContratados.Count() > 0)
+                    res = this.serviciosContratados.Sum(ser => ser.servicio.costo);
+
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// Solo Muestra el costo por reservacion, que es el costo total menos el costo de los servicios.
+        /// </summary>
+        [Display(Name = "Costo Sólo por Reservacion")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
+        public decimal costoPorReservacion
+        {
+            get
+            {
+                return this.costo - this.totalPorServicios;
+            }
+        }
 
         /// <summary>
         /// Genera una cadena de caracteres en la que se muestran todos los servicios

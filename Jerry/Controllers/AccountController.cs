@@ -14,7 +14,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Jerry.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
     public class AccountController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

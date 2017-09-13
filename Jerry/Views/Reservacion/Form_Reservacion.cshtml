@@ -4,12 +4,13 @@
 @{
     bool failPostBack = ViewBag.failPostBack == null ? false : ViewBag.failPostBack;
     bool editMode = Model.eventoID > 0;
-    ViewBag.Title = (editMode ? "Editar" : "Registrar") + " Reservación";
+    ViewBag.Title = (editMode ? "Editar" : "Registrar") + " Reservación de Salón";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     List<Servicio> servicios = ViewBag.servicios;
     List<SesionDeReservacion> sesiones = new List<SesionDeReservacion>();
     sesiones = Model.sesiones != null ? Model.sesiones.ToList() : sesiones;
+
     //Si no hay sesiones asociadas a la vista del registro, se crea una por defecto
     //como base para la forma
     if (sesiones == null || sesiones.Count() == 0)
@@ -32,14 +33,6 @@
         serviciosSeleccionados = Model.serviciosContratados!=null?Model.serviciosContratados.ToList():serviciosSeleccionados;
         costoTotalPorServicios = Model.costoTotalPorServicios;
         costoTotal = Model.costo;
-    }
-    else //Al crear un nuevo registro
-    {
-        @*Para pruebas*@
-        if(!(editMode || failPostBack)) {
-            Model.Detalles = "ESTA ES SOLO UNA DESCRIPCIOND E PRUEBA";
-            Model.CantidadPersonas = 15;
-        }
     }
 
     //Configuracion del modal que notifica los conflictos
@@ -76,10 +69,7 @@
     <div class="panel panel-primary">
         <div class="panel-heading" onclick="changeIcon(this)"
              data-toggle="collapse" data-target="#reservasTable">
-            <span class="panel-title">
-                @ViewBag.Title
-            </span>
-            <i class="pull-right fa fa-window-minimize"></i>
+            <span class="panel-title">@ViewBag.Title</span>
         </div>
         <div class="panel-body" id="reservasTable">
             @*Forma de creacion de nueva reservacion*@
@@ -93,8 +83,9 @@
                 @Html.Hidden("listSesiones")
 
                 <div id="alertConflicto" class="alert alert-danger" style="display:none">
-                    Los horarios estan presentando conflicto con otras reservaciones ya registradas, verifique las reservaciones con conflicto haciendo
-                    click en el siguiente <a href="#" data-toggle="modal" data-target="#@(vmModalConflictos.modalID)">enlace</a>
+                    Los horarios estan presentando conflicto con otras reservaciones ya registradas, 
+                    verifique las reservaciones con conflicto haciendo click en el siguiente 
+                    <a href="#" data-toggle="modal" data-target="#@(vmModalConflictos.modalID)">enlace</a>
                 </div>
 
                 @*PANEL PARA AGREGAR SESIONES DENTRO DE LA RESERVACION*@
@@ -347,7 +338,7 @@
     function checarConflictos() {
         var token = $('#formReservacion').find("input[name=__RequestVerificationToken]").val()
         var reservacion = {
-            reservacionID:@(Model.eventoID),
+            eventoID:@(Model.eventoID),
             sesiones: sesiones,
         };
         $.postJSON("/Reservacion/checarConflictos", reservacion, "json",
