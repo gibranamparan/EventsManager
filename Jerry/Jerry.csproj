@@ -222,9 +222,9 @@
     <Compile Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.Designer.cs">
       <DependentUpon>201709040057009_baquetes_addedFiedls_Platillos.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.cs" />
-    <Compile Include="Migrations\201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.Designer.cs">
-      <DependentUpon>201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
+    <Compile Include="Migrations\201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.cs" />
+    <Compile Include="Migrations\201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.Designer.cs">
+      <DependentUpon>201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -509,7 +509,6 @@
     <Content Include="Views\Shared\Partial_EncabezadoReporte.cshtml" />
     <Content Include="Views\Shared\BlankLayout.cshtml" />
     <Content Include="Views\Eventos\ReporteDeEvento.cshtml" />
-    <Content Include="Views\Reservacion\Partial_DetailsReservacion.cshtml" />
     <Content Include="Views\Banquetes\Partial_DetailsBanquete.cshtml" />
     <Content Include="Views\Banquetes\Partial_EventosConflictivos.cshtml" />
   </ItemGroup>
@@ -548,8 +547,8 @@
     <EmbeddedResource Include="Migrations\201709040057009_baquetes_addedFiedls_Platillos.resx">
       <DependentUpon>201709040057009_baquetes_addedFiedls_Platillos.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.resx">
-      <DependentUpon>201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.resx">
+      <DependentUpon>201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

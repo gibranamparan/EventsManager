@@ -101,7 +101,8 @@ namespace Jerry.Controllers
             newReservacion.clienteID = clienteID;
             newReservacion.cliente = cliente;
             ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre");
-            ViewBag.servicios = db.Servicios.Where(s=>s.tipoDeEvento == TipoEvento.RESERVACION).ToList();
+            ViewBag.servicios = db.Servicios.Where(s=>s.tipoDeEvento == TipoEvento.RESERVACION
+                || s.tipoDeEvento == Evento.TipoEvento.CUALQUIERA).ToList();
             return newReservacion;
         }
 

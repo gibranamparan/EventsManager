@@ -7,7 +7,7 @@ namespace Jerry.Migrations
     {
         public override void Up()
         {
-            AlterColumn("dbo.Eventoes", "totalPorServicios", c => c.Decimal(nullable: false, precision: 18, scale: 2));
+            AlterColumn("dbo.Eventoes", "totalPorServicios", c => c.Decimal(nullable: false,defaultValue:0, precision: 18, scale: 2));
         }
         
         public override void Down()

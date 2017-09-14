@@ -13,7 +13,7 @@ namespace Jerry.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201709131757100_banquetes_addedFieldsfromParent_TotalPorServicios"; }
+            get { return "201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios"; }
         }
         
         string IMigrationMetadata.Source

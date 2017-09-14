@@ -21,7 +21,7 @@ namespace Jerry.Controllers
             "costo,lugar,tipoContrato,clienteID,Detalles,listServiciosSeleccionados,numTiemposPlatillo,"+
             "platillo,CantidadPersonas,totalPorServicios";
         // GET: Banquetes
-        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = true)
+        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = false)
         {
             List<Banquete> reservaciones = filterReservaciones(filtroReservaciones);
             ViewBag.result = reservaciones;
@@ -81,7 +81,8 @@ namespace Jerry.Controllers
             Cliente cliente = db.clientes.Find(clienteID);
             newReservacion.clienteID = clienteID;
             newReservacion.cliente = cliente;
-            ViewBag.servicios = db.Servicios.Where(s => s.tipoDeEvento == Evento.TipoEvento.BANQUETE).ToList();
+            ViewBag.servicios = db.Servicios.Where(s => s.tipoDeEvento == Evento.TipoEvento.BANQUETE 
+                || s.tipoDeEvento == Evento.TipoEvento.CUALQUIERA).ToList();
             return newReservacion;
         }
 
