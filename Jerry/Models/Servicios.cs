@@ -48,6 +48,9 @@ namespace Jerry.Models
         public int eventoID { get; set; }
         public virtual Evento evento { get; set; }
 
+        [DisplayName("Costo")]
+        public decimal costo { get; set; }
+
         [ForeignKey("servicio")]
         [DisplayName("Servicio")]
         [Required]

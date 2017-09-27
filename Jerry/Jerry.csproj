@@ -226,6 +226,10 @@
     <Compile Include="Migrations\201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.Designer.cs">
       <DependentUpon>201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709150327452_serviciosInReservaciones_Costo.cs" />
+    <Compile Include="Migrations\201709150327452_serviciosInReservaciones_Costo.Designer.cs">
+      <DependentUpon>201709150327452_serviciosInReservaciones_Costo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -252,7 +256,6 @@
       <DependentUpon>aspnet-Jerry-20161113070706.mdf</DependentUpon>
     </Content>
     <Content Include="bower_components\bootstrap-calendar\css\calendar.css" />
-    <Content Include="bower_components\bootstrap-calendar\css\calendar.min.css" />
     <Content Include="bower_components\bootstrap-calendar\img\dark_wood.png" />
     <Content Include="bower_components\bootstrap-calendar\img\slide-bg.png" />
     <Content Include="bower_components\bootstrap-calendar\img\tick.png" />
@@ -549,6 +552,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.resx">
       <DependentUpon>201709131844055_banquetes_addedFieldsfromParent_TotalPorServicios.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709150327452_serviciosInReservaciones_Costo.resx">
+      <DependentUpon>201709150327452_serviciosInReservaciones_Costo.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

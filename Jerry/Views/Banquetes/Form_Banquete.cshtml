@@ -101,7 +101,7 @@
                                @class = "form-control",
                                data_mask = "0000000000.00",
                                data_mask_reverse = "true",
-                               onkeyup = "recalcularMontoTotal()"
+                               onkeyup = "recalcularMontoTotal($('#totalPorServicios').val())"
                            }
                    })
                         @Html.ValidationMessageFor(model => model.costoPorReservacion, "", new { @class = "text-danger" })
@@ -137,7 +137,7 @@
                            @class = "form-control",
                            data_mask = "###0.00",
                            data_mask_reverse = "true",
-                           onkeyup = "recalcularMontoTotal()"
+                           onkeyup = "recalcularMontoTotal($(this).val())"
                        }
                    })
                         @Html.ValidationMessageFor(model => model.totalPorServicios, "", new { @class = "text-danger" })
@@ -184,10 +184,11 @@
         inicializarSeleccionTablaServicios()
         initPartialConflictos()
 
-        function recalcularMontoTotal() {
-            var totalPorServicios = currencyToNumber($("#totalPorServicios").val())
+        function recalcularMontoTotal(total) {
+            var totalPorServicios = currencyToNumber(total)
             var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
             var costoTotal = costoPorReservacion + totalPorServicios;
+            $("#totalPorServicios").val(numeral(totalPorServicios).format("0.00")).trigger('input')
             $("#costoTotal").val(numberToCurrency(costoTotal))
             $("#costo").attr('value', costoTotal)
         }
@@ -211,8 +212,14 @@
             }
         }
 
-        function @(externalFunction)(elementos){ 
-            $("#listServiciosSeleccionados").val(JSON.stringify(elementos));
+        function @(externalFunction)(elementosSeleccionados){
+            $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
+            var total = 0;
+            $.each(elementosSeleccionados, function (idx, item) {
+                total += item.costo * item.cantidad //Propiedad de costo es cambiable
+            })
+            //$("#listServiciosSeleccionados").val(JSON.stringify(elementos));
+            recalcularMontoTotal(total)
         }
         
         var reservacion = {

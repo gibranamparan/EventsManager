@@ -17,11 +17,12 @@ namespace Jerry.Models
         [Display(Name ="Domicilio del Lugar")]
         public string lugar { get; set; }
 
+        [Required]
         [DisplayName("Platillo")]
         public string platillo { get; set;}
 
-        [DisplayName("Tiempos")]
         [Required]
+        [DisplayName("Tiempos")]
         [Range(1,3,ErrorMessage = "Válido sólo entre uno y tres tiempos.")]
         public int numTiemposPlatillo { get; set; }
 
@@ -74,7 +75,7 @@ namespace Jerry.Models
             doc.ReplaceText("<PLATILLO>", this.platillosInfo);
             doc.ReplaceText("<COSTO_TOTAL>", this.costo.ToString("C"));
             doc.ReplaceText("<ANTICIPO>", this.primerPago.cantidad.ToString("C"));
-            doc.ReplaceText("<DETALLES>", this.Detalles);
+            doc.ReplaceText("<DETALLES>", this.Detalles==null?string.Empty:this.Detalles);
             doc.ReplaceText("<LISTA_DE_SERVICIOS>", this.enlistarServiciosParaContrato);
         }
 

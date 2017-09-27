@@ -6,16 +6,18 @@
     bool showOptions = ViewData["showOptions"] != null ? (bool)ViewData["showOptions"] : true;
     bool detailsMode = ViewData["detailsMode"] != null ? (bool)ViewData["detailsMode"] : false;
     string externalFunction = ViewData["externalFunction"] != null ? (string)ViewData["externalFunction"] : string.Empty;
+    Evento evento = ViewData["evento"] != null ? (Evento)ViewData["evento"] : new Evento();
+
     @*Variables para editar la lista de productos comprados*@
-bool editMode = false;
-bool found = false;
-List<ServiciosEnReservacion> servicios = null;
-ServiciosEnReservacion itemIndex = null;
-if (ViewData["serviciosSeleccionados"] != null)
-{
-    servicios = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
-    editMode = servicios != null && servicios.Count() > 0;
-}
+    bool editMode = false;
+    bool found = false;
+    List<ServiciosEnReservacion> servicios = null;
+    ServiciosEnReservacion itemIndex = null;
+    if (ViewData["serviciosSeleccionados"] != null)
+    {
+        servicios = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
+        editMode = servicios != null && servicios.Count() > 0;
+    }
 }
 @if (Model != null && Model.Count() > 0)
 {
@@ -54,13 +56,13 @@ if (ViewData["serviciosSeleccionados"] != null)
     <tbody>
             @foreach (var item in Model)
             {
-                if (editMode)
+                if (editMode || detailsMode)
                 {
                     itemIndex = servicios.FirstOrDefault(serv => serv.serviciosID == item.serviciosID);
                     found = itemIndex != null;
                 }
 
-                <tr @(found ? "default-selected" : "")>
+                <tr item-id="@(item.serviciosID)" @(found ? "default-selected" : "")>
                     @if (selectMode)
                     {
                         <td></td>
@@ -68,9 +70,9 @@ if (ViewData["serviciosSeleccionados"] != null)
                     @if (selectMode || detailsMode)
                     {
                         <td width="1em">
-                            <input type="number" item_id="@(item.serviciosID)"
+                            <input type="number" item-id="@(item.serviciosID)"
                                    id="producto@(item.serviciosID)" min="0"
-                                   oninput="editarElemento(this)" class="form-control"
+                                   oninput="editarElemento(this)" class="form-control inputCantidad"
                                    value="@(editMode && found?itemIndex.cantidad:0)" 
                                    @(detailsMode?"disabled":"")
                                    />
@@ -83,7 +85,18 @@ if (ViewData["serviciosSeleccionados"] != null)
                         @Html.DisplayFor(modelItem => item.nombre)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.costo)
+                        @if (!selectMode)
+                        {
+                            @*Html.DisplayFor(modelItem => item.costo)*@
+                            @(found ? itemIndex.costo.ToString("C") : item.costo.ToString("C"))
+                        }
+                        else
+                        {
+                            <input class="form-control inputCosto" 
+                                   data-mask="###0.00" data-mask-reverse="true" 
+                                   id="item_costo" item-id="@(item.serviciosID)" name="costo@(item.serviciosID)"
+                                   onkeyup="editarElemento(this)" value="@(editMode && found?itemIndex.costo:item.costo)">
+                       }
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.descripcion)
@@ -110,7 +123,7 @@ else
 
 <script>
     /*Funciones y varialbes propias de la implementacion*/
-    var totalPorServicios = 0;
+    var totalPorServicios = @(evento.totalPorServicios);
     var editMode = @(editMode?"true":"false");
     var loadingToEdit = editMode;
 
@@ -138,9 +151,11 @@ else
             order: [[2, 'asc']]
         });
         table.on('select', function (e, dt, type, indexes) {
-            var selRow = dt.data()
-            agregarSeleccion(selRow)
-            @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
+            if(dt){
+                var selRow = dt.data()
+                agregarSeleccion(selRow)
+                @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
+            }
         }).on('deselect', function (e, dt, type, indexes) {
             var unSelRows = dt.data();
             removerSeleccion(unSelRows);
@@ -152,13 +167,12 @@ else
     function agregarSeleccion(rows) {
         var renglones = new Array();
         if (!rows.rows) { //Si es un solo elemento
-            var inputCantidad = $('input[item_id=' + rows[COLS_ENUM.ID] + ']');
+            var inputCantidad = $('input[item-id=' + rows[COLS_ENUM.ID] + ']');
             introducirNuevaCantidad(inputCantidad[0]);
         } else { //Si son varios
             renglones = rows;
-            //selectedIngresosIDs = new Array();
             $.each(renglones, function (idx, row) {
-                var inputCantidad = $('input[item_id=' + row[COLS_ENUM.ID] + ']');
+                var inputCantidad = $('input[item-id=' + row[COLS_ENUM.ID] + ']');
                 introducirNuevaCantidad(inputCantidad[0]);
             })
         }
@@ -180,21 +194,32 @@ else
         })
     }
 
-    //Inserta en el arreglo global de elementos seleccionados un nuevo elemento dado el dato seleccionado
-    function introducirNuevoDato(dato, inputCantidad) {
-        var cantidad = inputCantidad ? inputCantidad.valueAsNumber : Number($(dato[COLS_ENUM.CANTIDAD]).val());
-        elementosSeleccionados.push({
-            serviciosID: dato[COLS_ENUM.ID],
-            costo: currencyToNumber(dato[COLS_ENUM.COSTO]),
-            cantidad: cantidad,
-        })
-    }
-
     function introducirNuevaCantidad(inputCantidad) {
         var selRow = buscarRenglonSeleccionado(inputCantidad)
         //Se el input editado se encontraba seleccionado
         if (selRow)
             introducirNuevoDato(selRow, inputCantidad)
+    }
+
+    //Inserta en el arreglo global de elementos seleccionados un nuevo elemento dado el dato seleccionado
+    function introducirNuevoDato(dato, inputCantidad) {
+        var item_id = $(inputCantidad).attr('item-id');
+        var trRow = $("#tblServicios tr[item-id="+item_id+"]");
+
+        /*var cantidad = inputCantidad ? inputCantidad.valueAsNumber : Number($(dato[COLS_ENUM.CANTIDAD]).val());
+        var costo = inputCantidad ? inputCantidad.valueAsNumber : Number($(dato[COLS_ENUM.CANTIDAD]).val());*/
+        var cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
+        var costo =  currencyToNumber(trRow.find('td input.inputCosto').val());
+        /*
+        elementosSeleccionados[itemIDX].cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
+        elementosSeleccionados[itemIDX].costo = currencyToNumber(trRow.find('td input.inputCosto').val());*/
+
+        elementosSeleccionados.push({
+            serviciosID: dato[COLS_ENUM.ID],
+            //costo: currencyToNumber(dato[COLS_ENUM.COSTO]),
+            costo: costo,
+            cantidad: cantidad,
+        })
     }
 
     //Dado el DOM de un input, Arroja un renglon del datatable que le corresponde.
@@ -205,7 +230,7 @@ else
 
         //Se busca si el input editado se encuentra seleccionado
         var selRow = $.grep(data, function (item, idx) {
-            return item[COLS_ENUM.ID] == $(input).attr('item_id');
+            return item[COLS_ENUM.ID] == $(input).attr('item-id');
         })[0];
 
         return selRow;
@@ -213,13 +238,15 @@ else
 
     function editarElemento(inputEditado) {
         var selRow = buscarRenglonSeleccionado(inputEditado);
+        var trRow = $(inputEditado).closest('tr');
         if (selRow) {
             var itemIDX
             $.each(elementosSeleccionados, function (idx, item) {
                 if (selRow[COLS_ENUM.ID] == item.serviciosID)
                     itemIDX = idx;
             })
-            elementosSeleccionados[itemIDX].cantidad = inputEditado.valueAsNumber;
+            elementosSeleccionados[itemIDX].cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
+            elementosSeleccionados[itemIDX].costo = currencyToNumber(trRow.find('td input.inputCosto').val());
         }
         @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
     }

@@ -129,7 +129,7 @@ namespace Jerry.Controllers
                 
                 //Se registran los servicios relacionados si existen
                 if (serviciosSeleccionados != null && serviciosSeleccionados.Count > 0)
-                    reservacion.serviciosContratados = serviciosSeleccionados;
+                    reservacion.serviciosContratados = serviciosSeleccionados.Where(ser=>ser.cantidad >0).ToList();
 
                 //Se obtienes todas las reservaciones que colisionan con la que se encuentra registrando
                 var colisiones = reservacion.reservacionesQueColisionan(db);

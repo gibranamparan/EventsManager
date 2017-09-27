@@ -49,13 +49,16 @@ $.fn.fadeInOrOut = function (status) {
 }
 
 function currencyToNumber(numStr) {
-    numStr = numStr.trim().replace("$", "").replace(",", "");
-    var num = isNaN(numStr) ? 0 : Number(numStr);
+    if (isNaN(numStr)){
+        numStr = numStr.trim().replace("$", "").replace(",", "");
+        var num = isNaN(numStr) ? 0 : Number(numStr);
+    } else
+        num = Number(numStr)
     return num;
 }
 
 function numberToCurrency(num) {
-    num = !num ? 0 : numeral(num).format("$0,0.00")
+    num = (!num||isNaN(num)) ? 0 : numeral(num).format("$0,0.00")
     return num;
 }
 

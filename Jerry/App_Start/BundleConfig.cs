@@ -59,7 +59,7 @@ namespace Jerry
                       "~/Content/themes/base/*.css"));
 
             bundles.Add(new StyleBundle("~/bower_componentes/calendar").Include(
-            "~/bower_components/bootstrap-calendar/css/calendar.min.css"));
+            "~/bower_components/bootstrap-calendar/css/calendar.css"));
         }
     }
 }

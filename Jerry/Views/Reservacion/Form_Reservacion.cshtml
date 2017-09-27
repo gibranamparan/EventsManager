@@ -222,6 +222,7 @@
                     ViewDataDictionary vdd = new ViewDataDictionary();
                     vdd.Add("selectMode", true);
                     vdd.Add("externalFunction", "recalcularTotales");
+                    vdd.Add("evento", Model);
                     if (editMode || failPostBack)
                     {
                         vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
@@ -375,7 +376,7 @@
             $("#totalPorServicios").val(numeral(totalPorServicios).format("0.00")).trigger("input")
             var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
             var costoTotal = costoPorReservacion + totalPorServicios;
-            $("#costoTotal").val(numberToCurrency(costoTotal))
+            $("#costoTotal").val(numeral(numberToCurrency(costoTotal)).format('0.00'))
             //$("#costo").attr('value', costoTotal)
             //Preparacion de forma para enviar datos seleccionados
             $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
