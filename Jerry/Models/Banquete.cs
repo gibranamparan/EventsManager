@@ -82,7 +82,7 @@ namespace Jerry.Models
         public List<Banquete> reservacionesQueColisionan(ApplicationDbContext db)
         {
             //Se filtran todas las reservaciones que estan dentro del rango de tiempo total de la reservacion validada
-            var resFiltradas = db.Banquetes.
+            var resFiltradas = db.Banquetes.Where(ban=>!ban.esCotizacion).
                 Where(ses => ses.eventoID != this.eventoID && (ses.fechaEventoInicial >= this.fechaEventoInicial 
                     && ses.fechaEventoInicial <= this.fechaEventoFinal
                 || ses.fechaEventoFinal >= this.fechaEventoInicial && ses.fechaEventoFinal <= this.fechaEventoFinal)).ToList();

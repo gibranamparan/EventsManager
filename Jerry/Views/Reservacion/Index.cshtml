@@ -9,6 +9,7 @@
     List<Reservacion> resultado = ViewBag.result;
 
     bool listMode = ViewBag.listMode == null ? false : ViewBag.listMode;
+    bool soloCotizaciones = ViewBag.soloCotizaciones == null ? false : ViewBag.soloCotizaciones;
 }
 
 <p>
@@ -23,12 +24,16 @@
         }
         <span>Ver reservaciones en @(!listMode ? "lista" : "calendario")</span>
     </a>
+    <span> | </span>
+    <a href="@Url.Action("Index",new { listMode = true, soloCotizaciones = true })">
+        <i class="fa fa-dollar"></i> <span>Ver Cotizaciones</span>
+    </a>
 </p>
 
 @if (listMode) { //Se muestra la forma de vista
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">Reservaciones</h3>
+        <h3 class="panel-title">@(soloCotizaciones ? "Cotizaciones de " : "")Reservaciones</h3>
     </div>
     <div class="panel-body">
         @using (Html.BeginForm("Index", "Reservacion", FormMethod.Get, null))
@@ -120,17 +125,14 @@
                                     <i class="glyphicon glyphicon-option-horizontal"></i>
                                 </button>
                                 <div id="myDropdown" class="dropdown-content">
-                                    <a href="@Url.Action("Details", new { id = item.eventoID })">
-                                        <i class="fa fa-list-alt"></i> Detalle
+                                    <a href="@Url.Action("Details","Eventos", new { id = item.eventoID })">
+                                        <i class="fa fa-credit-card"></i> Información y Pagos
                                     </a>
-                                    <a href="@Url.Action("Edit", new { id = item.eventoID })">
-                                        <i class="fa fa-pencil-square-o"></i> Editar
+                                    <a href="@Url.Action("Edit",item.controllerName, new { id = item.eventoID })">
+                                        <i class="fa fa-pencil"></i> Editar
                                     </a>
-                                    <a href="@Url.Action("Delete", new { id = item.eventoID })">
-                                        <i class="glyphicon glyphicon-remove"></i> Borrar
-                                    </a>
-                                    <a href="@Url.Action("GenerarContrato",new { id = item.eventoID, tipoContrato = item.TipoContrato })">
-                                        <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
+                                    <a href="@Url.Action("Delete","Eventos", new { id = item.eventoID })">
+                                        <i class="fa fa-remove"></i> Cancelar
                                     </a>
                                 </div>
                             </div>

@@ -110,7 +110,7 @@ namespace Jerry.Models
         public List<SesionDeReservacion> reservacionesQueColisionan(ApplicationDbContext db)
         {
             //Se filtran todas las sesiones que estan dentro del rango de tiempo total de la reservacion validada
-            var sesionesFiltradas = db.sesionesEnReservaciones.
+            var sesionesFiltradas = db.sesionesEnReservaciones.Where(ses=>!ses.reservacion.esCotizacion).
                 Where(ses => ses.reservacionID != this.eventoID && (ses.periodoDeSesion.startDate >= this.fechaEventoInicial && ses.periodoDeSesion.startDate <= this.fechaEventoFinal
                 || ses.periodoDeSesion.endDate >= this.fechaEventoInicial && ses.periodoDeSesion.endDate <= this.fechaEventoFinal)).ToList();
 
@@ -209,12 +209,14 @@ namespace Jerry.Models
         /// y una lista de las sesiones que componen la reservacion.
         /// </summary>
         public class VMReservacion{
+            public int numReservacion { get; set; }
             [DisplayName("Cliente")]
             public string nombreCliente { get; set; }
             public List<SesionDeReservacion.VMSesion> sesiones { get; set; }
 
             public VMReservacion(Reservacion res)
             {
+                this.numReservacion = res.eventoID;
                 this.nombreCliente = res.cliente==null?"":res.cliente.nombreCompleto;
                 this.sesiones = new List<SesionDeReservacion.VMSesion>();
                 if(res.sesiones!=null && res.sesiones.Count()>0)
@@ -237,7 +239,7 @@ namespace Jerry.Models
                 fechaInicioEvento = resContrato.fechaEventoInicial.ToShortDateString();
                 fechaFinEvento = resContrato.fechaEventoFinal.ToShortDateString();
                 duracionEvento = resContrato.TiempoTotal.TotalHours.ToString();
-                descripcionServicios = resContrato.Detalles;
+                descripcionServicios = String.IsNullOrEmpty(resContrato.Detalles)?string.Empty:resContrato.Detalles;
                 telefono = String.IsNullOrEmpty(resContrato.cliente.telefono) ? string.Empty : resContrato.cliente.telefono;
                 correo = String.IsNullOrEmpty(resContrato.cliente.email) ? string.Empty : resContrato.cliente.email;
                 fechaReservacion = resContrato.fechaReservacion.ToLongDateString();

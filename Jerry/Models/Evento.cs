@@ -85,9 +85,13 @@ namespace Jerry.Models
         public decimal costo { get; set; }
 
         [Display(Name = "Total por Servicios")]
+        [Required]
         [DisplayFormat(DataFormatString = "{0:C}",
             ApplyFormatInEditMode = true)]
         public decimal totalPorServicios { get; set; }
+
+        [Display(Name = "Es Cotización")]
+        public bool esCotizacion { get; set; }
 
         /// <summary>
         /// Determian el total del costo de los servicios seleccionados para esta reservacion, 
@@ -101,7 +105,7 @@ namespace Jerry.Models
                 decimal res = 0;
 
                 if (this.serviciosContratados != null && this.serviciosContratados.Count() > 0)
-                    res = this.serviciosContratados.Sum(ser => ser.servicio.costo);
+                    res = this.serviciosContratados.Sum(ser => ser.servicio==null ? 0 : ser.servicio.costo);
 
                 return res;
             }

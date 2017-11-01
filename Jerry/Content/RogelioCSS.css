@@ -145,6 +145,10 @@ a#linkLogo{
     color: black;
 }
 
+.rowCotizacion, .rowCotizacion td{
+    background: #a1a1a1
+}
+
 @media print {
 
     body, html, #page-wrapper {

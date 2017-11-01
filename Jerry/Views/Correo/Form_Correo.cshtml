@@ -49,39 +49,6 @@
                 </div>
 
                 <div class="form-group">
-                    @Html.LabelFor(model => model.contrasena, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.EditorFor(model => model.contrasena, new {
-                       htmlAttributes = new { @class = "form-control", type = "password", autocomplete = "off" } })
-                        @Html.ValidationMessageFor(model => model.contrasena, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    @Html.LabelFor(model => model.smtpHost, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.EditorFor(model => model.smtpHost, new { htmlAttributes = new { @class = "form-control" } })
-                        @Html.ValidationMessageFor(model => model.smtpHost, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    @Html.LabelFor(model => model.puertoCorreo, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.EditorFor(model => model.puertoCorreo, new { htmlAttributes = new { @class = "form-control" } })
-                        @Html.ValidationMessageFor(model => model.puertoCorreo, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    @Html.LabelFor(model => model.sslEnabled, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.EditorFor(model => model.sslEnabled, new { htmlAttributes = new { @class = "form-control" } })
-                        @Html.ValidationMessageFor(model => model.sslEnabled, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
                         <button class="btn btn-success">Guardar</button>
                     </div>

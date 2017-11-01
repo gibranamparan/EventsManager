@@ -9,7 +9,8 @@
                 <thead>
                     <tr>
                         <th>
-                            @Html.DisplayNameFor(model => model.eventoID)</th>
+                            @Html.DisplayNameFor(model => model.eventoID)
+                        </th>
                         <th>
                             @Html.DisplayNameFor(model => model.nombreCliente)
                         </th>
@@ -27,7 +28,9 @@
                         {
                             <tr>
                                 <td>
-                                    @Html.DisplayFor(model => item.eventoID)
+                                    <a href="@Url.Action("Details","Eventos",new { id = item.eventoID })" target="_blank">
+                                        @Html.DisplayFor(model => item.eventoID)
+                                    </a>
                                 </td>
                                 <td>
                                     @Html.DisplayFor(model => item.nombreCliente)
@@ -71,14 +74,13 @@
     }
 
     function renderReservacionConflictiva(item, panel) {
-        //panel.find('#spanNombreCliente').html(item.nombreCliente)
         var tblSesiones = panel.find('.tblSesiones')
         //Se muestran las sesiones
         var startDate = moment(jsonDateToJSDate(item.fechaInicial)).format('LLL')
         var endDate = moment(jsonDateToJSDate(item.fechaFinal)).format('LLL')
 
         var row = $('<tr>');
-        row.append($('<td>').html(item.eventoID))
+        row.append($('<td>').append($('<a target="_blank">').prop("href","@(Url.Action("Details","Eventos"))/"+item.eventoID).html(item.eventoID)))
         row.append($('<td>').html(item.nombreCliente))
         row.append($('<td>').html(startDate))
         row.append($('<td>').html(endDate))

@@ -6,6 +6,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     //bool listMode = ViewBag.listMode == null ? false : ViewBag.listMode;
     bool listMode = ViewBag.listMode == null ? false : ViewBag.listMode;
+    bool soloCotizaciones = ViewBag.soloCotizaciones == null ? false : ViewBag.soloCotizaciones;
+
     List<Jerry.Models.Banquete> resultado = ViewBag.result;
 }
 
@@ -21,12 +23,16 @@
         }
         <span>Ver reservaciones en @(!listMode ? "lista" : "calendario")</span>
     </a>
+    <span> | </span>
+    <a href="@Url.Action("Index",new { listMode = true, soloCotizaciones = true })">
+        <i class="fa fa-dollar"></i> <span>Ver Cotizaciones</span>
+    </a>
 </p>
 
 @if (listMode){ //Se muestra la forma de vista
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">Banquetes</h3>
+        <h3 class="panel-title">@(soloCotizaciones?"Cotizaciones de ":"")Banquetes</h3>
     </div>
     
     <div class="panel-body">
@@ -67,6 +73,9 @@
                     @Html.DisplayNameFor(model => resultado.FirstOrDefault().fechaEventoInicial)
                 </th>
                 <th>
+                    @Html.DisplayNameFor(model => resultado.FirstOrDefault().costo)
+                </th>
+                <th>
                     @Html.DisplayNameFor(model => resultado.FirstOrDefault().Detalles)
                 </th>
                 <th></th>
@@ -81,10 +90,13 @@
                         @Html.DisplayFor(modelItem => item.eventoID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.cliente.nombre)
+                        @Html.DisplayFor(modelItem => item.cliente.nombreCompleto)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.fechaEventoInicial)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.costo)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Detalles)
@@ -104,9 +116,6 @@
                                 </a>
                                 <a href="@Url.Action("Delete","Eventos", new { id = item.eventoID })">
                                     <i class="glyphicon glyphicon-remove"></i> Cancelar
-                                </a>
-                                <a href="@Url.Action("descargarContrato","Eventos",new { id = item.eventoID, tipoContrato = item.TipoContrato })">
-                                    <i class="fa fa-file-word-o" aria-hidden="true"></i> Contrato
                                 </a>
                             </div>
                         </div>

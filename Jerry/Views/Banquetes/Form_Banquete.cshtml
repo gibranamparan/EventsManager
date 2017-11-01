@@ -64,7 +64,14 @@
             @ViewBag.Title
         </div>
         <div class="panel-body">
-            <div class="col-md-12">
+            <fieldset>
+                <legend>
+                    <span>Información General</span>
+                    <span class="pull-right">
+                        @Html.LabelFor(model => model.esCotizacion)
+                        @Html.EditorFor(model => model.esCotizacion, new { htmlAttributes = new { onchange = "$('div#alertaCotizacion').slideDownOrUp($(this).prop('checked'))" } })
+                    </span>
+                </legend>
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 @if (editMode || failPostBack)
                 {
@@ -91,7 +98,7 @@
                         @Html.LabelFor(model => model.fechaEventoFinal)
                         <input class = "form-control" id="fechaEventoFinal" name="fechaEventoFinal"
                                 value='@Model.fechaEventoFinal.ToString("yyyy/MM/dd HH:mm")' 
-                                onchange = "ajustarFechas(this);prepararDatosJSON();" datetimepicker />
+                                onchange = "ajustarFechas(this); prepararDatosJSON();" datetimepicker />
                         @Html.ValidationMessageFor(model => model.fechaEventoFinal, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group col-md-4">
@@ -123,7 +130,7 @@
                     </div>
                     <div class="form-group col-md-4">
                         @Html.LabelFor(model => model.numTiemposPlatillo)
-                        @Html.EditorFor(model => model.numTiemposPlatillo, new { htmlAttributes = new { @class = "form-control", max=3, min = 1 } })
+                        @Html.EditorFor(model => model.numTiemposPlatillo, new { htmlAttributes = new { @class = "form-control", max = 3, min = 1 } })
                         @Html.ValidationMessageFor(model => model.numTiemposPlatillo, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -166,23 +173,32 @@
                     vdd.Add("externalFunction", externalFunction);
                     if (editMode || failPostBack)
                     {
-                        vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
+                        vdd.Add("serviciosSeleccionados", serviciosSeleccionados);
                     }
                 }
                 @Html.Partial("../Servicios/Partial_ListServicios", servicios, vdd)
+
                 <br />
                 <div class="form-group">
                     <button id="btnReservar" class="btn btn-success">@(editMode?"Guardar":"Registrar")</button>
                 </div>
-            </div>
+            </fieldset>
         </div>
     </div>
 }
 
 @section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
     <script>
+        var reservacion = {
+            eventoID:@(Model.eventoID),
+            fechaEventoInicial:'',
+            fechaEventoFinal:''
+        };
+
         inicializarSeleccionTablaServicios()
         initPartialConflictos()
+        prepararDatosJSON()
 
         function recalcularMontoTotal(total) {
             var totalPorServicios = currencyToNumber(total)
@@ -221,12 +237,7 @@
             //$("#listServiciosSeleccionados").val(JSON.stringify(elementos));
             recalcularMontoTotal(total)
         }
-        
-        var reservacion = {
-            eventoID:@(Model.eventoID),
-            fechaEventoInicial:'',
-            fechaEventoFinal:''
-        };
+
         function prepararDatosJSON(){
             reservacion.fechaEventoInicial = $('#fechaEventoInicial').val();
             reservacion.fechaEventoFinal = $('#fechaEventoFinal').val();

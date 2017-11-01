@@ -24,14 +24,17 @@ namespace Jerry.Controllers
         public ActionResult Delete(int? id)
         {
             if (id == null)
-            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+
             Servicio servicio = db.Servicios.Find(id);
             if (servicio == null)
-            {
                 return HttpNotFound();
-            }
+
+            db.ServiciosEnReservaciones.Where(ser => ser.serviciosID == id).ToList().ForEach(ser => {
+                ser.serviciosID = null;
+                db.Entry(ser).State = EntityState.Modified;
+                });
+
             db.Servicios.Remove(servicio);
             db.SaveChanges();
             return RedirectToAction("Details", "Correo");

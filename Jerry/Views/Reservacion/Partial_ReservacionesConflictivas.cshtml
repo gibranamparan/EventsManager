@@ -7,6 +7,11 @@
         </div>
         <div class="panel-body">
             <strong>Cliente:</strong> <span id="spanNombreCliente">@Model.nombreCliente</span>
+            <span> | </span>
+            <strong>Num Reservacion:</strong>
+            <a href="@Url.Action("Details","Reservacion",new { id = Model.numReservacion })" id="spanNumReservacion" target="_blank">
+                @Model.numReservacion
+            </a>
             <table class="table tblSesiones">
                 <thead>
                     <tr>
@@ -20,7 +25,6 @@
                         <th>
                             @Html.DisplayNameFor(model => model.sesiones.FirstOrDefault().nombreSalon)
                         </th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,12 +64,12 @@
     function renderData(res) {
         limparPanelConflictos();
         $.each(res, function (idx, reservacion) {
-            if (idx == 0) {
+            if (idx == 0) { //1ra reservacion conflictiva
                 panel = $('.panelReservacionConflicto').last()
                 panel = renderReservacionConflictiva(reservacion, panel)
             }
-            else {
-                panel = panelConflictoModelo.clone()
+            else { //Demas reservaciones conflictivas
+                panel = panelConflictoModelo.clone() //Se basa en el layout de la 1ra
                 panel = renderReservacionConflictiva(reservacion, panel)
                 $('#divSesionesConflictivas').append(panel);
             }
@@ -74,6 +78,8 @@
 
     function renderReservacionConflictiva(item, panel) {
         panel.find('#spanNombreCliente').html(item.nombreCliente)
+        panel.find('#spanNumReservacion').prop("href","@(Url.Action("Details","Eventos"))/"+item.numReservacion)
+        panel.find('#spanNumReservacion').html(item.numReservacion)
         var tblSesiones = panel.find('.tblSesiones')
         //Se muestran las sesiones
         $.each(item.sesiones, function (idx, item2) {

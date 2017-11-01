@@ -7,8 +7,11 @@
     Layout = "~/Views/Shared/BlankLayout.cshtml";
 
     //Servicios contratados dentro de la reservacion
+    //List<Servicio> serviciosContratados = Model.serviciosContratados != null && Model.serviciosContratados.Count() > 0
+    //? Model.serviciosContratados.Select(sc => sc.servicio).ToList() : new List<Servicio>();
+    //Servicios contratados dentro de la reservacion
     List<Servicio> serviciosContratados = Model.serviciosContratados != null && Model.serviciosContratados.Count() > 0
-? Model.serviciosContratados.Select(sc => sc.servicio).ToList() : new List<Servicio>();
+? Model.serviciosContratados.Select(sc => sc.servicio != null ? sc.servicio : new Servicio(sc)).ToList() : new List<Servicio>();
 
     Correo correo = new Correo();
     Pago p = new Pago();
@@ -45,6 +48,8 @@
         @{
             ViewDataDictionary vddServicios = new ViewDataDictionary();
             vddServicios.Add("showOptions", false);
+            vddServicios.Add("detailsMode", true);
+            vddServicios.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
         }
         @Html.Partial("../Servicios/Partial_ListServicios", serviciosContratados, vddServicios)
     </div>

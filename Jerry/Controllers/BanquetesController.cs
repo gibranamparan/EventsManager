@@ -19,21 +19,23 @@ namespace Jerry.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
         private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,fechaEventoFinal," +
             "costo,lugar,tipoContrato,clienteID,Detalles,listServiciosSeleccionados,numTiemposPlatillo,"+
-            "platillo,CantidadPersonas,totalPorServicios";
+            "platillo,CantidadPersonas,totalPorServicios,esCotizacion";
         // GET: Banquetes
-        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = false)
+        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = false, bool soloCotizaciones = false)
         {
-            List<Banquete> reservaciones = filterReservaciones(filtroReservaciones);
+            List<Banquete> reservaciones = filterReservaciones(filtroReservaciones, soloCotizaciones);
             ViewBag.result = reservaciones;
             ViewBag.listMode = listMode;
+            ViewBag.soloCotizaciones = soloCotizaciones;
+
             return View(filtroReservaciones);
         }
 
-        private List<Banquete> filterReservaciones(Evento.VMFiltroEventos filtroReservaciones)
+        private List<Banquete> filterReservaciones(Evento.VMFiltroEventos filtroReservaciones, bool soloCotizaciones = false)
         {
             //Filtra los eventos cuyo inicio estan dentro del filtro 
             TimePeriod periodo = filtroReservaciones.TimePeriod;
-            var res = db.Banquetes.ToList()
+            var res = db.Banquetes.Where(ban=>ban.esCotizacion == soloCotizaciones).ToList()
                 .Where(s => periodo.hasInside(s.timePeriod.startDate) || periodo.hasInside(s.timePeriod.endDate)).ToList();
             return res;
         }
@@ -166,11 +168,13 @@ namespace Jerry.Controllers
                 //Se deserializa la lista de servicios seleccionados y sesiones modificadas
                 List<ServiciosEnReservacion> serviciosSeleccionados = js.Deserialize<List<ServiciosEnReservacion>>(listServiciosSeleccionados);
 
-                //Se asocia nuevamente los servicios con el evento
-                serviciosSeleccionados.ForEach(ser => {
-                    ser.eventoID = banquete.eventoID;
-                    db.Entry(ser).State = EntityState.Added;
-                });
+                if(serviciosSeleccionados!=null && serviciosSeleccionados.Count() > 0) { 
+                    //Se asocia nuevamente los servicios con el evento
+                    serviciosSeleccionados.ForEach(ser => {
+                        ser.eventoID = banquete.eventoID;
+                        db.Entry(ser).State = EntityState.Added;
+                    });
+                }
 
                 db.Entry(banquete).State = EntityState.Modified;
                 numRegs = db.SaveChanges();

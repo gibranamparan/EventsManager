@@ -83,9 +83,14 @@
                 @Html.Hidden("listSesiones")
 
                 <div id="alertConflicto" class="alert alert-danger" style="display:none">
-                    Los horarios estan presentando conflicto con otras reservaciones ya registradas, 
-                    verifique las reservaciones con conflicto haciendo click en el siguiente 
+                    Los horarios estan presentando conflicto con otras reservaciones ya registradas,
+                    verifique las reservaciones con conflicto haciendo click en el siguiente
                     <a href="#" data-toggle="modal" data-target="#@(vmModalConflictos.modalID)">enlace</a>
+                </div>
+
+                <div id="alertaCotizacion" class="alert alert-warning" style="display:@(Model.esCotizacion?"block":"none")">
+                    Este registro se ha marcado como cotizacion, por lo que solamente es de caracter informativo, 
+                    no tomará espacio dentro de su agenda ni colisionará con otros eventos.
                 </div>
 
                 @*PANEL PARA AGREGAR SESIONES DENTRO DE LA RESERVACION*@
@@ -159,12 +164,14 @@
 
                 <div class="row">
                     <fieldset>
-                        <legend>Información General</legend>
+                        <legend>
+                            <span>Información General</span>
+                            <span class="pull-right">
+                                @Html.LabelFor(model=>model.esCotizacion)
+                                @Html.EditorFor(model => model.esCotizacion, new { htmlAttributes = new { onchange= "$('div#alertaCotizacion').slideDownOrUp($(this).prop('checked'))" } })
+                            </span>
+                        </legend>
                         <div class="form-group col-md-4">
-                            @*<label for="costoPorReservacion">Costo Por Reservacion</label>
-                            <input id="costoPorReservacion" name="costoPorReservacion" onkeyup="recalcularMontoTotal()"
-                                   class="form-control" value="@(costoTotal - costoTotalPorServicios)" data-mask="###0.00" data-mask-reverse="true" />*@
-
                             @Html.LabelFor(model => model.costoPorReservacion, htmlAttributes: new { @class = "control-label" })
                             @Html.EditorFor(model => model.costoPorReservacion, new
                                {
@@ -223,7 +230,8 @@
                     vdd.Add("selectMode", true);
                     vdd.Add("externalFunction", "recalcularTotales");
                     vdd.Add("evento", Model);
-                    if (editMode || failPostBack)
+                    if (Model.serviciosContratados!=null &&  Model.serviciosContratados.Count() > 0
+                        &&(editMode || failPostBack))
                     {
                         vdd.Add("serviciosSeleccionados", Model.serviciosContratados.ToList());
                     }
@@ -240,160 +248,162 @@
 }
 
 @section Scripts{
-<script>
-    inicializarSeleccionTablaServicios()
-    function recalcularMontoTotal() {
-        var totalPorServicios = currencyToNumber($("#totalPorServicios").val())
-        var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
-        var costoTotal = costoPorReservacion + totalPorServicios;
-        $("#costoTotal").val(numberToCurrency(costoTotal))
-        $("#costo").attr('value', costoTotal)
-    }
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
 
-    @*CONTROL DE PANEL DE SESIONES DENTRO DE LA RESERVACION*@
-    var sesiones = new Array();
-    var hayConflictos = false;
-    //Se introduce a los datos de sesiones al menos una sesion por defecto
-    prepararDatosJSON($('.divSesion'))
-
-    //Funcion para agregar al GUI un nuevo control de sesion, ademas reenumera los paneles y actualiza el estado de datos
-    function agregarSesion() {
-        var divsSesiones = $('.divSesion'); //Se toman todas las sesiones agregadas
-        var newDivSesion = divsSesiones.last().clone(); //Se clona el layout de la sesion  
-        //Se habilita datetimepicker para los inputs dentro del div de sesion
-        $.each(newDivSesion.find("[type=datetime]"), function (idx, item) {
-            $(item).attr('type', 'datetime')
-            $(item).datetimepicker({ lang: 'es', mask: true, value: item.value });
-        })
-
-        if(!newDivSesion.find('i.btnRemover').length){ //Solo se agrega si no hay boton para cerrar en panel base
-            var btnRemover = $('<i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>')
-            newDivSesion.find('.panel-title').append(btnRemover)
-        }
-        //Se agrega la nueva sesion al panel
-        $('#divSesiones').append(newDivSesion)
-
-        enumerar($('.divSesion'))
-        prepararDatosJSON($('.divSesion'))
-    }
-
-    //Remueve un panel de sesion de la reservacion y ademas actualiza el estado de datos
-    function removerSesion(btnRemover) {
-        $(btnRemover).closest(".divSesion").remove()
-        enumerar($('.divSesion'))
-        prepararDatosJSON($('.divSesion'))
-    }
-
-    //Renumera las sesiones en su encabezado
-    function enumerar(divsSesiones) {
-        $.each(divsSesiones, function (idx, item) {
-            $(item).find('#spanNum').html(idx + 1) //Se enumera la nueva sesion
-        })
-    }
-    
-    //Funcion que interpreta los datos del GUI en un arreglo JSON para ser enviado al server
-    function prepararDatosJSON(divsSesiones) {
-        sesiones = new Array()
-        $.each(divsSesiones, function (idx, item) {
-            sesiones.push(nuevoReg($(item)))
-        })
-        $('#listSesiones').val(JSON.stringify(sesiones))
-        console.log(sesiones)
-        checarConflictos()
-    }
-
-    //Verifica y ajusta las fechas de cada sesion para ser válidas
-    function ajustarFechas(inputFecha) {
-        //Se parsean las fechas introducidas dentro del panel modificado
-        var divSesion = $(inputFecha).closest('.divSesion')
-        var inputStartDate = divSesion.find('#sesion_periodoDeSesion_startDate');
-        var inputEndDate = divSesion.find('#sesion_periodoDeSesion_endDate');
-        var dtStartDate = strToDateTime(inputStartDate.val())
-        var dtEndDate = strToDateTime(inputEndDate.val())
-        //Si la fecha inicial es mayor a la final
-        if(dtStartDate > dtEndDate ){
-            dtEndDate = new Date(dtStartDate.getTime()) //Se iguala la inicial con la menor
-            dtEndDate.setHours(dtEndDate.getHours() + 1);
-            //Se modificar el datetimepicker de cada input
-            strStartDate = dateTimeToDateTimePickerFormat(dtStartDate)
-            strEndDate = dateTimeToDateTimePickerFormat(dtEndDate)
-            inputStartDate.datetimepicker({ value: strStartDate })
-            inputEndDate.datetimepicker({ value: strEndDate })
-        }
-    }
-
-    //Crea un objeto JSON de sesion dado un panel GUI rellenado por el usuario
-    function nuevoReg(divSesion) {
-        var dato = {
-            periodoDeSesion: {
-                startDate: divSesion.find('#sesion_periodoDeSesion_startDate').val(),
-                endDate: divSesion.find('#sesion_periodoDeSesion_endDate').val(),
-            },
-            salonID: divSesion.find('#salonID, #sesion_salonID').val()
-        }
-        return dato;
-    }
-
-    initPartialConflictos()
-
-    function checarConflictos() {
-        var token = $('#formReservacion').find("input[name=__RequestVerificationToken]").val()
-        var reservacion = {
-            eventoID:@(Model.eventoID),
-            sesiones: sesiones,
-        };
-        $.postJSON("/Reservacion/checarConflictos", reservacion, "json",
-            function (res) {//Success
-                console.log(res);
-                $('#alertConflicto').slideDownOrUp(res.length)
-                if (res.length) {
-                    renderData(res);
-                }
-                enableAndNotify(res.length)
-            }, function (error) {//Fail
-                alert(error)
-                console.log(error)
-            }, function () {//Always
-
-            }, token)
-    }
-
-    function enableAndNotify(doDisable) {
-        $('#btnReservar').prop('disabled',doDisable)
-    }
-
-    function recalcularTotales() {
-        var total = 0;
-        $.each(elementosSeleccionados, function (idx, item) {
-            total += item.costo * item.cantidad //Propiedad de costo es cambiable
-        })
-        calcularValoresPropiosDeImplementacion(total)
-    }
-
-    function calcularValoresPropiosDeImplementacion(total) {
-        totalPorServicios = total;
-        if (!loadingToEdit) { //No entra cuando recien carga y es edicion
-            $("#totalPorServicios").val(numeral(totalPorServicios).format("0.00")).trigger("input")
+        inicializarSeleccionTablaServicios()
+        function recalcularMontoTotal() {
+            var totalPorServicios = currencyToNumber($("#totalPorServicios").val())
             var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
             var costoTotal = costoPorReservacion + totalPorServicios;
-            $("#costoTotal").val(numeral(numberToCurrency(costoTotal)).format('0.00'))
-            //$("#costo").attr('value', costoTotal)
-            //Preparacion de forma para enviar datos seleccionados
-            $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
-        }else
-            loadingToEdit = false;
+            $("#costoTotal").val(numberToCurrency(costoTotal))
+            $("#costo").attr('value', costoTotal)
+        }
 
-        //test/
-        console.log($('#listServiciosSeleccionados').val())
-    }
-</script>
-@*Si la forma esta en modo edicion o la forma fue regresada por el servidor debido a un error de validacion*@
-@if(editMode || failPostBack) 
-{
-    <script>
-        selectForEdition();
-        $('#listSesiones').val(JSON.stringify(sesiones))
-        $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
+        @*CONTROL DE PANEL DE SESIONES DENTRO DE LA RESERVACION*@
+        var sesiones = new Array();
+        var hayConflictos = false;
+        //Se introduce a los datos de sesiones al menos una sesion por defecto
+        prepararDatosJSON($('.divSesion'))
+
+        //Funcion para agregar al GUI un nuevo control de sesion, ademas reenumera los paneles y actualiza el estado de datos
+        function agregarSesion() {
+            var divsSesiones = $('.divSesion'); //Se toman todas las sesiones agregadas
+            var newDivSesion = divsSesiones.last().clone(); //Se clona el layout de la sesion  
+            //Se habilita datetimepicker para los inputs dentro del div de sesion
+            $.each(newDivSesion.find("[type=datetime]"), function (idx, item) {
+                $(item).attr('type', 'datetime')
+                $(item).datetimepicker({ lang: 'es', mask: true, value: item.value });
+            })
+
+            if(!newDivSesion.find('i.btnRemover').length){ //Solo se agrega si no hay boton para cerrar en panel base
+                var btnRemover = $('<i class="fa fa-remove pull-right btnRemover" onclick="removerSesion(this)"></i>')
+                newDivSesion.find('.panel-title').append(btnRemover)
+            }
+            //Se agrega la nueva sesion al panel
+            $('#divSesiones').append(newDivSesion)
+
+            enumerar($('.divSesion'))
+            prepararDatosJSON($('.divSesion'))
+        }
+
+        //Remueve un panel de sesion de la reservacion y ademas actualiza el estado de datos
+        function removerSesion(btnRemover) {
+            $(btnRemover).closest(".divSesion").remove()
+            enumerar($('.divSesion'))
+            prepararDatosJSON($('.divSesion'))
+        }
+
+        //Renumera las sesiones en su encabezado
+        function enumerar(divsSesiones) {
+            $.each(divsSesiones, function (idx, item) {
+                $(item).find('#spanNum').html(idx + 1) //Se enumera la nueva sesion
+            })
+        }
+    
+        //Funcion que interpreta los datos del GUI en un arreglo JSON para ser enviado al server
+        function prepararDatosJSON(divsSesiones) {
+            sesiones = new Array()
+            $.each(divsSesiones, function (idx, item) {
+                sesiones.push(nuevoReg($(item)))
+            })
+            $('#listSesiones').val(JSON.stringify(sesiones))
+            console.log(sesiones)
+            checarConflictos()
+        }
+
+        //Verifica y ajusta las fechas de cada sesion para ser válidas
+        function ajustarFechas(inputFecha) {
+            //Se parsean las fechas introducidas dentro del panel modificado
+            var divSesion = $(inputFecha).closest('.divSesion')
+            var inputStartDate = divSesion.find('#sesion_periodoDeSesion_startDate');
+            var inputEndDate = divSesion.find('#sesion_periodoDeSesion_endDate');
+            var dtStartDate = strToDateTime(inputStartDate.val())
+            var dtEndDate = strToDateTime(inputEndDate.val())
+            //Si la fecha inicial es mayor a la final
+            if(dtStartDate > dtEndDate ){
+                dtEndDate = new Date(dtStartDate.getTime()) //Se iguala la inicial con la menor
+                dtEndDate.setHours(dtEndDate.getHours() + 1);
+                //Se modificar el datetimepicker de cada input
+                strStartDate = dateTimeToDateTimePickerFormat(dtStartDate)
+                strEndDate = dateTimeToDateTimePickerFormat(dtEndDate)
+                inputStartDate.datetimepicker({ value: strStartDate })
+                inputEndDate.datetimepicker({ value: strEndDate })
+            }
+        }
+
+        //Crea un objeto JSON de sesion dado un panel GUI rellenado por el usuario
+        function nuevoReg(divSesion) {
+            var dato = {
+                periodoDeSesion: {
+                    startDate: divSesion.find('#sesion_periodoDeSesion_startDate').val(),
+                    endDate: divSesion.find('#sesion_periodoDeSesion_endDate').val(),
+                },
+                salonID: divSesion.find('#salonID, #sesion_salonID').val()
+            }
+            return dato;
+        }
+
+        initPartialConflictos()
+
+        function checarConflictos() {
+            var token = $('#formReservacion').find("input[name=__RequestVerificationToken]").val()
+            var reservacion = {
+                eventoID:@(Model.eventoID),
+                sesiones: sesiones,
+            };
+            $.postJSON("/Reservacion/checarConflictos", reservacion, "json",
+                function (res) {//Success
+                    console.log(res);
+                    $('#alertConflicto').slideDownOrUp(res.length)
+                    if (res.length) {
+                        renderData(res);
+                    }
+                    enableAndNotify(res.length)
+                }, function (error) {//Fail
+                    alert(error)
+                    console.log(error)
+                }, function () {//Always
+
+                }, token)
+        }
+
+        function enableAndNotify(doDisable) {
+            $('#btnReservar').prop('disabled',doDisable)
+        }
+
+        function recalcularTotales() {
+            var total = 0;
+            $.each(elementosSeleccionados, function (idx, item) {
+                total += item.costo * item.cantidad //Propiedad de costo es cambiable
+            })
+            calcularValoresPropiosDeImplementacion(total)
+        }
+
+        function calcularValoresPropiosDeImplementacion(total) {
+            totalPorServicios = total;
+            if (!loadingToEdit) { //No entra cuando recien carga y es edicion
+                $("#totalPorServicios").val(numeral(totalPorServicios).format("0.00")).trigger("input")
+                var costoPorReservacion = currencyToNumber($("#costoPorReservacion").val())
+                var costoTotal = costoPorReservacion + totalPorServicios;
+                $("#costoTotal").val(numeral(numberToCurrency(costoTotal)).format('0.00'))
+                $("#costo").attr('value', costoTotal)
+                //Preparacion de forma para enviar datos seleccionados
+                $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
+            }else
+                loadingToEdit = false;
+
+            //test/
+            console.log($('#listServiciosSeleccionados').val())
+        }
     </script>
-}
+    @*Si la forma esta en modo edicion o la forma fue regresada por el servidor debido a un error de validacion*@
+    @if(editMode || failPostBack) 
+    {
+        <script>
+            selectForEdition();
+            $('#listSesiones').val(JSON.stringify(sesiones))
+            $('#listServiciosSeleccionados').val(JSON.stringify(elementosSeleccionados))
+        </script>
+    }
 }

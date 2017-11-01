@@ -25,15 +25,16 @@ namespace Jerry.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,totalPorServicios," +
-            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato,CantidadPersonas";
+            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato,CantidadPersonas,esCotizacion";
 
         // GET: Reservacion}
         [Authorize]
-        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode=false)
+        public ActionResult Index(Reservacion.VMFiltroEventos filtroReservaciones, bool listMode = false, bool soloCotizaciones = false)
         {
-            var reservaciones = filterReservaciones(filtroReservaciones);
+            var reservaciones = filterReservaciones(filtroReservaciones, soloCotizaciones);
             ViewBag.result = reservaciones;
             ViewBag.listMode = listMode;
+            ViewBag.soloCotizaciones = soloCotizaciones;
 
             return View(filtroReservaciones);
         }
@@ -65,13 +66,13 @@ namespace Jerry.Controllers
         /// </summary>
         /// <param name="filtroReservaciones">Objeto que representa el rango de tiempo de busqueda.</param>
         /// <returns></returns>
-        private IEnumerable<Reservacion> filterReservaciones(Reservacion.VMFiltroEventos filtroReservaciones)
+        private IEnumerable<Reservacion> filterReservaciones(Reservacion.VMFiltroEventos filtroReservaciones, bool soloCotizaciones = false)
         {
             TimePeriod periodo = filtroReservaciones.TimePeriod;
             List<Reservacion> reservaciones = new List<Reservacion>();
 
             //Se seleccionan las reservaciones cuyas sesiones tienen horarios de inicio o fin dentro del rango de busqueda
-            reservaciones = db.reservaciones.SelectMany(res=>res.sesiones)
+            reservaciones = db.reservaciones.Where(res => res.esCotizacion == soloCotizaciones).SelectMany(res=>res.sesiones)
                 .Where(s => s.periodoDeSesion.startDate >= periodo.startDate && s.periodoDeSesion.startDate <= periodo.endDate
                 || s.periodoDeSesion.endDate >= periodo.startDate && s.periodoDeSesion.endDate <= periodo.endDate)
                 .Select(s=>s.reservacion).Distinct().ToList();

@@ -11,15 +11,23 @@
     @*Variables para editar la lista de productos comprados*@
     bool editMode = false;
     bool found = false;
-    List<ServiciosEnReservacion> servicios = null;
+    List<ServiciosEnReservacion> serviciosReservados = null;
     ServiciosEnReservacion itemIndex = null;
+    var listaDeServicios = Model.ToList();
     if (ViewData["serviciosSeleccionados"] != null)
     {
-        servicios = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
-        editMode = servicios != null && servicios.Count() > 0;
+        serviciosReservados = (List<ServiciosEnReservacion>)ViewData["serviciosSeleccionados"];
+        serviciosReservados = serviciosReservados.Where(ser => ser != null).ToList();
+        editMode = serviciosReservados != null && serviciosReservados.Count() > 0 && !detailsMode;
+        if (editMode)
+        {
+            var serviciosBorrados = serviciosReservados.Where(ser => ser.serviciosID == null).Select(ser => new Servicio(ser));
+            listaDeServicios.AddRange(serviciosBorrados);
+        }
     }
+
 }
-@if (Model != null && Model.Count() > 0)
+@if (listaDeServicios != null && listaDeServicios.Count() > 0)
 {
 <table id="tblServicios" class="table table-striped table-hover">
     <thead>
@@ -38,6 +46,9 @@
             <th class="hidden">
                 @Html.DisplayNameFor(model => model.serviciosID)
             </th>
+            <th class="hidden">
+                RowNo
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.nombre)
             </th>
@@ -54,32 +65,40 @@
         </tr>
     </thead>
     <tbody>
-            @foreach (var item in Model)
+        @{ 
+            int c = 0;
+        }
+            @foreach (var item in listaDeServicios) //Por cada servicio en la lista de servicios en el sistema
             {
-                if (editMode || detailsMode)
+                if (editMode || detailsMode) //Se busca el servicio reservado asociado al servicio en el renglon
                 {
-                    itemIndex = servicios.FirstOrDefault(serv => serv.serviciosID == item.serviciosID);
-                    found = itemIndex != null;
+                    itemIndex = serviciosReservados.FirstOrDefault(serv => serv.serviciosID == item.serviciosID);
+                    found = itemIndex != null; //Se encontro o no
+                    if (!found && item.fueBorrado){
+                        found = true;
+                    }
                 }
 
-                <tr item-id="@(item.serviciosID)" @(found ? "default-selected" : "")>
+                <tr item-id="@c" @(found ? "default-selected" : "") row_num ="@c">
                     @if (selectMode)
                     {
                         <td></td>
                     }
-                    @if (selectMode || detailsMode)
+                    @if (selectMode || detailsMode) //Si se encuentra, se pone la cantidad de servicios seleccionados
                     {
                         <td width="1em">
-                            <input type="number" item-id="@(item.serviciosID)"
+                            <input type="number" item-id="@c"
                                    id="producto@(item.serviciosID)" min="0"
                                    oninput="editarElemento(this)" class="form-control inputCantidad"
-                                   value="@(editMode && found?itemIndex.cantidad:0)" 
-                                   @(detailsMode?"disabled":"")
-                                   />
+                                   value="@(item.fueBorrado?item.cantidadServicioBorrado:(((editMode||detailsMode) && found)?itemIndex.cantidad:0))"
+                                   @(detailsMode?"disabled":"") />
                         </td>
                     }
                     <td class="hidden">
                         @Html.DisplayFor(modelItem => item.serviciosID)
+                    </td>
+                    <td class="hidden">
+                        @c
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.nombre)
@@ -87,16 +106,21 @@
                     <td>
                         @if (!selectMode)
                         {
-                            @*Html.DisplayFor(modelItem => item.costo)*@
-                            @(found ? itemIndex.costo.ToString("C") : item.costo.ToString("C"))
+                            @*(found ? itemIndex.costo.ToString("C") : item.costo.ToString("C"))*@
+                            if(!editMode && !detailsMode)
+                            {
+                                @item.costo.ToString("C");
+                            }else {
+                                @(item.fueBorrado ? item.costo : ((editMode || detailsMode) && found ? itemIndex.costo : 0))
+                            }
                         }
                         else
                         {
                             <input class="form-control inputCosto" 
                                    data-mask="###0.00" data-mask-reverse="true" 
-                                   id="item_costo" item-id="@(item.serviciosID)" name="costo@(item.serviciosID)"
-                                   onkeyup="editarElemento(this)" value="@(editMode && found?itemIndex.costo:item.costo)">
-                       }
+                                   id="item_costo" item-id="@c" name="costo@(item.serviciosID)"
+                                   onkeyup="editarElemento(this)" value="@(item.fueBorrado?item.costo:(((editMode||detailsMode) && found)?itemIndex.costo:item.costo))">
+                        }
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.descripcion)
@@ -104,12 +128,13 @@
                     @if (!selectMode && showOptions)
                     {
                         <td>
-                            <a href="@Url.Action("Delete","Servicio", new { id = item.serviciosID })">
+                            <a style="cursor:pointer" onclick="confirmDelete(@(item.serviciosID))">
                                 <i class="fa fa-remove"></i><span>Eliminar</span>
                             </a>
                         </td>
                     }
                 </tr>
+                c++;
             }
     </tbody>
 </table>
@@ -133,7 +158,7 @@ else
 
     /*Funciones y variables de seleccion de elementos*/
     var table;
-    var COLS_ENUM = Object.freeze({ CANTIDAD:1, ID: 2, COSTO: 4})
+    var COLS_ENUM = Object.freeze({ CANTIDAD:1, ID: 2, ROW_NO: 3, NOMBRE: 4, COSTO: 5})
     var elementosSeleccionados = new Array();
     function inicializarSeleccionTablaServicios(){
         table = $("#tblServicios").DataTable({
@@ -167,12 +192,12 @@ else
     function agregarSeleccion(rows) {
         var renglones = new Array();
         if (!rows.rows) { //Si es un solo elemento
-            var inputCantidad = $('input[item-id=' + rows[COLS_ENUM.ID] + ']');
+            var inputCantidad = $('input[item-id=' + rows[COLS_ENUM.ROW_NO] + ']');
             introducirNuevaCantidad(inputCantidad[0]);
         } else { //Si son varios
             renglones = rows;
             $.each(renglones, function (idx, row) {
-                var inputCantidad = $('input[item-id=' + row[COLS_ENUM.ID] + ']');
+                var inputCantidad = $('input[item-id=' + row[COLS_ENUM.ROW_NO] + ']');
                 introducirNuevaCantidad(inputCantidad[0]);
             })
         }
@@ -189,7 +214,8 @@ else
         }
         $.each(renglonesAEliminar, function (idx, row) {
             elementosSeleccionados = $.grep(elementosSeleccionados, function (item, idx) {
-                return item.serviciosID == row[COLS_ENUM.ID] //ID del elemento donde se esta implementando
+                //return item.serviciosID == row[COLS_ENUM.ID] //ID del elemento donde se esta implementando
+                return item.rowNum == row[COLS_ENUM.ROW_NO] //ID del elemento donde se esta implementando
             }, true)
         })
     }
@@ -206,17 +232,13 @@ else
         var item_id = $(inputCantidad).attr('item-id');
         var trRow = $("#tblServicios tr[item-id="+item_id+"]");
 
-        /*var cantidad = inputCantidad ? inputCantidad.valueAsNumber : Number($(dato[COLS_ENUM.CANTIDAD]).val());
-        var costo = inputCantidad ? inputCantidad.valueAsNumber : Number($(dato[COLS_ENUM.CANTIDAD]).val());*/
         var cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
         var costo =  currencyToNumber(trRow.find('td input.inputCosto').val());
-        /*
-        elementosSeleccionados[itemIDX].cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
-        elementosSeleccionados[itemIDX].costo = currencyToNumber(trRow.find('td input.inputCosto').val());*/
-
+        
         elementosSeleccionados.push({
-            serviciosID: dato[COLS_ENUM.ID],
-            //costo: currencyToNumber(dato[COLS_ENUM.COSTO]),
+            rowNum:item_id,
+            serviciosID: dato[COLS_ENUM.ID]==="0"?null:dato[COLS_ENUM.ID],
+            nombre: dato[COLS_ENUM.NOMBRE],
             costo: costo,
             cantidad: cantidad,
         })
@@ -230,24 +252,39 @@ else
 
         //Se busca si el input editado se encuentra seleccionado
         var selRow = $.grep(data, function (item, idx) {
-            return item[COLS_ENUM.ID] == $(input).attr('item-id');
+            return item[COLS_ENUM.ROW_NO] == $(input).attr('item-id');
         })[0];
 
         return selRow;
     }
 
     function editarElemento(inputEditado) {
-        var selRow = buscarRenglonSeleccionado(inputEditado);
+        var item_id = $(inputEditado).attr('item-id');
         var trRow = $(inputEditado).closest('tr');
-        if (selRow) {
-            var itemIDX
-            $.each(elementosSeleccionados, function (idx, item) {
-                if (selRow[COLS_ENUM.ID] == item.serviciosID)
-                    itemIDX = idx;
-            })
-            elementosSeleccionados[itemIDX].cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
-            elementosSeleccionados[itemIDX].costo = currencyToNumber(trRow.find('td input.inputCosto').val());
+        var aEditar = elementosSeleccionados.filter(function(item){
+            //debugger
+            return item.rowNum == parseInt(item_id)
+        })[0]
+        if(aEditar){
+            aEditar.cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
+            aEditar.costo = currencyToNumber(trRow.find('td input.inputCosto').val());
         }
         @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
+    }
+
+    function confirmDelete(servicioID){
+        var strURL = "@(Url.Action("Delete","Servicio"))/"+servicioID
+        swal({
+            title: "¿Estas seguro?",
+            text: "Si eliminas este servicio, ya no aparecerá dentro de menu de seleccion de servicios al crear o editar un evento.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                window.location.href = strURL;
+            }
+        });
     }
 </script>

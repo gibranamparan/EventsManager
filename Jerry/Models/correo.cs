@@ -20,16 +20,8 @@ namespace Jerry.Models
         public string Body { get; set; }
         [Display(Name = "Correo administrador")]
         public string correoAdmin { get; set; }
-        [Display(Name = "Contraseña")]
-        public string contrasena { get; set; }
-        [Display(Name = "smtpHost")]
-        public string smtpHost { get; set; }
-        [Display(Name = "Puerto")]
-        public int puertoCorreo { get; set; }
-        [Display(Name = "SSL Enabled")]
-        public bool sslEnabled { get; set; }
 
-        public ErrorEmail enviarCorreo(string emailDestino, Rotativa.ViewAsPdf rotativaFile,
+        public ErrorEmail enviarCorreo(string emailDestino,string clientName, Rotativa.ViewAsPdf rotativaFile,
             ControllerContext controllerContext, string aditionalBody)
         {
             var fileBytes = rotativaFile.BuildPdf(controllerContext);
@@ -39,32 +31,32 @@ namespace Jerry.Models
             if (string.IsNullOrEmpty(fileName))
                 fileName = "tempPDF.pdf";
 
-            return enviarCorreo(emailDestino, stream, fileName, aditionalBody);
+            return enviarCorreo(emailDestino, clientName, stream, fileName, aditionalBody);
         }
 
         //public ErrorEmail enviarCorreo(HttpPostedFileBase fileUploader, string emailDestino)
-        public ErrorEmail enviarCorreo(string emailDestino, Stream fileStream, string fileName, string aditionalBody)
+        public ErrorEmail enviarCorreo(string emailDestino,string clientName, Stream fileStream, string fileName, string aditionalBody)
         {
             ErrorEmail err = new ErrorEmail();
-            try { 
-                MailMessage mail = new MailMessage(this.correoAdmin, emailDestino);
+            try {
+                MailMessage mail = new MailMessage(new MailAddress(this.correoAdmin, "Jerry's System"),new MailAddress(emailDestino,clientName));
+                mail.Bcc.Add(new MailAddress("gibranamparan@netcodesolutions.net", "Desarrollador"));
+                //mail.Bcc.Add(new MailAddress("jerrycanez@hotmail.com", "Propietario"));
+
                 if (fileStream != null)
-                {
-                    //mail.Attachments.Add(new Attachment(fileUploader.InputStream, fileName));
                     mail.Attachments.Add(new Attachment(fileStream, fileName));
-                }
 
                 mail.Subject = this.Subject;
                 mail.Body = this.Body;
                 mail.Body += aditionalBody != null ? aditionalBody : string.Empty;
                 mail.IsBodyHtml = false;
                 SmtpClient smtp = new SmtpClient();
-                smtp.Host = this.smtpHost;
+                /*smtp.Host = this.smtpHost;
                 smtp.EnableSsl = this.sslEnabled;
                 NetworkCredential networkCredential = new NetworkCredential(this.correoAdmin, this.contrasena);
                 smtp.UseDefaultCredentials = false;
                 smtp.Credentials = networkCredential;
-                smtp.Port = this.puertoCorreo;
+                smtp.Port = this.puertoCorreo;*/
                 smtp.Send(mail);
                 err.code = ErrorEmail.ErrorEmailCode.SENT;
 

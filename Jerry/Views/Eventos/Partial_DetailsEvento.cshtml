@@ -13,6 +13,9 @@
         </span>
     </div>
     <div class="panel-body">
+        @if (Model.esCotizacion) {
+        <div class="alert alert-warning col-md-12">Este registro es sólo una cotizacion, para registrarlo como una reservacion, ingrese a la función de editar.</div>
+        }
         <div>
             <div class="row">
                 <div class="col-xs-6 form-group">

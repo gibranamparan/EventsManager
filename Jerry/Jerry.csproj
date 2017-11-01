@@ -230,6 +230,22 @@
     <Compile Include="Migrations\201709150327452_serviciosInReservaciones_Costo.Designer.cs">
       <DependentUpon>201709150327452_serviciosInReservaciones_Costo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201710301825592_evento_esCotizacion.cs" />
+    <Compile Include="Migrations\201710301825592_evento_esCotizacion.Designer.cs">
+      <DependentUpon>201710301825592_evento_esCotizacion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201710310520140_servicios_seleccionados.cs" />
+    <Compile Include="Migrations\201710310520140_servicios_seleccionados.Designer.cs">
+      <DependentUpon>201710310520140_servicios_seleccionados.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201710310523439_servicios_seleccionados2.cs" />
+    <Compile Include="Migrations\201710310523439_servicios_seleccionados2.Designer.cs">
+      <DependentUpon>201710310523439_servicios_seleccionados2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711010326550_simple_correo_model.cs" />
+    <Compile Include="Migrations\201711010326550_simple_correo_model.Designer.cs">
+      <DependentUpon>201711010326550_simple_correo_model.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Banquete.cs" />
@@ -432,6 +448,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\skel.min.js" />
+    <Content Include="Scripts\sweetalert.min.js" />
     <Content Include="Scripts\util.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="tmpls\day.html" />
@@ -555,6 +572,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709150327452_serviciosInReservaciones_Costo.resx">
       <DependentUpon>201709150327452_serviciosInReservaciones_Costo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710301825592_evento_esCotizacion.resx">
+      <DependentUpon>201710301825592_evento_esCotizacion.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710310520140_servicios_seleccionados.resx">
+      <DependentUpon>201710310520140_servicios_seleccionados.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710310523439_servicios_seleccionados2.resx">
+      <DependentUpon>201710310523439_servicios_seleccionados2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711010326550_simple_correo_model.resx">
+      <DependentUpon>201711010326550_simple_correo_model.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -128,12 +128,13 @@ namespace Jerry.Controllers
             if (DatosCorreo != null)
             {
                 Evento reservacion = db.eventos.Find(reservacionID);
+                string clientName = reservacion.cliente.nombreCompleto;
                 string bodyDelCorreo = reservacion.descripcionDetallada;
 
                 var fileView = new Rotativa.ViewAsPdf("ReporteDeEvento", "BlankLayout", reservacion)
                 { FileName = "Estado de Cuenta "+reservacion+" - "+DateTime.Today.ToString("dd-MMMM-yy") + ".pdf" };
 
-                ErrorEmail err = DatosCorreo.enviarCorreo(emailDestino, fileView, this.ControllerContext,reservacion.descripcionDetallada);
+                ErrorEmail err = DatosCorreo.enviarCorreo(emailDestino, clientName, fileView, this.ControllerContext,reservacion.descripcionDetallada);
                 RouteValueDictionary rvd = new RouteValueDictionary();
                 TempData["errorEmail"] = err;
                 rvd.Add("errorEmail", err);
