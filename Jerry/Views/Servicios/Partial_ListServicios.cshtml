@@ -55,6 +55,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.costo)
             </th>
+            @if (!showOptions || selectMode)
+            {
+            <th>
+                Monto
+            </th>
+            }
             <th>
                 @Html.DisplayNameFor(model => model.descripcion)
             </th>
@@ -82,10 +88,12 @@
                 <tr item-id="@c" @(found ? "default-selected" : "") row_num ="@c">
                     @if (selectMode)
                     {
+                        @*Checbox Selection*@
                         <td></td>
                     }
                     @if (selectMode || detailsMode) //Si se encuentra, se pone la cantidad de servicios seleccionados
                     {
+                        @*Cantidad*@
                         <td width="1em">
                             <input type="number" item-id="@c"
                                    id="producto@(item.serviciosID)" min="0"
@@ -94,25 +102,31 @@
                                    @(detailsMode?"disabled":"") />
                         </td>
                     }
+                    @*ID del servicio*@
                     <td class="hidden">
                         @Html.DisplayFor(modelItem => item.serviciosID)
                     </td>
+                    @*Numero de lista*@
                     <td class="hidden">
                         @c
                     </td>
+                    @*Nombre del servicio*@
                     <td>
                         @Html.DisplayFor(modelItem => item.nombre)
                     </td>
+                    @*Costo*@
                     <td>
                         @if (!selectMode)
                         {
-                            @*(found ? itemIndex.costo.ToString("C") : item.costo.ToString("C"))*@
-                            if(!editMode && !detailsMode)
-                            {
-                                @item.costo.ToString("C");
-                            }else {
-                                @(item.fueBorrado ? item.costo : ((editMode || detailsMode) && found ? itemIndex.costo : 0))
-                            }
+                            <span id="item_costo" class="inputCosto">
+                                @*(found ? itemIndex.costo.ToString("C") : item.costo.ToString("C"))*@
+                                @if(!editMode && !detailsMode)
+                                {
+                                    @item.costo.ToString("C");
+                                }else {
+                                    @(item.fueBorrado ? item.costo.ToString("C") : ((editMode || detailsMode) && found ? itemIndex.costo.ToString("C") : 0.ToString("C")))
+                                }
+                            </span>
                         }
                         else
                         {
@@ -122,9 +136,23 @@
                                    onkeyup="editarElemento(this)" value="@(item.fueBorrado?item.costo:(((editMode||detailsMode) && found)?itemIndex.costo:item.costo))">
                         }
                     </td>
+                    @*Monto del servicio*@
+                    <td>
+                        @{
+                            decimal cantidad = item.fueBorrado ? item.cantidadServicioBorrado : (((editMode || detailsMode) && found) ? itemIndex.cantidad : 0);
+                            decimal costo = (!editMode && !detailsMode) ? item.costo : (item.fueBorrado ? item.costo : ((editMode || detailsMode) && found ? itemIndex.costo : 0));
+                            decimal monto = cantidad * costo;
+                        }
+                        <span class="item_monto" item-id="@c">
+                            @(monto.ToString("C"))
+                        </span>
+                    </td>
+                    
+                    @*Descripcion de servicio*@
                     <td>
                         @Html.DisplayFor(modelItem => item.descripcion)
                     </td>
+                    @*Opciones*@
                     @if (!selectMode && showOptions)
                     {
                         <td>
@@ -145,13 +173,12 @@ else
         No hay servicios @(selectMode ? "seleccionados" : "registrados").
     </div>
 }
-
 <script>
     /*Funciones y varialbes propias de la implementacion*/
     var totalPorServicios = @(evento.totalPorServicios);
     var editMode = @(editMode?"true":"false");
     var loadingToEdit = editMode;
-
+    
     function selectForEdition() {
         $("#tblServicios").DataTable().table().rows('[default-selected]').select();
     }
@@ -234,6 +261,8 @@ else
 
         var cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
         var costo =  currencyToNumber(trRow.find('td input.inputCosto').val());
+        //Se calcula el monto total por el servicio seleccionado
+        trRow.children("td").children(".item_monto").html(numeral(cantidad * costo).format("$0.00"))
         
         elementosSeleccionados.push({
             rowNum:item_id,
@@ -268,6 +297,7 @@ else
         if(aEditar){
             aEditar.cantidad = currencyToNumber(trRow.find('td input.inputCantidad').val());
             aEditar.costo = currencyToNumber(trRow.find('td input.inputCosto').val());
+            trRow.children("td").children(".item_monto").html(numeral(aEditar.cantidad * aEditar.costo).format("$0.00"))
         }
         @(String.IsNullOrEmpty(externalFunction)? "":externalFunction+ "(elementosSeleccionados)")
     }
@@ -286,5 +316,16 @@ else
                 window.location.href = strURL;
             }
         });
+    }
+
+    function bindMontos(){
+        var renglones = $("#tblServicios tbody tr")
+        renglones.each(function(idx,trRow){
+            trRow = $(trRow)
+            //debugger
+            var cantidad = currencyToNumber(trRow.children("td").children(".inputCantidad").val());
+            var costo = currencyToNumber(trRow.children("td").children(".inputCosto").html())
+            trRow.children("td").children(".item_monto").html(numeral(cantidad * costo).format("$0.00"))
+        })
     }
 </script>

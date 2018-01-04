@@ -145,8 +145,12 @@ a#linkLogo{
     color: black;
 }
 
+.rowPagado, .rowPagado td{
+    background: #bdffaa
+}
+
 .rowCotizacion, .rowCotizacion td{
-    background: #a1a1a1
+    background: #a1a1a1 !important
 }
 
 @media print {

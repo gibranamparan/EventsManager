@@ -85,6 +85,13 @@ namespace Jerry.Models
         [DisplayName("Cantidad")]
         public int cantidad { get; set; }
 
+        [DisplayName("Monto")]
+        [DisplayFormat(DataFormatString = "{0:C}",
+            ApplyFormatInEditMode = true)]
+        public decimal montoUnitario { get {
+                return cantidad * costo;
+            } }
+
         public override string ToString()
         {
             string res = string.Empty;

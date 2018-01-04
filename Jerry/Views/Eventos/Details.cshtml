@@ -124,30 +124,31 @@
 
 @if (Model.cantidadFaltante == 0 && Model.costo > 0)
 {
-    <div class="alert alert-success">Esta reservación no presenta adeudos</div>
+<div class="alert alert-success">Esta reservación no presenta adeudos</div>
 }
-else if(Model.cantidadFaltante > 0)
-{
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <span class="panel-title">
-                Historial de Pagos
-            </span>
-        </div>
-        <div class="panel-body">
-            @*Formulario de nuevo pago*@
-            <div class="hidden-print">
-                @Html.Partial("../Pago/Partial_IngresarPago", p, vdd)
-            </div>
-
-            @*Lista de pagos*@
-            @Html.Partial("../Pago/Partial_DetallesDePagos")
-        </div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <span class="panel-title">
+            Historial de Pagos
+        </span>
     </div>
-}
+    <div class="panel-body">
+        @if(Model.cantidadFaltante > 0)
+        {
+        @*Formulario de nuevo pago, solo se debe mostrar si hay adeudo*@
+        <div class="hidden-print">
+            @Html.Partial("../Pago/Partial_IngresarPago", p, vdd)
+        </div>
+        }
+
+        @*Lista de pagos*@
+        @Html.Partial("../Pago/Partial_DetallesDePagos")
+    </div>
+</div>
 
 @section Scripts{
     <script>
+        bindMontos()
         var showRespuestaModal = boolParse('@(errorMail.code!=Correo.ErrorEmail.ErrorEmailCode.NONE)');
         if (showRespuestaModal)
             $('#@(vmModalOptsRespuestaCorreo.modalID)').modal();

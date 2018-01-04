@@ -1,9 +1,13 @@
 ﻿@using Jerry.Models
 @model IEnumerable<Jerry.Models.Evento>
 <div class="row" style="margin-bottom: 1em">
-    <span class="col-md-3">
-        <span class="col-md-1 rowCotizacion" style="height: 20px;border:1px solid">  </span> 
+    <span class="col-md-2">
+        <span class="col-md-1 rowCotizacion" style="height: 20px;border:1px solid">  </span>
         <span>Es cotización</span>
+    </span>
+    <span class="col-md-2">
+        <span class="col-md-1 rowPagado" style="height: 20px;border:1px solid">  </span>
+        <span>Pagado</span>
     </span>
 </div>
 <table class="table table-hover table-striped datatable">
@@ -49,7 +53,7 @@
     <tbody>
         @foreach (var item in Model.OrderBy(res => res.fechaEventoInicial))
         {
-            <tr class="@(item.esCotizacion?"rowCotizacion":"")">
+            <tr class="@(item.esCotizacion?"rowCotizacion":"") @(item.estaPagado ? "rowPagado" : "")">
                 <td>
                     @item.eventoID
                 </td>

@@ -114,6 +114,25 @@ namespace Jerry.Controllers
             return fileView;
         }
 
+        [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
+        public ActionResult verReporte(int? id, string errorPagoMsg)
+        {
+            if (id == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            Evento reservacion = db.eventos.Find(id);
+
+            if (reservacion == null)
+                return HttpNotFound();
+
+            /*var fileView = new Rotativa.ViewAsPdf("ReporteDeEvento", "BlankLayout", reservacion)
+            { FileName = reservacion + ".pdf" };
+
+            //Code to get content
+            return fileView;*/
+            return View("ReporteDeEvento", "BlankLayout", reservacion);
+        }
+
         /// <summary>
         /// Send Mail with hotmail
         /// </summary>

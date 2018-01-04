@@ -224,6 +224,20 @@ namespace Jerry.Models
         }
 
         /// <summary>
+        /// Arroja la cantidad faltante a pagar calculandolo como el total del costo del evento
+        /// menos la suma de todos los abonos registrados.
+        /// </summary>
+        [Display(Name = "Esta Pagado")]
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
+        public bool estaPagado
+        {
+            get
+            {
+                return cantidadFaltante <= 0;
+            }
+        }
+
+        /// <summary>
         /// Calcula el total del monto pagado para la reservacion.
         /// </summary>
         [Display(Name = "Pagado")]
