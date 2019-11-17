@@ -436,6 +436,7 @@
     <Content Include="App_Data\ReporteReservacion.pdf" />
     <Content Include="App_Data\CONTRATO_SERVICIOS.docx" />
     <None Include="Properties\PublishProfiles\Produccion.pubxml" />
+    <None Include="Properties\PublishProfiles\Produccion2.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\custom.js" />
     <Content Include="Scripts\dataTables.select.min.js" />

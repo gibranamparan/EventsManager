@@ -56,7 +56,7 @@ namespace Jerry.Controllers
         }
 
         //[Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public ActionResult ListUsers()
         {
             var users = from user in db.Users.ToList()
