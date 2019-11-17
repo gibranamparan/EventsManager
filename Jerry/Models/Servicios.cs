@@ -90,8 +90,9 @@ namespace Jerry.Models
             ApplyFormatInEditMode = true)]
         public decimal montoUnitario { get {
                 return cantidad * costo;
-            } }
-
+            }
+        }
+        
         public override string ToString()
         {
             string res = string.Empty;

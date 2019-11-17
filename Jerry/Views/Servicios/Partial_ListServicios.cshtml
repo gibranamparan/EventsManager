@@ -62,6 +62,9 @@
             </th>
             }
             <th>
+                @Html.DisplayNameFor(model=>model.tipoDeEvento)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.descripcion)
             </th>
             @if (!selectMode && showOptions)
@@ -137,6 +140,7 @@
                         }
                     </td>
                     @*Monto del servicio*@
+                    @if (!(!selectMode && showOptions)) { 
                     <td>
                         @{
                             decimal cantidad = item.fueBorrado ? item.cantidadServicioBorrado : (((editMode || detailsMode) && found) ? itemIndex.cantidad : 0);
@@ -147,7 +151,13 @@
                             @(monto.ToString("C"))
                         </span>
                     </td>
-                    
+                    }
+
+                    @*Tipo de evento*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.tipoDeEvento)
+                    </td>
+
                     @*Descripcion de servicio*@
                     <td>
                         @Html.DisplayFor(modelItem => item.descripcion)

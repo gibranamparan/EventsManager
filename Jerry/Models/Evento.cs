@@ -1,12 +1,15 @@
 ﻿using Jerry.GeneralTools;
 using Novacode;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -24,6 +27,12 @@ namespace Jerry.Models
         [Required]
         [Display(Name = "Cantidad de Personas")]
         public int CantidadPersonas { get; set; }
+
+        /// <summary>
+        /// Nombre del platillo a servir en el evento
+        /// </summary>
+        [DisplayName("Platillo")]
+        public string platillo { get; set; }
 
         /// <summary>
         /// Llave foranea del cliente que contrató la reservación.
@@ -68,7 +77,7 @@ namespace Jerry.Models
         /// Descripción general del evento.
         /// </summary>
         [DataType(DataType.MultilineText)]
-        [Display(Name = "Descripción")]
+        [Display(Name = "Descripción y/o Notas")]
         public string Detalles { get; set; }
 
         [Required]
@@ -129,24 +138,98 @@ namespace Jerry.Models
         /// Genera una cadena de caracteres en la que se muestran todos los servicios
         /// registrados para esta reservación.
         /// </summary>
-        public string enlistarServiciosParaContrato
+        public string enlistarServiciosParaContrato(TipoEvento? tipoEvento, bool evadirBanquete = false)
         {
-            get
-            {
-                string res = string.Empty;
-                foreach (var ser in this.serviciosContratados)
-                {
-                    res += ser.ToString() + ", ";
-                }
-                res = res.TrimEnd().TrimEnd(',');
+            /*var servicios = tipoEvento.HasValue ?
+                this.serviciosContratados.Where(s => s.servicio.tipoDeEvento == tipoEvento) :
+                this.serviciosContratados;*/
+            List<ServiciosEnReservacion> servicios = new List<ServiciosEnReservacion>();
+            if (tipoEvento.HasValue)
+                servicios = this.serviciosContratados.Where(s => s.servicio == null || s.servicio.tipoDeEvento == tipoEvento).ToList();
+            else
+                servicios = this.serviciosContratados.ToList();
 
-                return res;
+            if (evadirBanquete)
+                servicios = servicios.Where(s => s.servicio == null || s.servicio.tipoDeEvento != TipoEvento.BANQUETE).ToList();
+
+            string res = string.Empty;
+            foreach (var ser in servicios)
+                res += ser.ToString() + ", ";
+
+            res = res.TrimEnd().TrimEnd(',');
+
+            return res;
+        }
+
+
+        /// <summary>
+        /// Envia un correo electronico al cliente y admins con detalles de la reservacion en PDF
+        /// </summary>
+        /// <param name="Request">Request instance from controller</param>
+        /// <param name="controllerContext">Controller context</param>
+        /// <returns></returns>
+        public async Task<string> send_eventReport(HttpRequestBase Request, ControllerContext controllerContext)
+        {
+            string errorMessage = string.Empty;
+            string strDate = this.fechaEventoInicial.ToString("dd 'de' MMMM 'del' yyyy");
+
+            //Subject
+            string subject = $"Detalles de evento del {strDate} del cliente {this.cliente.nombreCompleto}";
+
+            //URL To see Details
+            string detailsURL = Request.Url.Scheme + System.Uri.SchemeDelimiter + Request.Url.Host + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port);
+            detailsURL += $"/Evento/Details/{this.eventoID}";
+
+            //Email Body
+            string businessEmail = ConfigurationManager.AppSettings["BussinessName"];
+            string emailMessage = $"<h2>{ businessEmail }</h2>";
+            emailMessage += $"<h3>Detalles e historial de pagos.</h3>";
+            emailMessage += $"<span>En este correo se encuentran adjuntos los detalles asociados a su evento del dia { strDate }";
+            emailMessage += $" a nombre de {this.cliente.nombreCompleto }";
+
+            //Generate attachments for email
+            List<Attachment> attachments = null;
+            //Add link to see report if its a visit that cause Impact of Rent
+            /*emailMessage += $" <span>See attached PDF or click this link to go to your Impact of Rent status report for year {year}:</span>";
+            emailMessage += " <a href='" + detailsURL + "'>Download Impact of Rent Report Year .</a>";*/
+
+            //Is mailer enabled
+            bool emailEnabled = true;
+            Boolean.TryParse(ConfigurationManager.AppSettings["enableEmail"], out emailEnabled);
+            //Just send Impact of Rent report for paid visits marked as that.
+            if (controllerContext != null && emailEnabled)
+            {
+                //Generate the report to be send
+                //var fileView = this.generateRotativaPDF_RentsByYearReport(year, Request);
+                var fileView = new Rotativa.ViewAsPdf("ReporteDeEvento", "BlankLayout", this)
+                { FileName = "Estado de Cuenta " + this + " - " + DateTime.Today.ToString("dd-MMMM-yy") + ".pdf" };
+                //Converts report to PDF file
+                var fileBytes = fileView.BuildPdf(controllerContext);
+                //Add PDF file to attachments
+                Attachment attach = new Attachment() { Filename = fileView.FileName, Content = Convert.ToBase64String(fileBytes), Type = "application/pdf" };
+                attachments = new List<Attachment>() { attach };
             }
+
+            //Async sending of email
+            //Compose destination
+            var ownerAdress = new List<SendGrid.Helpers.Mail.EmailAddress>
+                { new SendGrid.Helpers.Mail.EmailAddress(this.cliente.email, this.cliente.nombreCompleto) };
+            /*var contacts = owner.condosInfoContact;
+            foreach (var con in contacts) //For each related contact, an email is added to receipts
+            {
+                if (MailerSendGrid.IsValid(con.email))
+                    ownerAdress.Add(new SendGrid.Helpers.Mail.EmailAddress(con.email, con.ownerName));
+            }*/
+
+            //Email is sent just to the admin
+            errorMessage = await MailerSendGrid.sendEmailToMultipleRecipients(subject, emailMessage, ownerAdress, attachments);
+
+            return errorMessage;
         }
 
         public string descripcionDetallada { get {
                 string res = " "+this.ToString()+". ";
-                res += "Se contratan los servicios de " + this.enlistarServiciosParaContrato+".";
+                res += "Se contratan los servicios de " + this.enlistarServiciosParaContrato(null)+".";
 
                 if (this.tipoDeEvento == TipoEvento.RESERVACION)
                     res += " El evento realizara " + ((Reservacion)this).sesionesString;
@@ -212,7 +295,7 @@ namespace Jerry.Models
         /// Arroja la cantidad faltante a pagar calculandolo como el total del costo del evento
         /// menos la suma de todos los abonos registrados.
         /// </summary>
-        [Display(Name = "Faltante")]
+        [Display(Name = "Faltante a Pagar")]
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = true)]
         public decimal cantidadFaltante
         {
@@ -334,8 +417,8 @@ namespace Jerry.Models
         /// </summary>
         public static class TiposEventoNombres
         {
-            public const string BAQUETES = "Servicios de Banquetes";
-            public const string RESERVACION= "Eventos en Salon";
+            public const string BAQUETES = "Servicio de Banquetes";
+            public const string RESERVACION= "Evento en Salón";
             public const string CUALQUIERA = "Cualquier Evento";
         }
 
@@ -470,7 +553,7 @@ namespace Jerry.Models
             NONE, SERVICIO, KIDS, ARRENDAMIENTO
         }
 
-        /// <summary>
+        /// <summary>   
         /// Enumerador de tipos de evento, ya sea banquete o reservacion de salon.
         /// </summary>
         public enum TipoEvento

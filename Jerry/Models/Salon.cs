@@ -37,14 +37,11 @@ namespace Jerry.Models
             List<object> array = new List<object>();
 
             foreach(var salon in salones)
-            {
                 array.Add(new { Text = salon.nombre, Value = salon.salonID});
-            }
 
             return array;
         }
-
-
+        
         /// <summary>
         /// 
         /// </summary>

@@ -18,7 +18,9 @@ namespace Jerry
                         "~/Scripts/dataTables.select.min.js",
                         "~/Scripts/numeral.min.js",
                         "~/Scripts/sweetalert.min.js",
-                        "~/Scripts/JavascriptRogelio.js"));
+                        "~/Scripts/JavascriptRogelio.js",
+                        "~/Scripts/axios.min.js",
+                        "~/Scripts/notify.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));

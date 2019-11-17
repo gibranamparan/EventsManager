@@ -7,6 +7,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -76,6 +77,7 @@ namespace Jerry.Controllers
             var doc = DocX.Load(nuevoContrato);
             if (evento.tipoDeEvento == TipoEvento.RESERVACION) { //Si el evento es una reservacion de salon por arrendamiento
                 Reservacion res = ((Reservacion)evento);
+                //Se cargan los datos desde el registro de reservacion
                 Reservacion.VMDataContractReservacion dataContracts = new Reservacion.VMDataContractReservacion(res);
                 if (tipoContrato == TipoDeContrato.KIDS)//CONTRATO VENTURA KIDS
                     res.fillContratoA(dataContracts, ref doc);
@@ -139,29 +141,20 @@ namespace Jerry.Controllers
         /// <param name="objModelMail">MailModel Object, keeps all properties</param>
         /// <param name="fileUploader">Selected file data, example-filename,content,content type(file type- .txt,.png etc.),length etc.</param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [Authorize(Roles = ApplicationUser.UserRoles.ADMIN + "," + ApplicationUser.UserRoles.ASISTENTE)]
-        public ActionResult EnviarCorreo(string emailDestino, int reservacionID = 0)
+        public async Task<ActionResult> EnviarCorreo(int? id)
         {
-            Correo DatosCorreo = db.Correos.FirstOrDefault();
-            if (DatosCorreo != null)
-            {
-                Evento reservacion = db.eventos.Find(reservacionID);
-                string clientName = reservacion.cliente.nombreCompleto;
-                string bodyDelCorreo = reservacion.descripcionDetallada;
+            Evento reservacion = db.eventos.Find(id);
+            string clientName = reservacion.cliente.nombreCompleto;
+            string bodyDelCorreo = reservacion.descripcionDetallada;
+            
+            string err = await reservacion.send_eventReport(Request, this.ControllerContext);
+            /*RouteValueDictionary rvd = new RouteValueDictionary();
+            TempData["errorEmail"] = err;
+            rvd.Add("errorEmail", err);*/
 
-                var fileView = new Rotativa.ViewAsPdf("ReporteDeEvento", "BlankLayout", reservacion)
-                { FileName = "Estado de Cuenta "+reservacion+" - "+DateTime.Today.ToString("dd-MMMM-yy") + ".pdf" };
-
-                ErrorEmail err = DatosCorreo.enviarCorreo(emailDestino, clientName, fileView, this.ControllerContext,reservacion.descripcionDetallada);
-                RouteValueDictionary rvd = new RouteValueDictionary();
-                TempData["errorEmail"] = err;
-                rvd.Add("errorEmail", err);
-
-                return RedirectToAction("Details", "Eventos", new { id = reservacionID });
-            }
-            else
-                return RedirectToAction("Details", "Correo");
+            return Json(new { errorMessage = err });
         }
 
         // POST: Reservacion/Delete/5

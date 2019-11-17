@@ -78,9 +78,10 @@
         <span>Imprimir Detalles</span>
     </a> | 
     @if (emailConfigured) { 
-    <a data-toggle="modal" data-target="#@vmModalOptsEnviarCorreo.modalID">
+    <a id="btnSendEmail" href="#" onclick="confirmarEnvioEmail()">
         <i class="fa fa-envelope-o"></i> <span>Enviar Estado de Cuenta</span>
     </a>
+    <img id="imgLoading" style="height: 1.2em; display:none" src="/Images/loading1.gif" />
     }
     else
     {
@@ -90,8 +91,7 @@
     }
 </nav>
 
-@*Modal de confirmacion de envio de correo*@
-@Html.Partial("Partial_ConfirmationModal", vmModalOptsEnviarCorreo)
+
 
 @*Modal de repsuesta de envio de correo*@
 @Html.Partial("Partial_ConfirmationModal", vmModalOptsRespuestaCorreo)
@@ -145,12 +145,54 @@
         @Html.Partial("../Pago/Partial_DetallesDePagos")
     </div>
 </div>
-
+@Html.AntiForgeryToken()
 @section Scripts{
     <script>
         bindMontos()
+        var id = @(Model.eventoID);
+        var token = $("input[name=__RequestVerificationToken]").val()
         var showRespuestaModal = boolParse('@(errorMail.code!=Correo.ErrorEmail.ErrorEmailCode.NONE)');
         if (showRespuestaModal)
             $('#@(vmModalOptsRespuestaCorreo.modalID)').modal();
+
+        function confirmarEnvioEmail() {
+            var email = '@Model.cliente.email'
+            var title = "Confirmar Envío de Estado de Cuenta"
+            var msg = "Si confirma, se enviará el estado de cuenta actual al cliente @(Model.cliente.nombreCompleto) al correo electronico @(Model.cliente.email)"
+            swal({
+                title:title,
+                text: msg,
+                buttons: true
+            }).then(confirm=>{
+                toggleBtnSendEmail(false)
+                if(confirm){
+                    axios.post("/Eventos/EnviarCorreo/"+id, { email: email }, { "__RequestVerificationToken": token })
+                    .then(res=>{
+                        toggleBtnSendEmail(true)
+                        res = res.data;
+                        if(res.errorMessage) //An error ocurrend sending the email
+                        {
+                            debugger
+                            notifyError(res)
+                        }else{
+                            smallNotify("Email Enviado","success")
+                        }
+                    })
+                }
+            }).catch(exc=>{
+                console.log(exc)
+            })
+        }
+
+        function toggleBtnSendEmail(state){
+            if(state)
+            {
+                $("#btnSendEmail").show()
+                $("#imgLoading").hide()
+            }else{
+                $("#imgLoading").show()
+                $("#btnSendEmail").hide()
+            }
+        }
     </script>
 }

@@ -14,7 +14,7 @@
     </div>
     <div class="panel-body">
         @if (Model.esCotizacion) {
-        <div class="alert alert-warning col-md-12">Este registro es sólo una cotizacion, para registrarlo como una reservacion, ingrese a la función de editar.</div>
+        <div class="alert alert-warning col-md-12">Este registro es sólo una cotizacion, no esta registrado como una reservación.</div>
         }
         <div>
             <div class="row">
@@ -55,14 +55,25 @@
                     <p class="form-control-static">@Html.DisplayFor(model => model.CantidadPersonas)</p>
                 </div>
                 <div class="col-xs-3 form-group">
-                    @Html.LabelFor(model => model.costoPorReservacion)
+                    @*Html.LabelFor(model => model.costoPorReservacion)*@
+                    <label>Costo por @(Model.nombreTipoEvento)</label>
                     <p class="form-control-static">@Html.DisplayFor(model => model.costoPorReservacion)</p>
                 </div>
+
+                @if (Model.tipoDeEvento == Jerry.Models.Evento.TipoEvento.RESERVACION)
+                {
+                    <div class="col-xs-3 form-group">
+                        @Html.LabelFor(model => model.platillo)
+                        <p class="form-control-static">@Html.DisplayFor(model => model.platillo)</p>
+                    </div>
+                }
+
+                @*
                 <div class="col-xs-3 form-group">
                     @Html.LabelFor(model => model.totalPorServicios)
                     <p class="form-control-static">@Html.DisplayFor(model => model.totalPorServicios)</p>
                 </div>
-
+                *@
                 @*Detalles de banquete*@
                 @if (Model.tipoDeEvento == Jerry.Models.Evento.TipoEvento.BANQUETE)
                 {

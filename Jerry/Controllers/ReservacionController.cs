@@ -25,7 +25,7 @@ namespace Jerry.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private const string BIND_FIELDS = "eventoID,fechaReservacion,fechaEventoInicial,totalPorServicios," +
-            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato,CantidadPersonas,esCotizacion";
+            "fechaEventoFinal,costo,Detalles,salonID,clienteID,TipoContrato,CantidadPersonas,esCotizacion,platillo";
 
         // GET: Reservacion}
         [Authorize]
@@ -102,8 +102,9 @@ namespace Jerry.Controllers
             newReservacion.clienteID = clienteID;
             newReservacion.cliente = cliente;
             ViewBag.salonID = new SelectList(db.salones, "salonID", "nombre");
-            ViewBag.servicios = db.Servicios.Where(s=>s.tipoDeEvento == TipoEvento.RESERVACION
-                || s.tipoDeEvento == Evento.TipoEvento.CUALQUIERA).ToList();
+            /*ViewBag.servicios = db.Servicios.Where(s=>s.tipoDeEvento == TipoEvento.RESERVACION
+                || s.tipoDeEvento == Evento.TipoEvento.CUALQUIERA).ToList();*/
+            ViewBag.servicios = db.Servicios.ToList().OrderBy(s=>s.tipoDeEvento).ToList();
             return newReservacion;
         }
 
@@ -143,8 +144,10 @@ namespace Jerry.Controllers
                     //Guardar registro
                     db.reservaciones.Add(reservacion);
                     numRegs = db.SaveChanges();
-                    return RedirectToAction("Details", "Clientes", new { id = reservacion.clienteID });
-                }else
+                    //return RedirectToAction("Details", "Clientes", new { id = reservacion.clienteID });
+                    return RedirectToAction("Details", "Eventos", new { id = reservacion.eventoID });
+                }
+                else
                 {
                     //Se reporta que hubo colsiones
                     ModelState.AddModelError("", "La fecha seleccionada ya esta ocupada por "+

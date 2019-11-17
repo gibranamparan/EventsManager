@@ -96,6 +96,19 @@ boolParse = function (myStr) {
     return myStr.toLowerCase() == 'true';
 }
 
+function notifyError(message) {
+    swal("Error!", message, "error")
+}
+
+function notifySuccess(title, message) {
+    swal(title, message, "success")
+}
+
+function smallNotify(mensaje, className) {
+    //Notificar eliminacion
+    $.notify(mensaje, { autoHideDelay: 2000, className: className, globalPosition: 'bottom left' });
+}
+
 //Agrega funcion a JQuery para permitir solicitudes asincronas identificandose como usuario logeado
 jQuery.postJSON = function (url, data, dataType, success, fail, always, antiForgeryToken) {
     if (dataType === void 0) { dataType = "json"; }

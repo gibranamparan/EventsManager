@@ -149,7 +149,6 @@ namespace Jerry.Controllers
 
         //
         // GET: /Account/Register
-        [AllowAnonymous]
         //[Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
         public ActionResult Register()
         {
@@ -159,7 +158,6 @@ namespace Jerry.Controllers
 
         //
         // GET: /Account/Register
-        [AllowAnonymous]
         //[Authorize(Roles =ApplicationUser.UserRoles.ADMIN)]
         public ActionResult Edit(string id)
         {
@@ -181,7 +179,7 @@ namespace Jerry.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //[Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async System.Threading.Tasks.Task<ActionResult> Edit(RegisterViewModel vmOwner)
         {
             //ApplicationUser userEdited = new ApplicationUser(vmOwner);
@@ -219,7 +217,7 @@ namespace Jerry.Controllers
         //
         // POST: /Account/Register
         [HttpPost]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         //[Authorize(Roles = ApplicationUser.UserRoles.ADMIN)]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)

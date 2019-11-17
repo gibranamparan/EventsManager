@@ -206,6 +206,13 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.platillo, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.platillo, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.platillo, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
                         @Html.LabelFor(model => model.Detalles, htmlAttributes: new { @class = "control-label" })
                         @Html.EditorFor(model => model.Detalles, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.ValidationMessageFor(model => model.Detalles, "", new { @class = "text-danger" })

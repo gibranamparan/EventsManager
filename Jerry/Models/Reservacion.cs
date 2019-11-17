@@ -142,12 +142,18 @@ namespace Jerry.Models
         {
             //Contrato Modificado
             doc.ReplaceText("<CLIENTE>", data.nombreCliente);
+            doc.ReplaceText("<SALON>", data.salon);
             doc.ReplaceText("<SESIONES>", this.sesionesString);
-            doc.ReplaceText("<SERVICIOS>", this.enlistarServiciosParaContrato);
+            string listServiciosTodos = this.enlistarServiciosParaContrato(null).Trim();
+            listServiciosTodos = string.IsNullOrEmpty(listServiciosTodos) ? "Sin ningún servicio" : listServiciosTodos;
+            doc.ReplaceText("<SERVICIOS>", listServiciosTodos);
+            data.serviciosBanquete = string.IsNullOrEmpty(data.serviciosBanquete) ? "Sin ningún servicio" : data.serviciosBanquete;
+            doc.ReplaceText("<SERVICIOS_BANQUETE>", data.serviciosBanquete);
+            data.serviciosReservacion = string.IsNullOrEmpty(data.serviciosReservacion) ? "Sin ningún servicio" : data.serviciosReservacion;
+            doc.ReplaceText("<SERVICIOS_RESERVACION>", data.serviciosReservacion);
             doc.ReplaceText("<TIEMPO>", data.duracionEvento);
             doc.ReplaceText("<FECHA_INICIO>", data.diaEvento);
             doc.ReplaceText("<FECHA_FIN>", data.diaEvento);
-            doc.ReplaceText("<DIA>", data.diaEvento);
             doc.ReplaceText("<DIA>", data.diaEvento);
             doc.ReplaceText("<MES>", data.mesEvento);
             doc.ReplaceText("<AÑO>", data.yearEvento);
@@ -232,7 +238,7 @@ namespace Jerry.Models
             public string descripcionServicios, telefono, correo, fechaReservacion, cantidadPersonas,
             diaEvento, mesEvento, yearEvento, horaInicioEvento, horaFinEvento, costo, costoLetra,
                 anticipo, adeudo, adeudoLetra, asociadoCliente, nombreCliente, fechaInicioEvento,
-                fechaFinEvento, duracionEvento;
+                fechaFinEvento, duracionEvento,salon, serviciosBanquete, serviciosReservacion;
 
             public VMDataContractReservacion(Reservacion resContrato)
             {
@@ -257,6 +263,12 @@ namespace Jerry.Models
                 adeudoLetra = NumbersTools.NumberToText.Convert(resContrato.cantidadFaltante, "pesos");
                 asociadoCliente = resContrato.cliente.clienteID.ToString();
                 nombreCliente = resContrato.cliente.nombreCompleto.ToUpperInvariant();
+                salon = $"{resContrato.sesiones.FirstOrDefault().salon.nombre } para {resContrato.CantidadPersonas} personas";
+                string listServicios = resContrato.enlistarServiciosParaContrato(TipoEvento.BANQUETE);
+                listServicios = string.IsNullOrEmpty(listServicios.Trim()) ? string.Empty : ", " + listServicios.Trim();
+                serviciosBanquete = "Platillo de "+resContrato.platillo +" por persona"+ listServicios;
+                //serviciosReservacion = resContrato.enlistarServiciosParaContrato(TipoEvento.RESERVACION);
+                serviciosReservacion = resContrato.enlistarServiciosParaContrato(null, true);
             }
         }
 
@@ -346,11 +358,14 @@ namespace Jerry.Models
         /// </summary>
         public string stringParaContrato { get {
                 string res = string.Empty;
-                string formatTime = this.periodoDeSesion.totalTime.Minutes>0? "hh con mm" : "hh";
-                string time = this.periodoDeSesion.totalTime.ToString(formatTime);
-                res = string.Format("{0} horas comenzando el día {1} del mes de {2} del año {3}",
-                    time, this.periodoDeSesion.startDate.Day, this.periodoDeSesion.startDate.ToString("MMMM"), 
-                    this.periodoDeSesion.startDate.Year);
+                //string formatTime = this.periodoDeSesion.totalTime.Minutes>0? "hh 'con' mm" : "hh";
+                string fechasFormat = "'del día 'dd' de' MMMM 'del año' yyyy";
+                string time = Math.Floor(this.periodoDeSesion.totalTime.TotalHours).ToString() + " horas";
+                if (this.periodoDeSesion.totalTime.Minutes > 0)
+                    time += " con " + this.periodoDeSesion.totalTime.Minutes + " minutos ";
+                res = string.Format("{0} comprendido de {1} hasta {2}",
+                    time, this.periodoDeSesion.startDate.ToShortTimeString() + " " + this.periodoDeSesion.startDate.ToString(fechasFormat),
+                     this.periodoDeSesion.endDate.ToShortTimeString() + " " + this.periodoDeSesion.endDate.ToString(fechasFormat));
                 return res;
             } }
         
